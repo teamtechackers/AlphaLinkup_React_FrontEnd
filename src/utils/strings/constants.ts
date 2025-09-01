@@ -38,6 +38,8 @@ export const CONSTANTS = {
     CONNECTION_ERROR: "Unable to connect to the backend.",
     LOADING_DATA: "Loading Data ...",
     RETRY_CONNECTION: "Retry Connection",
+    INTERNAL_ERROR: "An internal error occurred. Please try again later.",
+    SOMETHING_WENT_WRONG: "Something went wrong. Please try again later.",
   },
   VARIABLES: {
     HEADER: {

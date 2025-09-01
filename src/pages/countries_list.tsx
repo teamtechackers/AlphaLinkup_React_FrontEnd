@@ -8,6 +8,8 @@ import { CountryModel, CountryModelLabels } from "../models/country_model";
 import { COLORS } from "../utils/theme/colors";
 import { FiTrash2, FiEdit } from "react-icons/fi";
 import { STYLES } from "../utils/typography/styles";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const CountriesList: React.FC = () => {
   const [items, setItems] = useState<CountryModel[]>([]);
@@ -15,7 +17,6 @@ const CountriesList: React.FC = () => {
   const [editing, setEditing] = useState<CountryModel | null>(null);
   const [name, setName] = useState("");
   const [status, setStatus] = useState("1");
-  const [message, setMessage] = useState<{ type: typeof CONSTANTS.MESSAGE_TAGS.SUCCESS | typeof CONSTANTS.MESSAGE_TAGS.ERROR; text: string } | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -36,16 +37,20 @@ const CountriesList: React.FC = () => {
     e.preventDefault();
     try {
       const payload = { id: editing?.id ?? 0, name, status: Number(status) };
-      await countriesService.saveCountry(payload);
+      const res = await countriesService.saveCountry(payload);
 
-      setMessage({ type: CONSTANTS.MESSAGE_TAGS.SUCCESS, text: CONSTANTS.MESSAGES.SAVE_SUCCESS });
-      setEditing(null);
-      setName("");
-      setStatus("1");
-      await load();
+      if (res.status) {
+        toast.success(res.message);
+        setEditing(null);
+        setName("");
+        setStatus("1");
+        await load();
+      } else {
+        toast.error(res.message);
+      }
     } catch (err) {
       console.error(err);
-      setMessage({ type: CONSTANTS.MESSAGE_TAGS.ERROR, text: CONSTANTS.MESSAGES.SAVE_FAILED });
+      toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     }
   };
 
@@ -57,8 +62,18 @@ const CountriesList: React.FC = () => {
 
   const onDelete = async (item: CountryModel) => {
     if (!item.id) return;
-    await countriesService.deleteCountry(item.id);
-    await load();
+    try {
+      const res = await countriesService.deleteCountry(item.id);
+      if (res.status) {
+        toast.success(res.message);
+        await load();
+      } else {
+        toast.error(res.message);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
+    }
   };
 
   // Columns for DataGrid

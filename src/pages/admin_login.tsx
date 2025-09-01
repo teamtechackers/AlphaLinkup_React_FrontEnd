@@ -8,11 +8,12 @@ import { APP_ROUTES } from "../utils/strings/app_routes";
 import { LOGIN_STRINGS } from "../utils/strings/pages/login_strings";
 import { CONSTANTS } from "../utils/strings/constants";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AdminLogin: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -33,18 +34,17 @@ const AdminLogin: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     setIsLoading(true);
 
     try {
-      const success = await authService.login(username, password);
-      if (success) {
+      const res = await authService.login(username, password);
+      if (res) {
         setIsAuthenticated(true);
       } else {
-        setError(CONSTANTS.MESSAGES.INVALID_INPUT);
+        toast.error(CONSTANTS.MESSAGES.INVALID_INPUT);
       }
     } catch (err) {
-      setError(CONSTANTS.MESSAGES.LOGIN_FAILED);
+      toast.error(CONSTANTS.MESSAGES.LOGIN_FAILED);
     } finally {
       setIsLoading(false);
     }
@@ -66,17 +66,6 @@ const AdminLogin: React.FC = () => {
               {LOGIN_STRINGS.TEXT}
             </p>
           </div>
-
-          {error && (
-            <div className="alert alert-danger alert-dismissible fade show" role="alert">
-              {error}
-              <button
-                type="button"
-                className="btn-close"
-                onClick={() => setError("")}
-              ></button>
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} noValidate autoComplete="off">
             <div className="mb-3">

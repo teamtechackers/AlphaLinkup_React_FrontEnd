@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import "./App.css";
 
@@ -25,6 +25,8 @@ import FoldersList from './pages/folders_list';
 import AdminLayout from './components/layouts/AdminLayout';
 import { APP_ROUTES } from './utils/strings/app_routes';
 import authService from './services/auth_service';
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const sessionExists = authService.checkSession();
@@ -77,6 +79,7 @@ const App: React.FC = () => {
   return (
     <Router>
       <div className="App">
+        <ToastContainer position="top-right" autoClose={3000} />
         <AppRoutes />
       </div>
     </Router>
