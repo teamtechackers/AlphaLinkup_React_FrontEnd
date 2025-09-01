@@ -1,0 +1,29 @@
+export const DASHBOARD_STRINGS = {
+  TITLE: "Dashboard",
+  ERROR: "No more records !!!",
+  CARDS: {
+    USERS: "Total Users",
+    JOBS: "Total Jobs",
+    EVENTS: "Total Events",
+    SERVICE_PROVIDERS: "Total Service Providers",
+    INVESTORS: "Total Investors",
+  },
+  TABLE_JOBS: {
+    TABLE_TITLE: "Top 5 Jobs",
+    JOBE_TITLE: "Job Title",
+    COMPANY_NAME: "Company Name",
+    ADDRESS: "Address",
+    CITY:  "City",
+    STATE: "State",
+    COUNTRY: "Country",
+  },
+  TABLE_INVESTORS: {
+    TABLE_TITLE: "Top 5 Investors",
+    REFERENCE_NO: "Reference No",
+    NAME: "Name",
+    BIO: "Bio",
+    CITY:  "City",
+    STATE: "State",
+    COUNTRY: "Country",
+  },
+};
