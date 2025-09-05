@@ -15,9 +15,10 @@ export const API_ROUTES = {
 
   STATE_LIST: {
     GET: "/list-state",
-    SAVE: "/save-state",
+    SAVE: "/submit_state",
     EDIT: "/edit-state",
-    DELETE: "/delete-state",
+    DELETE: "/delete_state",
+    GET_AJAX: "/list_state_ajax",
     CHECK_DUPLICATE: "/check-duplicate-state",
   },
 
@@ -31,17 +32,17 @@ export const API_ROUTES = {
 
   EMPLOYMENT_TYPE: {
     GET: "/list-employment-type",
-    SAVE: "/save-employment-type",
+    SAVE: "/submit_employment_type",
     EDIT: "/edit-employment-type",
-    DELETE: "/delete-employment-type",
-    CHECK_DUPLICATE: "/check-duplicate-employment-type",
+    DELETE: "/delete_employment_type",
+    CHECK_DUPLICATE: "/check_duplicate_employment_type",
   },
 
   INTERESTS: {
     GET: "/list-interests",
-    SAVE: "/save-interests",
+    SAVE: "/submit_interest",
     EDIT: "/edit-interests",
-    DELETE: "/delete-interests",
+    DELETE: "/delete_interest",
     CHECK_DUPLICATE: "/check-duplicate-interests",
   },
 
