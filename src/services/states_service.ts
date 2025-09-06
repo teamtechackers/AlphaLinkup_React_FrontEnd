@@ -22,36 +22,41 @@ const statesService = {
     }));
   },
 
-  saveState: async (payload: { id: number; country_id: number; name: string; status: number }) => {
-    const res = await axios.post(`${baseUrl}${API_ROUTES.STATE_LIST.SAVE}`, null, { 
-      params: {
-        user_id: VARIABLES.USER_ID,
-        token: VARIABLES.TOKEN,
-        id: payload.id,
-        country_id: payload.country_id,
-        name: payload.name,
-        status: payload.status,
-      },
-    });
+  // services/states_service.ts
+  saveOrUpdateState: async (payload: {
+    id?: number;          // our local row id
+    country_id?: number;
+    name: string;
+    status?: number;
+  }) => {
+    const params: any = {
+      user_id: VARIABLES.USER_ID,
+      token: VARIABLES.TOKEN,
+      name: payload.name,
+    };
+
+    if (payload.country_id && payload.country_id > 0) {
+      params.country_id = payload.country_id;
+    }
+
+    if (typeof payload.status !== "undefined") {
+      params.status = payload.status;
+    }
+
+    // ✅ include row_id only when updating
+    if (payload.id && payload.id > 0) {
+      params.row_id = payload.id;
+    }
+
+    console.log("Submitting state:", params); // debug
+
+    const res = await axios.post(
+      `${baseUrl}${API_ROUTES.STATE_LIST.SAVE}`,
+      null,
+      { params }
+    );
     return res.data;
   },
-
-  updateState: async (payload: { id: number; country_id: number; name: string; status: number }) => {
-    if (!payload.id) throw new Error("State ID is required for update");
-
-    const res = await axios.post(`${baseUrl}${API_ROUTES.STATE_LIST.SAVE}`, null, {
-        params: {
-        user_id: VARIABLES.USER_ID,
-        token: VARIABLES.TOKEN,
-        id: payload.id,
-        country_id: payload.country_id,
-        name: payload.name,
-        status: payload.status,
-        },
-    });
-
-    return res.data;
-    },
 
   deleteState: async (id: number) => {
     const res = await axios.post(`${baseUrl}${API_ROUTES.STATE_LIST.DELETE}`, null, {

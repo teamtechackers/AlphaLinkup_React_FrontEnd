@@ -48,58 +48,59 @@ export const API_ROUTES = {
 
   JOB_TYPE: {
     GET: "/list-job-type",
-    SAVE: "/save-job-type",
+    GET_AJAX: "/list_job_type_ajax",
+    SAVE: "/submit_job_type",
     EDIT: "/edit-job-type",
-    DELETE: "/delete-job-type",
-    CHECK_DUPLICATE: "/check-duplicate-job-type",
+    DELETE: "/delete_job_type",
+    CHECK_DUPLICATE: "/check_duplicate_job_type",
   },
 
   PAY: {
     GET: "/list-pay",
-    SAVE: "/save-pay",
+    SAVE: "/submit_pay",
     EDIT: "/edit-pay",
-    DELETE: "/delete-pay",
-    CHECK_DUPLICATE: "/check-duplicate-pay",
+    DELETE: "/delete_pay",
+    CHECK_DUPLICATE: "/check_duplicate_pay",
   },
 
-  EVENT_MODE: {
+  EVENT_MODES: {
     GET: "/list-event-mode",
-    SAVE: "/save-event-mode",
+    SAVE: "/submit_event_mode",
     EDIT: "/edit-event-mode",
-    DELETE: "/delete-event-mode",
-    CHECK_DUPLICATE: "/check-duplicate-event-mode",
+    DELETE: "/delete_event_mode",
+    CHECK_DUPLICATE: "/check_duplicate_event_mode",
   },
 
   EVENT_TYPE: {
     GET: "/list-event-type",
-    SAVE: "/save-event-type",
+    SAVE: "/submit_event_type",
     EDIT: "/edit-event-type",
-    DELETE: "/delete-event-type",
-    CHECK_DUPLICATE: "/check-duplicate-event-type",
+    DELETE: "/delete_event_type",
+    CHECK_DUPLICATE: "/check_duplicate_event_type",
   },
 
   INDUSTRY_TYPE: {
     GET: "/list-industry-type",
-    SAVE: "/save-industry-type",
+    SAVE: "/submit_industry_type",
     EDIT: "/edit-industry-type",
-    DELETE: "/delete-industry-type",
-    CHECK_DUPLICATE: "/check-duplicate-industry-type",
+    DELETE: "/delete_industry_type",
+    CHECK_DUPLICATE: "/check_duplicate_industry_type",
   },
 
   FUND_SIZE: {
     GET: "/list-fund-size",
-    SAVE: "/save-fund-size",
+    SAVE: "/submit_fund_size",
     EDIT: "/edit-fund-size",
-    DELETE: "/delete-fund-size",
+    DELETE: "/delete_fund_size",
     CHECK_DUPLICATE: "/check-duplicate-fund-size",
   },
 
   FOLDERS: {
     GET: "/list-folders",
-    SAVE: "/save-folder",
+    SAVE: "/submit_folders",
     EDIT: "/edit-folder",
-    DELETE: "/delete-folder",
-    CHECK_DUPLICATE: "/check-duplicate-folder",
+    DELETE: "/delete_folders",
+    CHECK_DUPLICATE: "/check-duplicate-folders",
   },
 
   USERS: {

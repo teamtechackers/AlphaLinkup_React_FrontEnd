@@ -33,15 +33,24 @@ const StatesList: React.FC = () => {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const payload = { id: editing?.id ?? 0, country_id: countryId, name, status: Number(status) };
-      const res = await statesService.saveState(payload);
+      const payload = {
+        id: editing?.id,
+        country_id: countryId > 0 ? countryId : undefined,
+        name,
+        status: Number(status),
+      };
 
-      if (res.status === "Success") {
+      const res = await statesService.saveOrUpdateState(payload);
+
+      if (res.status === CONSTANTS.MESSAGE_TAGS.SUCCESS) {
         toast.success(res.info);
-        setEditing(null); setName(""); setStatus("1"); setCountryId(0);
+        setEditing(null);
+        setName("");
+        setStatus("1");
+        setCountryId(0);
         await load();
       } else {
-        toast.error(res.info || "Failed to save state");
+        toast.error(res.info);
       }
     } catch (err) {
       console.error(err);
