@@ -40,6 +40,7 @@ export const CONSTANTS = {
     RETRY_CONNECTION: "Retry Connection",
     INTERNAL_ERROR: "An internal error occurred. Please try again later.",
     SOMETHING_WENT_WRONG: "Something went wrong. Please try again later.",
+    DUPLICATE_FOUND: "Duplicate mobile/email found",
   },
   VARIABLES: {
     HEADER: {

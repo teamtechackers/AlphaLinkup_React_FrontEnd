@@ -1,57 +1,68 @@
-import { loginService } from './login_service';
+import { loginService } from "./login_service";
 import { UserModel } from "../models/user_model";
 
-const token = 'your_hardcoded_token';
-const sessionDuration = 60 * 60 * 1000;
+const token = "your_hardcoded_token";
+const sessionDuration = 60 * 60 * 1000; // 1 hour
 
 const authService = {
+  currentUser: {} as UserModel,
 
-  currentUser: {
-    user_id: "",
-    username: "",
-    role_id: "",
-    full_name: "",
-  } as UserModel,
-
-  createSession: (userId: string, userName: string) => {
+  createSession: async  (userId: string, userName: string) => {
     const sessionId = `${userId}_${Date.now()}`;
-    localStorage.setItem('session_id', sessionId);
-    localStorage.setItem('token', token);
-    localStorage.setItem('user_id', userId);
-    localStorage.setItem('user_name', userName);
+    const sessionStart = Date.now();
+
+    localStorage.setItem("session_id", sessionId);
+    localStorage.setItem("session_start", sessionStart.toString());
+    localStorage.setItem("token", token);
+    localStorage.setItem("user_id", userId);
+    localStorage.setItem("user_name", userName);
+
     authService.currentUser = {
-      user_id: userId,
-      username: userName,
-      role_id: "",
-      full_name: "",
+      id: Number(userId),
+      full_name: userName,
+      mobile: "",
+      email: null,
+      status: 1,
     };
-    setTimeout(() => {
-      authService.destroySession();
-    }, sessionDuration);
   },
 
-  checkSession: async (): Promise<boolean> => {
-    const sessionId = localStorage.getItem('session_id');
-    const token = localStorage.getItem('token');
-    if (sessionId && token === 'your_hardcoded_token') {
-      authService.currentUser = {
-        user_id: localStorage.getItem('user_id') ?? '',
-        username: localStorage.getItem('user_name') ?? '',
-        role_id: "",
-        full_name: "",
-      };
-      return true;
+  checkSession: (): boolean => {
+    const sessionId = localStorage.getItem("session_id");
+    const sessionStartStr = localStorage.getItem("session_start");
+    const tokenValue = localStorage.getItem("token");
+
+    if (!sessionId || !sessionStartStr || tokenValue !== token) {
+      return false;
     }
-    return false;
+
+    const sessionStart = Number(sessionStartStr);
+    const now = Date.now();
+
+    if (now - sessionStart > sessionDuration) {
+      authService.destroySession();
+      return false;
+    }
+
+    const userIdStr = localStorage.getItem("user_id");
+    const userName = localStorage.getItem("user_name") ?? "";
+
+    authService.currentUser = {
+      id: userIdStr ? Number(userIdStr) : 0,
+      full_name: userName,
+      mobile: "",
+      email: null,
+      status: 1,
+    };
+
+    return true;
   },
 
   destroySession: () => {
-    localStorage.removeItem('session_id');
-    localStorage.removeItem('token');
-    localStorage.removeItem('user_id');
-    localStorage.removeItem('user_name');
-    localStorage.removeItem('full_name');
-    localStorage.removeItem('role_id');
+    localStorage.removeItem("session_id");
+    localStorage.removeItem("session_start");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user_id");
+    localStorage.removeItem("user_name");
     authService.currentUser = {} as UserModel;
   },
 

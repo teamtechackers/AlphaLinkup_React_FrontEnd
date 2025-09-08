@@ -105,10 +105,11 @@ export const API_ROUTES = {
 
   USERS: {
     GET: "/list-users",
-    SAVE: "/save-user",
-    EDIT: "/edit-user",
-    DELETE: "/delete-user",
-    CHECK_DUPLICATE: "/check-duplicate-user",
+    GET_AJAX: "/list_users_ajax",
+    SAVE: "/submit_users",
+    EDIT: "/edit_users",
+    DELETE: "/delete_users",
+    CHECK_DUPLICATE: "/check_duplicate_users",
   },
 
   JOBS: {
@@ -137,10 +138,11 @@ export const API_ROUTES = {
 
   SERVICE_PROVIDERS: {
     GET: "/list-service-provider",
-    SAVE: "/save-service-provider",
-    EDIT: "/edit-service-provider",
-    DELETE: "/delete-service-provider",
-    CHECK_DUPLICATE: "/check-duplicate-service-provider",
+    GET_AJAX: "/list_service_provider_ajax",
+    SAVE: "/submit_service_provider",
+    EDIT: "/edit_service_provider",
+    DELETE: "/delete_service_provider",
+    CHECK_DUPLICATE: "/check_duplicate_service_provider",
   },
 
   INVESTORS: {

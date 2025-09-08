@@ -29,13 +29,12 @@ import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const sessionExists = authService.checkSession();
-  if (!sessionExists) {
+  const sessionValid = authService.checkSession();
+  if (!sessionValid) {
     return <Navigate to={APP_ROUTES.LOGIN} replace />;
   }
   return <>{children}</>;
 };
-
 
 const AppRoutes: React.FC = () => {
   return (

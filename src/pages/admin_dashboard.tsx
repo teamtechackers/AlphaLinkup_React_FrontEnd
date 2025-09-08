@@ -20,7 +20,7 @@ const AdminDashboard: React.FC = () => {
       setError(null);
 
       const currentUser = authService.getUser();
-      const userId = currentUser.user_id || undefined;
+      const userId = currentUser.id || undefined;
       const data = await dashboardService.getDashboardData(userId);
 
       if (data && data.status === true && data.rcode === 200) {

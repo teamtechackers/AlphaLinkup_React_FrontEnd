@@ -7,11 +7,11 @@ import authService from "./auth_service";
 const baseUrl = process.env.REACT_APP_API_BASE_URL;
 
 const dashboardService = {
-  getDashboardData: async (userIdPlain?: string) => {
+  getDashboardData: async (userIdPlain?: number) => {
 
     const currentUser = authService.getUser();
 
-    const userIdSource = userIdPlain || currentUser.user_id;
+    const userIdSource = userIdPlain || currentUser.id;
 
     const userdB64 = userIdSource ? toBase64(String(userIdSource)).replace(/=+$/, '') : undefined;
 

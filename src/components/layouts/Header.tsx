@@ -71,7 +71,7 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
               aria-expanded={isDropdownOpen}
               style={STYLES.label_3}
             >
-              {user.username}
+              {user.full_name}
               <FiChevronDown size={16} style={{ marginLeft: 4 }} />
               <i className="mdi mdi-chevron-down ms-1"></i>
             </a>

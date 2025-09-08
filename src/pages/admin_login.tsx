@@ -17,13 +17,13 @@ const AdminLogin: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [touched, setTouched] = useState({ username: false, password: false });
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    authService.checkSession().then((sessionExists) => {
-      setIsAuthenticated(sessionExists);
-    });
+    const sessionExists = authService.checkSession();
+    setIsAuthenticated(sessionExists);
   }, []);
 
   useEffect(() => {
@@ -73,16 +73,21 @@ const AdminLogin: React.FC = () => {
                 {LOGIN_STRINGS.FORM.FIELDS.USERNAME.LABEL}
               </label>
               <input
-                className="form-control"
+                className={`form-control ${touched.username && !username ? "is-invalid" : ""}`}
                 type="text"
                 id="username"
                 placeholder={LOGIN_STRINGS.FORM.FIELDS.USERNAME.HINT}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                onBlur={() => setTouched({ ...touched, username: true })}
                 required
                 style={STYLES.field_text}
               />
-              <div className="invalid-feedback">{LOGIN_STRINGS.FORM.FIELDS.USERNAME.ERROR}</div>
+              {touched.username && !username && (
+                <div className="invalid-feedback">
+                  {LOGIN_STRINGS.FORM.FIELDS.USERNAME.ERROR}
+                </div>
+              )}
             </div>
 
             <div className="mb-3">
@@ -93,21 +98,29 @@ const AdminLogin: React.FC = () => {
                 <input
                   type={showPassword ? "text" : "password"}
                   id="password"
-                  className="form-control"
+                  className={`form-control ${touched.password && !password ? "is-invalid" : ""}`}
                   placeholder={LOGIN_STRINGS.FORM.FIELDS.PASSWORD.HINT}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onBlur={() => setTouched({ ...touched, password: true })}
                   required
                   style={STYLES.field_text}
                 />
                 <button
                   type="button"
-                  className="btn btn-outline-secondary"
+                  className="btn"
+                  style={{
+                    border: "1px solid #ced4da",
+                  }}
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  <i className={`fe ${showPassword ? <FiEyeOff /> : <FiEye />}`}></i>
+                  {showPassword ? <FiEyeOff /> : <FiEye />}
                 </button>
-                <div className="invalid-feedback">{LOGIN_STRINGS.FORM.FIELDS.PASSWORD.ERROR}</div>
+                {touched.password && !password && (
+                  <div className="invalid-feedback">
+                    {LOGIN_STRINGS.FORM.FIELDS.PASSWORD.ERROR}
+                  </div>
+                )}
               </div>
             </div>
 
