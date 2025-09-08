@@ -122,18 +122,20 @@ export const API_ROUTES = {
 
   EVENTS: {
     GET: "/list-events",
-    SAVE: "/save-event",
+    GET_AJAX: "/list_events_ajax",
+    SAVE: "/submit_events",
     EDIT: "/edit-event",
-    DELETE: "/delete-event",
+    DELETE: "/delete_events",
     CHECK_DUPLICATE: "/check-duplicate-event",
   },
 
   CARD_ACTIVATION: {
     GET: "/list-card-activation-requests",
-    SAVE: "/save-card-activation-request",
-    EDIT: "/edit-card-activation-request",
-    DELETE: "/delete-card-activation-request",
-    CHECK_DUPLICATE: "/check-duplicate-card-activation-request",
+    GET_AJAX: "/list_card_activation_requests_ajax",
+    SAVE: "/submit_card_activation_requests",
+    EDIT: "/edit_card_activation_requests",
+    DELETE: "/delete_card_activation_requests",
+    CHECK_DUPLICATE: "/check_duplicate_card_activation_request",
   },
 
   SERVICE_PROVIDERS: {
