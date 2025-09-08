@@ -3,7 +3,6 @@ export const APP_ROUTES = {
   LOGIN: "/admin-login",
   NOT_FOUND: "/404",
   ROOT: "/",
-
   COUNTRIES: "/list-country",
   STATES: "/list-state",
   CITIES: "/list-city",
