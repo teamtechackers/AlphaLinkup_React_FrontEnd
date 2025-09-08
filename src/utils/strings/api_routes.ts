@@ -114,9 +114,10 @@ export const API_ROUTES = {
 
   JOBS: {
     GET: "/list-jobs",
-    SAVE: "/save-job",
+    GET_AJAX: "/list_jobs_ajax",
+    SAVE: "/submit_jobs",
     EDIT: "/edit-job",
-    DELETE: "/delete-job",
+    DELETE: "/delete_jobs",
     CHECK_DUPLICATE: "/check-duplicate-job",
   },
 
@@ -149,9 +150,11 @@ export const API_ROUTES = {
 
   INVESTORS: {
     GET: "/list-investors",
-    SAVE: "/save-investor",
-    EDIT: "/edit-investor",
-    DELETE: "/delete-investor",
+    GET_AJAX: "/list_investors_ajax",
+    SAVE: "/submit_investors",
+    EDIT: "/edit_investors",
+    DELETE: "/delete_investors",
     CHECK_DUPLICATE: "/check-duplicate-investor",
+    VIEW: "/view_investor_details",
   },
 };
