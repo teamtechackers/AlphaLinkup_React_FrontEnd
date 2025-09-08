@@ -241,7 +241,7 @@ const CardActivationRequestsList: React.FC = () => {
   );
 
   return (
-    <div className="container-fluid page-padding-2 vh-100" style={{ backgroundColor: COLORS.lightGray }}>
+    <div className="container-fluid page-padding-2" style={{ backgroundColor: COLORS.lightGray }}>
       <h4 className="my-4">{CARD_ACTIVATION_REQUESTS_STRINGS.TITLE}</h4>
       <div className="row g-4 w-100">
         {/* Table */}
