@@ -145,8 +145,6 @@ const IndustryTypeList: React.FC = () => {
             />
           </Box>
         </div>
-
-        {/* Form */}
         <div className="col-lg-4">
           <div className="card shadow-sm">
             <div className="card-header" style={{ backgroundColor: COLORS.lightGray }}>

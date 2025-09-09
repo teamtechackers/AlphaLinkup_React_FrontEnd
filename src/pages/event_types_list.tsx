@@ -17,7 +17,6 @@ const EventTypesList: React.FC = () => {
   const [editing, setEditing] = useState<EventTypeModel | null>(null);
   const [name, setName] = useState("");
   const [status, setStatus] = useState("1");
-
   const load = async () => {
     setLoading(true);
     try {

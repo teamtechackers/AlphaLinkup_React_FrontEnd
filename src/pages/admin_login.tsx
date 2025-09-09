@@ -10,7 +10,6 @@ import { CONSTANTS } from "../utils/strings/constants";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 const AdminLogin: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -123,7 +122,6 @@ const AdminLogin: React.FC = () => {
                 )}
               </div>
             </div>
-
             <div className="d-grid">
               <button
                 className="btn fw-semibold"
