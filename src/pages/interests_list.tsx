@@ -17,13 +17,32 @@ const InterestsList: React.FC = () => {
   const [editing, setEditing] = useState<InterestModel | null>(null);
   const [name, setName] = useState("");
   const [status, setStatus] = useState("1");
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [rowCount, setRowCount] = useState(0);
+  const [draw, setDraw] = useState(1);
 
   const load = async () => {
     setLoading(true);
     try {
-      const data = await interestsService.getInterestsList();
-      const list = Array.isArray(data?.interests_list) ? data.interests_list : [];
-      setItems(list as InterestModel[]);
+      const start = page * pageSize;
+      const data = await interestsService.getInterestsList(start, pageSize, draw);
+      
+      const list = Array.isArray(data?.data)
+        ? data.data.map((row: any[]) => {
+            const statusHtml = row[2] as string;
+            const isActive = statusHtml.toLowerCase().includes("active");
+            return {
+              id: row[0],
+              name: row[1],
+              status: isActive ? 1 : 0,
+            } as InterestModel;
+          })
+        : [];
+
+      setItems(list);
+      setRowCount(data.recordsTotal || 0);
+      setDraw((d) => d + 1);
     } finally {
       setLoading(false);
     }
@@ -31,7 +50,7 @@ const InterestsList: React.FC = () => {
 
   useEffect(() => {
     load();
-  }, []);
+  }, [page, pageSize]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +58,6 @@ const InterestsList: React.FC = () => {
       const payload = { id: editing?.id ?? 0, name, status: Number(status) };
       const res = await interestsService.saveInterest(payload);
 
-      // backend returns "Success" string or boolean true in other endpoints — handle both
       if (res.status === true || res.status === "Success") {
         toast.success(res.message || res.info || "Saved successfully");
         setEditing(null);
@@ -77,7 +95,6 @@ const InterestsList: React.FC = () => {
     }
   };
 
-  // Columns for DataGrid
   const columns = useMemo(
     () => [
       { field: InterestModelLabels.ID, headerName: INTERESTS_STRINGS.TABLE.HEADER_ID, width: 100 },
@@ -138,9 +155,14 @@ const InterestsList: React.FC = () => {
               loading={loading}
               getRowId={(row) => row.id}
               disableRowSelectionOnClick
+              paginationMode="server"
+              rowCount={rowCount}
               pageSizeOptions={[5, 10, 20, 50]}
-              paginationModel={{ page: 0, pageSize: 10 }}
-              pagination
+              paginationModel={{ page, pageSize }}
+              onPaginationModelChange={(model) => {
+                setPage(model.page);
+                setPageSize(model.pageSize);
+              }}
             />
           </Box>
         </div>

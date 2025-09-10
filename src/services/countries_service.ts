@@ -6,9 +6,15 @@ const baseUrl = process.env.REACT_APP_API_BASE_URL as string;
 
 const countriesService = {
   
-  getCountriesList: async () => {
-    const res = await axios.get(`${baseUrl}${API_ROUTES.COUNTRY_LIST.GET}`, {
-      params: { user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN },
+  getCountriesList: async (draw: number, start: number, length: number) => {
+    const res = await axios.get(`${baseUrl}${API_ROUTES.COUNTRY_LIST.GET_AJAX}`, {
+      params: { 
+        user_id: VARIABLES.USER_ID, 
+        token: VARIABLES.TOKEN,
+        draw,
+        start,
+        length
+      },
     });
     return res.data;
   },

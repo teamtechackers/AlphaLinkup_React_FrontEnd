@@ -17,12 +17,34 @@ const CountriesList: React.FC = () => {
   const [editing, setEditing] = useState<CountryModel | null>(null);
   const [name, setName] = useState("");
   const [status, setStatus] = useState("1");
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 10,
+  });
+  const [rowCount, setRowCount] = useState(0);
+
 
   const load = async () => {
     setLoading(true);
     try {
-      const data = await countriesService.getCountriesList();
-      const list = Array.isArray(data?.countries) ? data.countries : [];
+      const start = paginationModel.page * paginationModel.pageSize;
+      const length = paginationModel.pageSize;
+
+      const data = await countriesService.getCountriesList(1, start, length);
+
+      console.log("RAW response from API:", data);
+      console.log("RAW rows (data.data):", data.data); 
+
+      setRowCount(data.recordsTotal);
+
+      const list = Array.isArray(data.data)
+        ? data.data.map((row: any) => ({
+            id: row.id,
+            name: row.name,
+            status: row.status,
+          }))
+        : [];
+
       setItems(list as CountryModel[]);
     } finally {
       setLoading(false);
@@ -31,7 +53,7 @@ const CountriesList: React.FC = () => {
 
   useEffect(() => {
     load();
-  }, []);
+  }, [paginationModel]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -139,8 +161,10 @@ const CountriesList: React.FC = () => {
               getRowId={(row) => row.id}
               disableRowSelectionOnClick
               pageSizeOptions={[5, 10, 20, 50]}
-              paginationModel={{ page: 0, pageSize: 10 }}
-              pagination
+              paginationModel={paginationModel}
+              onPaginationModelChange={setPaginationModel}
+              rowCount={rowCount}
+              paginationMode="server"
             />
           </Box>
         </div>

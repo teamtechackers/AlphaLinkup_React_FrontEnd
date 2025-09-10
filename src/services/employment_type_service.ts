@@ -1,25 +1,42 @@
 import axios from "axios";
 import { VARIABLES } from "../utils/strings/variables";
 import { API_ROUTES } from "../utils/strings/api_routes";
+import { EmploymentTypeModel } from "../models/employment_type_model";
 
 const baseUrl = process.env.REACT_APP_API_BASE_URL as string;
 
 const employmentTypeService = {
-  getList: async () => {
-    const res = await axios.get(`${baseUrl}${API_ROUTES.EMPLOYMENT_TYPE.GET}`, {
-      params: { user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN },
+  getListAjax: async (page: number, pageSize: number) => {
+    const res = await axios.get(`${baseUrl}${API_ROUTES.EMPLOYMENT_TYPE.GET_AJAX}`, {
+      params: {
+        user_id: VARIABLES.USER_ID,
+        token: VARIABLES.TOKEN,
+        start: page + 1,
+        draw: page * pageSize,
+        length: pageSize,
+      },
     });
-    return res.data;
+
+    const list: EmploymentTypeModel[] = (res.data?.data || []).map((row: any[]) => ({
+      id: row[0],
+      name: row[1],
+      status: row[2]?.includes("Active") ? 1 : 0,
+    }));
+
+    return {
+      rows: list,
+      total: res.data?.recordsTotal ?? 0,
+    };
   },
 
-  save: async (payload: { id: number; name: string; status: number }) => {
+  saveOrUpdate: async (payload: { id?: number; name: string; status: number }) => {
     const res = await axios.post(`${baseUrl}${API_ROUTES.EMPLOYMENT_TYPE.SAVE}`, null, {
       params: {
         user_id: VARIABLES.USER_ID,
         token: VARIABLES.TOKEN,
-        id: payload.id,
         name: payload.name,
         status: payload.status,
+        ...(payload.id ? { row_id: payload.id } : {}),
       },
     });
     return res.data;

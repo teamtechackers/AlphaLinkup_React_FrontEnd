@@ -18,13 +18,16 @@ const EmploymentTypeList: React.FC = () => {
   const [editing, setEditing] = useState<EmploymentTypeModel | null>(null);
   const [name, setName] = useState("");
   const [status, setStatus] = useState("1");
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [rowCount, setRowCount] = useState(0);
 
   const load = async () => {
     setLoading(true);
     try {
-      const data = await employmentTypeService.getList();
-      const list = Array.isArray(data?.employment_type_list) ? data.employment_type_list : [];
-      setItems(list as EmploymentTypeModel[]);
+      const res = await employmentTypeService.getListAjax(page, pageSize);
+      setItems(res.rows);
+      setRowCount(res.total);
     } finally {
       setLoading(false);
     }
@@ -32,22 +35,27 @@ const EmploymentTypeList: React.FC = () => {
 
   useEffect(() => {
     load();
-  }, []);
+  }, [page, pageSize]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const payload = { id: editing?.id ?? 0, name, status: Number(status) };
-      const res = await employmentTypeService.save(payload);
+      const payload = {
+        id: editing?.id,
+        name,
+        status: Number(status),
+      };
 
-      if (res.status === "Success" || res.status === true) {
-        toast.success(res.message || res.info);
+      const res = await employmentTypeService.saveOrUpdate(payload);
+
+      if (res.status === "Success") {
+        toast.success(res.info);
         setEditing(null);
         setName("");
         setStatus("1");
         await load();
       } else {
-        toast.error(res.message || res.info);
+        toast.error(res.info);
       }
     } catch (err) {
       console.error(err);
@@ -129,9 +137,14 @@ const EmploymentTypeList: React.FC = () => {
               loading={loading}
               getRowId={(row) => row.id}
               disableRowSelectionOnClick
+              paginationMode="server"
+              rowCount={rowCount}
+              paginationModel={{ page, pageSize }}
+              onPaginationModelChange={(model) => {
+                setPage(model.page);
+                setPageSize(model.pageSize);
+              }}
               pageSizeOptions={[5, 10, 20, 50]}
-              paginationModel={{ page: 0, pageSize: 10 }}
-              pagination
             />
           </Box>
         </div>

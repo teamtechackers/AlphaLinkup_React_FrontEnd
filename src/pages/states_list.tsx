@@ -9,6 +9,8 @@ import { COLORS } from "../utils/theme/colors";
 import { FiTrash2, FiEdit } from "react-icons/fi";
 import { toast } from 'react-toastify';
 import { STYLES } from "../utils/typography/styles";
+import LocationService from "../services/location_service";
+import { Country } from "../models/location_model";
 
 const StatesList: React.FC = () => {
   const [items, setItems] = useState<StateModel[]>([]);
@@ -17,18 +19,37 @@ const StatesList: React.FC = () => {
   const [name, setName] = useState("");
   const [status, setStatus] = useState("1");
   const [countryId, setCountryId] = useState(0);
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [rowCount, setRowCount] = useState(0);
 
   const load = async () => {
     setLoading(true);
     try {
-      const list = await statesService.getStatesAjaxList();
-      setItems(list as StateModel[]);
+      const res = await statesService.getStatesAjaxList(page, pageSize);
+      setItems(res.rows as StateModel[]);
+      setRowCount(res.total);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, [page, pageSize]);
+
+  useEffect(() => {
+    const loadCountries = async () => {
+      try {
+        const res = await LocationService.getCountries();
+        setCountries(res);
+      } catch (err) {
+        console.error("Error loading countries", err);
+      }
+    };
+    loadCountries();
+  }, []);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,11 +148,16 @@ const StatesList: React.FC = () => {
               rows={items}
               columns={columns}
               loading={loading}
-              getRowId={(row) => row.id}
+              getRowId={(row) => row.row_id ?? row.id}
               disableRowSelectionOnClick
+              paginationMode="server"
+              rowCount={rowCount}
+              paginationModel={{ page, pageSize }}
+              onPaginationModelChange={(model) => {
+                setPage(model.page);
+                setPageSize(model.pageSize);
+              }}
               pageSizeOptions={[5, 10, 20, 50]}
-              paginationModel={{ page: 0, pageSize: 10 }}
-              pagination
             />
           </Box>
         </div>
@@ -157,11 +183,11 @@ const StatesList: React.FC = () => {
                       style={{ color: COLORS.darkGray, backgroundColor: COLORS.white }}
                     >
                       <option value={0}>Select Country</option>
-                        {items.map((s) => (
-                          <option key={s.country_id} value={s.country_id}>
-                            {s.country_name}
-                          </option>
-                        ))}
+                      {countries.map((c) => (
+                        <option key={c.country_id} value={c.country_id}>
+                          {c.country_name}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   {/* State Name */}

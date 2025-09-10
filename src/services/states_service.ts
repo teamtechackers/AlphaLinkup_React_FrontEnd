@@ -6,25 +6,39 @@ const baseUrl = process.env.REACT_APP_API_BASE_URL as string;
 
 const statesService = {
 
-  getStatesAjaxList: async () => {
+  getStatesAjaxList: async (page: number, pageSize: number) => {
+    const start = page * pageSize;
+    const length = pageSize;
+
     const res = await axios.get(`${baseUrl}${API_ROUTES.STATE_LIST.GET_AJAX}`, {
-      params: { user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN },
+      params: {
+        user_id: VARIABLES.USER_ID,
+        token: VARIABLES.TOKEN,
+        draw: 1,
+        start,
+        length,
+      },
     });
 
     const rows = res.data?.data || [];
 
-    return rows.map((r: any[]) => ({
+    const mapped = rows.map((r: any[]) => ({
       id: r[0],
       country_name: r[1],
       name: r[2],
-      status: r[3]?.includes("Active") ? 1 : 0,
-      country_id: extractCountryId(r[4]),
+      row_id: r[3],
+      status: r[4]?.includes("Active") ? 1 : 0,
+      country_id: extractCountryId(r[5]),
     }));
+
+    return {
+      rows: mapped,
+      total: res.data?.recordsTotal ?? mapped.length,
+    };
   },
 
-  // services/states_service.ts
   saveOrUpdateState: async (payload: {
-    id?: number;          // our local row id
+    row_id?: number;
     country_id?: number;
     name: string;
     status?: number;
@@ -43,12 +57,11 @@ const statesService = {
       params.status = payload.status;
     }
 
-    // ✅ include row_id only when updating
-    if (payload.id && payload.id > 0) {
-      params.row_id = payload.id;
+    if (payload.row_id && payload.row_id > 0) {
+      params.row_id = payload.row_id;
     }
 
-    console.log("Submitting state:", params); // debug
+    console.log("Submitting state:", params);
 
     const res = await axios.post(
       `${baseUrl}${API_ROUTES.STATE_LIST.SAVE}`,
