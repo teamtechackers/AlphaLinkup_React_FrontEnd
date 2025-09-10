@@ -123,7 +123,6 @@ const CountriesList: React.FC = () => {
     ],
     [items]
   );
-
   return (
     <div className="container-fluid page-padding-2 vh-100" style={{ backgroundColor: COLORS.lightGray }}>
       <h4 className="my-4">{COUNTRIES_STRINGS.TITLE}</h4>

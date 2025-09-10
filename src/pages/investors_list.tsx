@@ -4,12 +4,13 @@ import Box from "@mui/material/Box";
 import { DataGrid } from "@mui/x-data-grid";
 import { FiTrash2, FiEdit } from "react-icons/fi";
 import { toast } from "react-toastify";
-
+import {bootstrapButtonClasses} from "../utils/theme/Bootstrapbutton";
 import investorsService from "../services/investors_service";
 import { INVESTORS_STRINGS } from "../utils/strings/pages/investors_strings";
 import { InvestorModel, InvestorLabels } from "../models/investor_model";
 import { COLORS } from "../utils/theme/colors";
 import { STYLES } from "../utils/typography/styles";
+import { buttonBaseClasses } from "@mui/material";
 
 const APPROVAL_STATUS = ["Pending", "Approved", "Rejected"];
 const OVERALL_STATUS = ["Active", "Inactive"];
@@ -355,7 +356,6 @@ const InvestorsList: React.FC = () => {
                       <option value="Both">Both</option>
                     </select>
                   </div>
-
                   {/* Profile */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>Profile *</label>
@@ -367,7 +367,6 @@ const InvestorsList: React.FC = () => {
                       required
                     />
                   </div>
-
                   {/* Investment Stage */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>Investment Stage *</label>
@@ -379,7 +378,6 @@ const InvestorsList: React.FC = () => {
                       required
                     />
                   </div>
-
                   {/* Meeting City */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>Meeting City *</label>
@@ -403,7 +401,6 @@ const InvestorsList: React.FC = () => {
                       required
                     />
                   </div>
-
                   {/* Investment Industry */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>Investment Industry *</label>
@@ -427,7 +424,6 @@ const InvestorsList: React.FC = () => {
                       required
                     />
                   </div>
-
                   {/* Example */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>Fund Size *</label>
@@ -438,10 +434,8 @@ const InvestorsList: React.FC = () => {
                       <option value={3}>Large</option>
                     </select>
                   </div>
-
-                  {/* Buttons */}
-                  <div className="col-12 mt-3 d-flex justify-content-between">
-                    <button type="submit" className="btn btn-primary">{editing ? "Update" : "Save"}</button>
+                    <div className="col-12 mt-3 d-flex justify-content-between">
+                    <button type="submit" className={`${bootstrapButtonClasses.primary}`}>{editing ? "Update" : "Save"}</button>
                     {editing && <button type="button" className="btn btn-secondary" onClick={resetForm}>Cancel</button>}
                   </div>
                 </div>
@@ -449,10 +443,8 @@ const InvestorsList: React.FC = () => {
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );
 };
-
 export default InvestorsList;

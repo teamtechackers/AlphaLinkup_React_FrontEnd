@@ -5,7 +5,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { FiTrash2, FiEdit } from "react-icons/fi";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import { bootstrapButtonClasses } from "../utils/theme/Bootstrapbutton";
 import jobsService from "../services/jobs_service";
 import { JOBS_STRINGS } from "../utils/strings/pages/jobs_strings";
 import { CONSTANTS } from "../utils/strings/constants";
@@ -349,7 +349,7 @@ const JobsList: React.FC = () => {
                   <button type="submit" className="btn" style={{ backgroundColor: COLORS.purple, color: COLORS.white }}>
                     {editing ? "Update" : "Save"}
                   </button>
-                  <button type="button" className="btn btn-outline-secondary" onClick={resetForm}>
+                  <button type="button" className={`${bootstrapButtonClasses.outlinesecondary}`} onClick={resetForm}>
                     Cancel
                   </button>
                 </div>
@@ -361,5 +361,5 @@ const JobsList: React.FC = () => {
     </div>
   );
 };
-
+// btn btn-outline-secondary
 export default JobsList;
