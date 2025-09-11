@@ -9,14 +9,16 @@ import { COLORS } from "../utils/theme/colors";
 import { FiTrash2, FiEdit } from "react-icons/fi";
 import { STYLES } from "../utils/typography/styles";
 import { toast } from "react-toastify";
-
 const PayList: React.FC = () => {
   const [items, setItems] = useState<PayModel[]>([]);
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState<PayModel | null>(null);
   const [name, setName] = useState("");
   const [status, setStatus] = useState("1");
-
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 10,
+  });
   const load = async () => {
     setLoading(true);
     try {
@@ -116,16 +118,17 @@ const PayList: React.FC = () => {
         {/* Table */}
         <div className="col-lg-8 p-0">
           <Box sx={{ height: 800, width: "100%" }}>
-            <DataGrid
-              rows={items}
-              columns={columns}
-              loading={loading}
-              getRowId={(row) => row.id}
-              disableRowSelectionOnClick
-              pageSizeOptions={[5, 10, 20, 50]}
-              paginationModel={{ page: 0, pageSize: 10 }}
-              pagination
-            />
+          <DataGrid
+  rows={items}
+  columns={columns}
+  loading={loading}
+  getRowId={(row) => row.id}
+  disableRowSelectionOnClick
+  pageSizeOptions={[5, 10, 20, 50]}
+  paginationModel={paginationModel}
+  onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
+  pagination
+/>
           </Box>
         </div>
 

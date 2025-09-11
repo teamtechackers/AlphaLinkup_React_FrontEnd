@@ -17,7 +17,6 @@ export const APP_ROUTES = {
 
   INDUSTRY_TYPES: "/list-industry-type",
   FUND_SIZES: "/list-fund-size",
-
   FOLDERS: "/list-folders",
 
   USERS: "/list-users",

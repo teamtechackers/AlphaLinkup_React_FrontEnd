@@ -11,7 +11,6 @@ const jobTypesService = {
     });
     return res.data;
   },
-
   saveJobType: async (payload: { id?: number; name: string; status: number }) => {
     const res = await axios.post(`${baseUrl}${API_ROUTES.JOB_TYPE.SAVE}`, null, {
       params: {
