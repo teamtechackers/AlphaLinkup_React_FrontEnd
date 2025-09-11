@@ -7,6 +7,8 @@ export const JOBS_STRINGS = {
     HEADER_COMPANY_NAME: "Company Name",
     HEADER_STATUS: "Status",
     HEADER_ACTIONS: "Actions",
+    STATUS_ACTIVE: "Active",
+    STATUS_INACTIVE: "Inactive",
   },
   FORM: {
     ADD: "Add Job",

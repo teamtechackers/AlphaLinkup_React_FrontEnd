@@ -47,7 +47,7 @@ const usersService = {
     if (payload.id && payload.id > 0) {
       // update
       const params = { ...commonParams, keys: payload.id };
-      const res = await axios.post(`${baseUrl}${API_ROUTES.USERS.EDIT}`, null, { params });
+      const res = await axios.post(`${baseUrl}${API_ROUTES.USERS.SAVE}`, null, { params });
       return res.data;
     } else {
       // create

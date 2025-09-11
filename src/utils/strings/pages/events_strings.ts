@@ -3,6 +3,7 @@ export const EVENTS_STRINGS = {
   TABLE: {
     TABLE_TITLE: "Events",
     HEADER_ID: "ID",
+    HEADER_FULL_NAME: "Full Name",
     HEADER_NAME: "Event Name",
     HEADER_VENUE: "Venue",
     HEADER_STATUS: "Status",

@@ -10,13 +10,13 @@ import { CONSTANTS } from "../utils/strings/constants";
 import { ServiceProviderModel, ServiceProviderModelLabels } from "../models/service_provider_model";
 import { COLORS } from "../utils/theme/colors";
 import { STYLES } from "../utils/typography/styles";
+import GlobalService from "../services/global_service";
 
 const ServiceProvidersList: React.FC = () => {
   const [items, setItems] = useState<ServiceProviderModel[]>([]);
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState<ServiceProviderModel | null>(null);
 
-  // form states
   const [spUserId, setSpUserId] = useState("0");
   const [fullName, setFullName] = useState("");
   const [countryId, setCountryId] = useState("101");
@@ -29,6 +29,10 @@ const ServiceProvidersList: React.FC = () => {
 
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const [rowCount, setRowCount] = useState(0);
+
+  const [countries, setCountries] = useState<any[]>([]);
+  const [states, setStates] = useState<any[]>([]);
+  const [cities, setCities] = useState<any[]>([]);
 
   const load = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
     setLoading(true);
@@ -61,6 +65,56 @@ const ServiceProvidersList: React.FC = () => {
   useEffect(() => {
     load(paginationModel.page, paginationModel.pageSize);
   }, [paginationModel]);
+
+
+    useEffect(() => {
+      const fetchCountries = async () => {
+        try {
+          const list = await GlobalService.getCountries();
+          setCountries(list);
+        } catch (err) {
+          console.error("Error loading countries", err);
+        }
+      };
+      fetchCountries();
+    }, []);
+  
+    useEffect(() => {
+      if (!countryId) {
+        setStates([]);
+        setCities([]);
+        return;
+      }
+      const fetchStates = async () => {
+        try {
+          const list = await GlobalService.getStates(countryId);
+          setStates(list);
+          setCities([]);
+          setStateId("");
+          setCityId("");
+        } catch (err) {
+          console.error("Error loading states", err);
+        }
+      };
+      fetchStates();
+    }, [countryId]);
+  
+    useEffect(() => {
+      if (!stateId) {
+        setCities([]);
+        return;
+      }
+    const fetchCities = async () => {
+      try {
+        const list = await GlobalService.getCities(stateId);
+        setCities(list);
+        setCityId("");
+      } catch (err) {
+        console.error("Error loading cities", err);
+      }
+    };
+      fetchCities();
+    }, [stateId]);
 
   const resetForm = () => {
     setEditing(null);
@@ -218,7 +272,7 @@ const ServiceProvidersList: React.FC = () => {
   );
 
   return (
-    <div className="container-fluid page-padding-2 vh-100" style={{ backgroundColor: COLORS.lightGray }}>
+    <div className="container-fluid page-padding-2" style={{ backgroundColor: COLORS.lightGray }}>
       <h4 className="my-4">{SERVICE_PROVIDERS_STRINGS.TITLE}</h4>
       <div className="row g-4 w-100">
         {/* Table */}
@@ -263,27 +317,62 @@ const ServiceProvidersList: React.FC = () => {
                     <input className="form-control" value={fullName} onChange={(e) => setFullName(e.target.value)} />
                   </div>
 
+                  {/* Country */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Select Country</label>
-                    <select className="form-select" value={countryId} onChange={(e) => setCountryId(e.target.value)}>
-                      <option value="101">Pakistan</option>
-                      {/* TODO: populate dynamically */}
+                    <label className="form-label" style={STYLES.field_label}>
+                      Country *
+                    </label>
+                    <select
+                      className="form-select"
+                      value={countryId}
+                      onChange={(e) => setCountryId(e.target.value)}
+                    >
+                      <option value="">Select Country</option>
+                      {countries.map((c) => (
+                        <option key={c.country_id} value={c.country_id}>
+                          {c.country_name}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
+                  {/* State */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Select State</label>
-                    <select className="form-select" value={stateId} onChange={(e) => setStateId(e.target.value)}>
-                      <option value="17">Punjab</option>
-                      {/* TODO: populate dynamically */}
+                    <label className="form-label" style={STYLES.field_label}>
+                      State *
+                    </label>
+                    <select
+                      className="form-select"
+                      value={stateId}
+                      onChange={(e) => setStateId(e.target.value)}
+                      disabled={!countryId}
+                    >
+                      <option value="">Select State</option>
+                      {states.map((s) => (
+                        <option key={s.state_id} value={s.state_id}>
+                          {s.state_name}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
+                  {/* City */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Select City</label>
-                    <select className="form-select" value={cityId} onChange={(e) => setCityId(e.target.value)}>
-                      <option value="1726">Lahore</option>
-                      {/* TODO: populate dynamically */}
+                    <label className="form-label" style={STYLES.field_label}>
+                      City *
+                    </label>
+                    <select
+                      className="form-select"
+                      value={cityId}
+                      onChange={(e) => setCityId(e.target.value)}
+                      disabled={!stateId}
+                    >
+                      <option value="">Select City</option>
+                      {cities.map((ct) => (
+                      <option key={ct.city_id} value={ct.city_id}>
+                        {ct.city_name}
+                      </option>
+                      ))}
                     </select>
                   </div>
 

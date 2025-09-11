@@ -20,20 +20,14 @@ const eventsService = {
     return res.data;
     },
 
-    save: async (payload: FormData) => {
-    try {
-        console.log("Saving event, payload:", payload);
-        const res = await axios.post(`${baseUrl}${API_ROUTES.EVENTS.SAVE}`, payload, {
-        headers: { "Content-Type": "multipart/form-data" },
-        params: { user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN },
-        });
-        console.log("Response from save:", res.data);
-        return res.data;
-    } catch (error: any) {
-        console.error("Error in save:", error.response?.data || error.message);
-        throw error;
-    }
-    },
+  save: async (payload: FormData, rowId?: number) => {
+    if (rowId) payload.append("row_id", rowId.toString());
+    const res = await axios.post(`${baseUrl}${API_ROUTES.EVENTS.SAVE}`, payload, {
+      headers: { "Content-Type": "multipart/form-data" },
+      params: { user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN },
+    });
+    return res.data;
+  },
 
   delete: async (id: number) => {
     const res = await axios.post(`${baseUrl}${API_ROUTES.EVENTS.DELETE}`, null, {

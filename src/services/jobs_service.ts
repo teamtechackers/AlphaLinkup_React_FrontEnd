@@ -19,23 +19,7 @@ const jobsService = {
     return res.data;
   },
 
-  save: async (payload: {
-    id?: number;
-    user_id: number;
-    full_name: string;
-    job_title: string;
-    company_name: string;
-    country_id: number;
-    state_id: number;
-    city_id: number;
-    address: string;
-    job_lat: number;
-    job_lng: number;
-    job_type_id: number;
-    pay_id: number;
-    job_description: string;
-    status: number;
-  }) => {
+  save: async (payload: any) => {
     const body = qs.stringify(payload);
 
     const res = await axios.post(`${baseUrl}${API_ROUTES.JOBS.SAVE}`, body, {
