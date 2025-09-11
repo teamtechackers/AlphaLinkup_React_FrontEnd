@@ -31,7 +31,7 @@ const JobsList: React.FC = () => {
   const [jobDescription, setJobDescription] = useState("");
   const [status, setStatus] = useState("Active");
 
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
+  // const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const [rowCount, setRowCount] = useState(0);
 
   const [countries, setCountries] = useState<any[]>([]);
@@ -39,7 +39,10 @@ const JobsList: React.FC = () => {
   const [cities, setCities] = useState<any[]>([]);
   const [jobTypes, setJobTypes] = useState<any[]>([]);
   const [pays, setPays] = useState<any[]>([]);
-
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 10,
+  });
   const load = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
     setLoading(true);
     try {
@@ -302,19 +305,18 @@ const JobsList: React.FC = () => {
       <div className="row g-4 w-100">
         {/* Table */}
         <div className="col-lg-8 p-0">
-          <Box sx={{ height: 800, width: "100%" }}>
-            <DataGrid
-              rows={items}
-              columns={columns}
-              loading={loading}
-              getRowId={(row) => row.id}
-              disableRowSelectionOnClick
-              pageSizeOptions={[5, 10, 20, 50]}
-              paginationModel={paginationModel}
-              onPaginationModelChange={setPaginationModel}
-              paginationMode="server"
-              rowCount={rowCount}
-            />
+        <Box sx={{ height: 800, width: "100%" }}>
+          <DataGrid
+  rows={items}
+  columns={columns}
+  loading={loading}
+  getRowId={(row) => row.id}
+  disableRowSelectionOnClick
+  pageSizeOptions={[5, 10, 20, 50]}
+  paginationModel={paginationModel}
+  onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
+  pagination
+/>
           </Box>
         </div>
 
