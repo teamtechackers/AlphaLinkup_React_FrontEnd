@@ -11,9 +11,7 @@ import { CONSTANTS } from "../utils/strings/constants";
 import { CardActivationRequestModel, CardActivationRequestLabels } from "../models/card_activation_request_model";
 import { COLORS } from "../utils/theme/colors";
 import { STYLES } from "../utils/typography/styles";
-
-const APPROVAL_STATUS = ["Pending", "Approved", "Rejected"];
-const OVERALL_STATUS = ["Active", "Inactive"];
+import GlobalService from "../services/global_service";
 
 const CardActivationRequestsList: React.FC = () => {
   const [items, setItems] = useState<CardActivationRequestModel[]>([]);
@@ -34,6 +32,10 @@ const CardActivationRequestsList: React.FC = () => {
   const [requestStatus, setRequestStatus] = useState("Pending");
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const [rowCount, setRowCount] = useState(0);
+
+  const [countries, setCountries] = useState<any[]>([]);
+  const [states, setStates] = useState<any[]>([]);
+  const [cities, setCities] = useState<any[]>([]);
 
   const load = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
     setLoading(true);
@@ -71,6 +73,55 @@ const CardActivationRequestsList: React.FC = () => {
   useEffect(() => {
     load(paginationModel.page, paginationModel.pageSize);
   }, [paginationModel]);
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const list = await GlobalService.getCountries();
+        setCountries(list);
+      } catch (err) {
+        console.error("Error loading countries", err);
+      }
+    };
+    fetchCountries();
+  }, []);
+
+  useEffect(() => {
+    if (!countryId) {
+      setStates([]);
+      setCities([]);
+      return;
+    }
+    const fetchStates = async () => {
+      try {
+        const list = await GlobalService.getStates(countryId);
+        setStates(list);
+        setCities([]);
+        setStateId("");
+        setCityId("");
+      } catch (err) {
+        console.error("Error loading states", err);
+      }
+    };
+    fetchStates();
+  }, [countryId]);
+
+  useEffect(() => {
+    if (!stateId) {
+      setCities([]);
+      return;
+    }
+  const fetchCities = async () => {
+    try {
+      const list = await GlobalService.getCities(stateId);
+      setCities(list);
+      setCityId("");
+    } catch (err) {
+      console.error("Error loading cities", err);
+    }
+  };
+    fetchCities();
+  }, [stateId]);
+
 
   const resetForm = () => {
     setEditing(null);
@@ -300,24 +351,56 @@ const CardActivationRequestsList: React.FC = () => {
                   {/* Country */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>{CARD_ACTIVATION_REQUESTS_STRINGS.FORM.LABELS.COUNTRY} *</label>
-                    <select className="form-select" value={countryId} onChange={(e) => setCountryId(Number(e.target.value))} required>
-                      <option value={1}>Test Country</option>
+                    <select
+                        className="form-select"
+                        value={countryId}
+                        onChange={(e) => setCountryId(Number(e.target.value))}
+                        required
+                      >
+                        <option value="">-- Select Country --</option>
+                        {countries.map((c) => (
+                          <option key={c.country_id} value={c.country_id}>
+                            {c.country_name}
+                          </option>
+                        ))}
                     </select>
                   </div>
 
                   {/* State */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>{CARD_ACTIVATION_REQUESTS_STRINGS.FORM.LABELS.STATE} *</label>
-                    <select className="form-select" value={stateId} onChange={(e) => setStateId(Number(e.target.value))} required>
-                      <option value={1}>Test State</option>
+                    <select
+                      className="form-select"
+                      value={stateId}
+                      onChange={(e) => setStateId(Number(e.target.value))}
+                      required
+                      disabled={!countryId}
+                    >
+                      <option value="">-- Select State --</option>
+                      {states.map((s) => (
+                        <option key={s.state_id} value={s.state_id}>
+                          {s.state_name}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
                   {/* City */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>{CARD_ACTIVATION_REQUESTS_STRINGS.FORM.LABELS.CITY} *</label>
-                    <select className="form-select" value={cityId} onChange={(e) => setCityId(Number(e.target.value))} required>
-                      <option value={1}>Test City</option>
+                    <select
+                      className="form-select"
+                      value={cityId}
+                      onChange={(e) => setCityId(Number(e.target.value))}
+                      required
+                      disabled={!stateId}
+                    >
+                      <option value="">-- Select City --</option>
+                      {cities.map((c) => (
+                        <option key={c.city_id} value={c.city_id}>
+                          {c.city_name}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
