@@ -17,7 +17,10 @@ const JobTypesList: React.FC = () => {
   const [editing, setEditing] = useState<JobTypeModel | null>(null);
   const [name, setName] = useState("");
   const [status, setStatus] = useState("1");
-
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 10,
+  });
   const load = async () => {
     setLoading(true);
     try {
