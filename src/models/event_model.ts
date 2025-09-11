@@ -1,7 +1,10 @@
 export interface EventModel {
   id: number;
+  user_id: number | null;
+  full_name: string | null;
   event_name: string | null;
   industry_type: number | null;
+  industry_id: number | null;
   country_id: number | null;
   state_id: number | null;
   city_id: number | null;
@@ -21,8 +24,11 @@ export interface EventModel {
 
 export const EventLabels = {
   ID: "id",
+  USER_ID: "user_id",
   NAME: "event_name",
+  FULL_NAME: "full_name", 
   INDUSTRY_TYPE: "industry_type",
+  INDUSTRY_ID: "industry_id",
   COUNTRY_ID: "country_id",
   STATE_ID: "state_id",
   CITY_ID: "city_id",
@@ -40,4 +46,3 @@ export const EventLabels = {
   STATUS: "status",
   ACTIONS: "actions",
 };
-

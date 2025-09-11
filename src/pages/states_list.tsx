@@ -9,8 +9,8 @@ import { COLORS } from "../utils/theme/colors";
 import { FiTrash2, FiEdit } from "react-icons/fi";
 import { toast } from 'react-toastify';
 import { STYLES } from "../utils/typography/styles";
-import LocationService from "../services/location_service";
-import { Country } from "../models/location_model";
+import GlobalService from "../services/global_service";
+import { Country } from "../models/global_model";
 
 const StatesList: React.FC = () => {
   const [items, setItems] = useState<StateModel[]>([]);
@@ -42,7 +42,7 @@ const StatesList: React.FC = () => {
   useEffect(() => {
     const loadCountries = async () => {
       try {
-        const res = await LocationService.getCountries();
+        const res = await GlobalService.getCountries();
         setCountries(res);
       } catch (err) {
         console.error("Error loading countries", err);

@@ -4,13 +4,13 @@ import { DataGrid } from "@mui/x-data-grid";
 import { FiTrash2, FiEdit } from "react-icons/fi";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 import usersService from "../services/users_service";
 import { USERS_STRINGS } from "../utils/strings/pages/users_strings";
 import { CONSTANTS } from "../utils/strings/constants";
 import { UserModel, UserModelLabels } from "../models/user_model";
 import { COLORS } from "../utils/theme/colors";
 import { STYLES } from "../utils/typography/styles";
+import GlobalService from "../services/global_service";
 
 const UsersList: React.FC = () => {
   const [items, setItems] = useState<UserModel[]>([]);
@@ -20,11 +20,16 @@ const UsersList: React.FC = () => {
   const [fullName, setFullName] = useState("");
   const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
+  const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
   const [address, setAddress] = useState("");
   const [countryId, setCountryId] = useState<string>("");
   const [stateId, setStateId] = useState<string>("");
   const [cityId, setCityId] = useState<string>("");
   const [status, setStatus] = useState("1");
+
+  const [countries, setCountries] = useState<any[]>([]);
+  const [states, setStates] = useState<any[]>([]);
+  const [cities, setCities] = useState<any[]>([]);
 
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
@@ -40,18 +45,16 @@ const UsersList: React.FC = () => {
 
       const list = Array.isArray(data?.data)
         ? data.data.map((row: any[]) => {
-            const rawStatus = row[4] ?? "";
-            const isActive = rawStatus.toLowerCase().includes("active");
             return {
               id: Number(row[0]),
               full_name: row[1] ?? "",
               mobile: row[2] ?? "",
               email: row[3] ?? "",
-              status: isActive ? 1 : 0,
-              address: "",
-              country_id: undefined,
-              state_id: undefined,
-              city_id: undefined,
+              status: row[4]?.includes("Active") ? 1 : 0,
+              address: row[5] ?? "",
+              country_id: row[6] ? Number(row[5]) : undefined,
+              state_id: row[7] ? Number(row[6]) : undefined,
+              city_id: row[8] ? Number(row[7]) : undefined,
             } as UserModel;
           })
         : [];
@@ -75,12 +78,62 @@ const UsersList: React.FC = () => {
     setFullName("");
     setMobile("");
     setEmail("");
+    setProfilePhoto(null);
     setAddress("");
     setCountryId("");
     setStateId("");
     setCityId("");
     setStatus("1");
   };
+
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const list = await GlobalService.getCountries();
+        setCountries(list);
+      } catch (err) {
+        console.error("Error loading countries", err);
+      }
+    };
+    fetchCountries();
+  }, []);
+
+  useEffect(() => {
+    if (!countryId) {
+      setStates([]);
+      setCities([]);
+      return;
+    }
+    const fetchStates = async () => {
+      try {
+        const list = await GlobalService.getStates(countryId);
+        setStates(list);
+        setCities([]);
+        setStateId("");
+        setCityId("");
+      } catch (err) {
+        console.error("Error loading states", err);
+      }
+    };
+    fetchStates();
+  }, [countryId]);
+
+  useEffect(() => {
+    if (!stateId) {
+      setCities([]);
+      return;
+    }
+  const fetchCities = async () => {
+    try {
+      const list = await GlobalService.getCities(stateId);
+      setCities(list);
+      setCityId("");
+    } catch (err) {
+      console.error("Error loading cities", err);
+    }
+  };
+    fetchCities();
+  }, [stateId]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,7 +160,6 @@ const UsersList: React.FC = () => {
 
       const res = await usersService.saveUser(payload);
 
-      // handle different possible response shapes:
       const success =
         res &&
         (res.status === true ||
@@ -116,11 +168,10 @@ const UsersList: React.FC = () => {
           res.rcode === 200);
 
       if (success) {
-        toast.success(editing ? CONSTANTS.MESSAGES.UPDATE_SUCCESS ?? "Updated" : CONSTANTS.MESSAGES.SAVE_SUCCESS ?? "Saved");
+        toast.success(editing ? CONSTANTS.MESSAGES.UPDATE_SUCCESS : CONSTANTS.MESSAGES.SAVE_SUCCESS);
         resetForm();
         await load();
       } else {
-        // if backend returns message/info
         toast.error(res.message || res.info || CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
       }
     } catch (err) {
@@ -134,6 +185,7 @@ const UsersList: React.FC = () => {
     setFullName(item.full_name ?? "");
     setMobile(item.mobile ?? "");
     setEmail(item.email ?? "");
+    setProfilePhoto(null);
     setAddress(item.address ?? "");
     setCountryId(item.country_id ? String(item.country_id) : "");
     setStateId(item.state_id ? String(item.state_id) : "");
@@ -249,7 +301,7 @@ const UsersList: React.FC = () => {
                   {/* Full Name */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      {USERS_STRINGS.TABLE.HEADER_FULL_NAME}
+                      {USERS_STRINGS.TABLE.HEADER_FULL_NAME} *
                     </label>
                     <input
                       type="text"
@@ -276,7 +328,7 @@ const UsersList: React.FC = () => {
                   {/* Email */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      {USERS_STRINGS.TABLE.HEADER_EMAIL}
+                      {USERS_STRINGS.TABLE.HEADER_EMAIL} *
                     </label>
                     <input
                       type="email"
@@ -286,10 +338,23 @@ const UsersList: React.FC = () => {
                     />
                   </div>
 
+                  {/* Profile Photo */}
+                  <div className="col-md-12">
+                    <label className="form-label" style={STYLES.field_label}>
+                      Profile Photo
+                    </label>
+                    <input
+                      type="file"
+                      className="form-control"
+                      accept="image/*"
+                      onChange={(e) => setProfilePhoto(e.target.files?.[0] || null)}
+                    />
+                  </div>
+
                   {/* Address */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      Address
+                      Address *
                     </label>
                     <input
                       type="text"
@@ -299,24 +364,63 @@ const UsersList: React.FC = () => {
                     />
                   </div>
 
-                  {/* Country / State / City (placeholders - you can replace with selects) */}
+                  {/* Country */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      Country
+                      Country *
                     </label>
-                    <input className="form-control" value={countryId} onChange={(e) => setCountryId(e.target.value)} />
+                    <select
+                      className="form-select"
+                      value={countryId}
+                      onChange={(e) => setCountryId(e.target.value)}
+                    >
+                      <option value="">Select Country</option>
+                      {countries.map((c) => (
+                        <option key={c.country_id} value={c.country_id}>
+                          {c.country_name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
+
+                  {/* State */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      State
+                      State *
                     </label>
-                    <input className="form-control" value={stateId} onChange={(e) => setStateId(e.target.value)} />
+                    <select
+                      className="form-select"
+                      value={stateId}
+                      onChange={(e) => setStateId(e.target.value)}
+                      disabled={!countryId}
+                    >
+                      <option value="">Select State</option>
+                      {states.map((s) => (
+                        <option key={s.state_id} value={s.state_id}>
+                          {s.state_name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
+
+                  {/* City */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      City
+                      City *
                     </label>
-                    <input className="form-control" value={cityId} onChange={(e) => setCityId(e.target.value)} />
+                    <select
+                      className="form-select"
+                      value={cityId}
+                      onChange={(e) => setCityId(e.target.value)}
+                      disabled={!stateId}
+                    >
+                      <option value="">Select City</option>
+                      {cities.map((ct) => (
+                      <option key={ct.city_id} value={ct.city_id}>
+                        {ct.city_name}
+                      </option>
+                      ))}
+                    </select>
                   </div>
 
                   {/* Status */}

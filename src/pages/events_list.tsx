@@ -4,20 +4,19 @@ import { DataGrid } from "@mui/x-data-grid";
 import { FiTrash2, FiEdit } from "react-icons/fi";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 import eventsService from "../services/events_service";
 import { EVENTS_STRINGS } from "../utils/strings/pages/events_strings";
 import { CONSTANTS } from "../utils/strings/constants";
 import { EventModel, EventLabels } from "../models/event_model";
 import { COLORS } from "../utils/theme/colors";
 import { STYLES } from "../utils/typography/styles";
+import GlobalService from "../services/global_service";
 
 const EventsList: React.FC = () => {
   const [items, setItems] = useState<EventModel[]>([]);
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState<EventModel | null>(null);
 
-  // Form fields
   const [fullName, setFullName] = useState("");
   const [eventName, setEventName] = useState("");
   const [industryType, setIndustryType] = useState<number | "">("");
@@ -42,6 +41,12 @@ const EventsList: React.FC = () => {
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const [rowCount, setRowCount] = useState(0);
 
+  const [countries, setCountries] = useState<any[]>([]);
+  const [states, setStates] = useState<any[]>([]);
+  const [cities, setCities] = useState<any[]>([]);
+  const [eventModes, setEventModes] = useState<any[]>([]);
+  const [eventTypes, setEventTypes] = useState<any[]>([]);
+
   const load = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
     setLoading(true);
     try {
@@ -51,8 +56,8 @@ const EventsList: React.FC = () => {
       const list = Array.isArray(data?.data)
         ? data.data.map((row: any[]) => ({
             id: Number(row[0]),
-            event_name: row[1] ?? "",
-            event_type_id: row[2] ?? null,
+            full_name: row[1] ?? "",
+            event_name: row[2] ?? "",
             event_venue: row[3] ?? "",
             status: row[4]?.replace(/<[^>]+>/g, "").trim() ?? "",
             actions: row[5] ?? "",
@@ -72,6 +77,88 @@ const EventsList: React.FC = () => {
   useEffect(() => {
     load(paginationModel.page, paginationModel.pageSize);
   }, [paginationModel]);
+
+  // Countries
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const list = await GlobalService.getCountries();
+        setCountries(list);
+      } catch (err) {
+        console.error("Error loading countries", err);
+      }
+    };
+    fetchCountries();
+  }, []);
+
+  // States (depends on country)
+  useEffect(() => {
+    if (!country) {
+      setStates([]);
+      setCities([]);
+      setState("");
+      setCity("");
+      return;
+    }
+    const fetchStates = async () => {
+      try {
+        const list = await GlobalService.getStates(country);
+        setStates(list);
+        setCities([]);
+        setState("");
+        setCity("");
+      } catch (err) {
+        console.error("Error loading states", err);
+      }
+    };
+    fetchStates();
+  }, [country]);
+
+  // Cities (depends on state)
+  useEffect(() => {
+    if (!state) {
+      setCities([]);
+      setCity("");
+      return;
+    }
+    const fetchCities = async () => {
+      try {
+        const list = await GlobalService.getCities(state);
+        setCities(list);
+        setCity("");
+      } catch (err) {
+        console.error("Error loading cities", err);
+      }
+    };
+    fetchCities();
+  }, [state]);
+
+  // Event Modes
+  useEffect(() => {
+    const fetchEventModes = async () => {
+      try {
+        const list = await GlobalService.getEventModes();
+        setEventModes(list);
+      } catch (err) {
+        console.error("Error loading event modes", err);
+      }
+    };
+    fetchEventModes();
+  }, []);
+
+  // Event Types
+  useEffect(() => {
+    const fetchEventTypes = async () => {
+      try {
+        const list = await GlobalService.getEventTypes();
+        setEventTypes(list);
+      } catch (err) {
+        console.error("Error loading event types", err);
+      }
+    };
+    fetchEventTypes();
+  }, []);
+
 
   const resetForm = () => {
     setEditing(null);
@@ -102,9 +189,7 @@ const EventsList: React.FC = () => {
 
     try {
       const formData = new FormData();
-
-      // Required fields
-      formData.append("user_id", "19"); // example
+      formData.append("user_id", fullName);
       formData.append("full_name", fullName || "");
       formData.append("event_name", eventName || "");
       formData.append("industry_type", industryType !== "" ? industryType.toString() : "");
@@ -126,32 +211,43 @@ const EventsList: React.FC = () => {
       if (eventBanner) formData.append("event_banner", eventBanner);
       formData.append("status", status === "Active" ? "1" : "0");
 
-      // Debug: log FormData contents
-      formData.forEach((value, key) => {
-        console.log(key, value);
-      });
+      const res = await eventsService.save(formData, editing?.id);
 
-      const res = await eventsService.save(formData);
-      const success = res?.status === "Success";
-
-      if (success) {
+      if (res?.status === "Success") {
         toast.success(editing ? CONSTANTS.MESSAGES.UPDATE_SUCCESS : CONSTANTS.MESSAGES.SAVE_SUCCESS);
         resetForm();
         await load();
       } else {
-        console.error("Save response:", res);
         toast.error(res?.info || CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
       }
     } catch (err) {
-      console.error("Error in save:", err);
+      console.error(err);
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     }
   };
 
   const onEdit = (item: EventModel) => {
     setEditing(item);
+
+    setFullName(item.user_id?.toString() ?? "");
     setEventName(item.event_name ?? "");
+    setIndustryType(item.industry_type ?? "");
+    setSelectedIndustry(item.industry_id ?? "");
+    setCountry(item.country_id ?? "");
+    setState(item.state_id ?? "");
+    setCity(item.city_id ?? "");
     setEventVenue(item.event_venue ?? "");
+    setEventLink(item.event_link ?? "");
+    setLatitude(item.event_lat ?? "");
+    setLongitude(item.event_lng ?? "");
+    setGeoAddress(item.event_geo_address ?? "");
+    setEventDate(item.event_date ?? "");
+    setStartTime(item.event_start_time ?? "");
+    setEndTime(item.event_end_time ?? "");
+    setEventMode(item.event_mode_id ?? "");
+    setEventType(item.event_type_id ?? "");
+    setEventDetails(item.event_details ?? "");
+    setEventBanner(null);
     setStatus(item.status === 1 ? "Active" : "Inactive");
   };
 
@@ -176,6 +272,7 @@ const EventsList: React.FC = () => {
   const columns = useMemo(
     () => [
       { field: EventLabels.ID, headerName: EVENTS_STRINGS.TABLE.HEADER_ID, width: 100 },
+      { field: EventLabels.FULL_NAME, headerName: EVENTS_STRINGS.TABLE.HEADER_FULL_NAME, width: 200 },
       { field: EventLabels.NAME, headerName: EVENTS_STRINGS.TABLE.HEADER_NAME, width: 200 },
       { field: EventLabels.VENUE, headerName: EVENTS_STRINGS.TABLE.HEADER_VENUE, width: 250 },
       {
@@ -262,21 +359,27 @@ const EventsList: React.FC = () => {
                     <label className="form-label" style={STYLES.field_label}> Country *</label>
                     <select className="form-select" value={country} onChange={(e) => setCountry(Number(e.target.value))} required>
                       <option value="">Select Country</option>
-                      <option value={16}>Test Country</option>
+                      {countries.map((c) => (
+                        <option key={c.country_id} value={c.country_id}>{c.country_name}</option>
+                      ))}
                     </select>
                   </div>
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}> State *</label>
                     <select className="form-select" value={state} onChange={(e) => setState(Number(e.target.value))} required>
                       <option value="">Select State</option>
-                      <option value={2728}>Test State</option>
+                      {states.map((s) => (
+                        <option key={s.state_id} value={s.state_id}>{s.state_name}</option>
+                      ))}
                     </select>
                   </div>
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}> City *</label>
                     <select className="form-select" value={city} onChange={(e) => setCity(Number(e.target.value))} required>
                       <option value="">Select City</option>
-                      <option value={31439}>Test City</option>
+                      {cities.map((c) => (
+                        <option key={c.city_id} value={c.city_id}>{c.city_name}</option>
+                      ))}
                     </select>
                   </div>
                   <div className="col-md-12">
@@ -315,18 +418,18 @@ const EventsList: React.FC = () => {
                     <label className="form-label" style={STYLES.field_label}>Event Mode *</label>
                     <select className="form-select" value={eventMode} onChange={(e) => setEventMode(Number(e.target.value))} required>
                       <option value="">Select Event Mode</option>
-                      <option value={1}>One Time</option>
-                      <option value={2}>Recurring Event</option>
-                      <option value={3}>Virtual</option>
+                      {eventModes.map((m) => (
+                        <option key={m.event_mode_id} value={m.event_mode_id}>{m.event_mode}</option>
+                      ))}
                     </select>
                   </div>
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>Event Type *</label>
                     <select className="form-select" value={eventType} onChange={(e) => setEventType(Number(e.target.value))} required>
                       <option value="">Select Event Type</option>
-                      <option value={1}>Conference</option>
-                      <option value={2}>In Person</option>
-                      <option value={3}>Online</option>
+                      {eventTypes.map((t) => (
+                        <option key={t.event_type_id} value={t.event_type_id}>{t.event_type}</option>
+                      ))}
                     </select>
                   </div>
                   <div className="col-md-12">

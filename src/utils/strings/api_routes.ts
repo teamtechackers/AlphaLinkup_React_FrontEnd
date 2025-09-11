@@ -6,7 +6,11 @@ export const API_ROUTES = {
   DASHBOARD: "/admin-dashboard",
   API_COUNTRY_LIST: "/Api-Country-List",
   API_STATE_LIST: "/Api-State-List",
-  API_CITY_LIST: "/Api-City-List", 
+  API_CITY_LIST: "/Api-City-List",
+  API_PAY_LIST: "/Api-Pay-List",
+  API_JOB_TYPE_LIST: "/Api-Job-Type-List",
+  API_EVENT_MODE_LIST: "/Api-Event-Mode-List",
+  API_EVENT_TYPE_LIST: "/Api-Event-Type-List",
 
   COUNTRY_LIST: {
     GET: "/list-country",
@@ -106,15 +110,15 @@ export const API_ROUTES = {
   USERS: {
     GET: "/list-users",
     GET_AJAX: "/list-users-ajax",
-    SAVE: "/save-users",
+    SAVE: "/submit-users",
     EDIT: "/edit-users",
     DELETE: "/delete-users",
     CHECK_DUPLICATE: "/check-duplicate-users",
   },
   JOBS: {
     GET: "/list-jobs",
-    GET_AJAX: "/list-jobs-ajax",
-    SAVE: "/save-jobs",
+    GET_AJAX: "/list_jobs_ajax",
+    SAVE: "/submit-jobs",
     EDIT: "/edit-job",
     DELETE: "/delete-jobs",
     CHECK_DUPLICATE: "/check-duplicate-job",
@@ -122,7 +126,7 @@ export const API_ROUTES = {
 
   EVENTS: {
     GET: "/list-events",
-    GET_AJAX: "/list-events-ajax",
+    GET_AJAX: "/list_events_ajax",
     SAVE: "/save-events",
     EDIT: "/edit-event",
     DELETE: "/delete-events",

@@ -1,11 +1,10 @@
-// pages/JobsList.tsx
 import React, { useEffect, useState, useMemo } from "react";
 import Box from "@mui/material/Box";
 import { DataGrid } from "@mui/x-data-grid";
 import { FiTrash2, FiEdit } from "react-icons/fi";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import GlobalService from "../services/global_service";
 import jobsService from "../services/jobs_service";
 import { JOBS_STRINGS } from "../utils/strings/pages/jobs_strings";
 import { CONSTANTS } from "../utils/strings/constants";
@@ -35,29 +34,34 @@ const JobsList: React.FC = () => {
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const [rowCount, setRowCount] = useState(0);
 
-  // Load jobs from server
+  const [countries, setCountries] = useState<any[]>([]);
+  const [states, setStates] = useState<any[]>([]);
+  const [cities, setCities] = useState<any[]>([]);
+  const [jobTypes, setJobTypes] = useState<any[]>([]);
+  const [pays, setPays] = useState<any[]>([]);
+
   const load = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
     setLoading(true);
     try {
       const start = page * pageSize;
       const data = await jobsService.getList(page + 1, start, pageSize);
 
-      const list = Array.isArray(data?.data)
-        ? data.data.map((row: any[]) => ({
-            id: Number(row[0]),
-            full_name: row[1] ?? "",
-            job_title: row[2] ?? "",
-            company_name: row[3] ?? "",
-            status: row[4]?.replace(/<[^>]+>/g, "").trim() ?? "",
-            country_id: null,
-            state_id: null,
-            city_id: null,
-            address: "",
-            job_lat: null,
-            job_lng: null,
-            job_type_id: null,
-            pay_id: null,
-            job_description: "",
+      const list = Array.isArray(data?.jobs_list)
+        ? data.jobs_list.map((row: any) => ({
+            id: Number(row.job_id),
+            full_name: row.user_name ?? "",
+            job_title: row.job_title ?? "",
+            company_name: row.company_name ?? "",
+            status: row.status === "1" ? "Active" : "Inactive",
+            country_id: row.country_id ? Number(row.country_id) : null,
+            state_id: row.state_id ? Number(row.state_id) : null,
+            city_id: row.city_id ? Number(row.city_id) : null,
+            address: row.address ?? "",
+            job_lat: row.job_lat ? Number(row.job_lat) : null,
+            job_lng: row.job_lng ? Number(row.job_lng) : null,
+            job_type_id: row.job_type_id ? Number(row.job_type_id) : null,
+            pay_id: row.pay_id ? Number(row.pay_id) : null,
+            job_description: row.job_description ?? "",
           }))
         : [];
 
@@ -74,6 +78,78 @@ const JobsList: React.FC = () => {
   useEffect(() => {
     load(paginationModel.page, paginationModel.pageSize);
   }, [paginationModel]);
+
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const list = await GlobalService.getCountries();
+        setCountries(list);
+      } catch (err) {
+        console.error("Error loading countries", err);
+      }
+    };
+    fetchCountries();
+  }, []);
+
+  useEffect(() => {
+    if (!countryId) {
+      setStates([]);
+      setCities([]);
+      return;
+    }
+    const fetchStates = async () => {
+      try {
+        const list = await GlobalService.getStates(countryId);
+        setStates(list);
+        setCities([]);
+        setStateId("");
+        setCityId("");
+      } catch (err) {
+        console.error("Error loading states", err);
+      }
+    };
+    fetchStates();
+  }, [countryId]);
+
+  useEffect(() => {
+    if (!stateId) {
+      setCities([]);
+      return;
+    }
+  const fetchCities = async () => {
+    try {
+      const list = await GlobalService.getCities(stateId);
+      setCities(list);
+      setCityId("");
+    } catch (err) {
+      console.error("Error loading cities", err);
+    }
+  };
+    fetchCities();
+  }, [stateId]);
+
+  useEffect(() => {
+    const fetchJobTypes = async () => {
+      try {
+        const list = await GlobalService.getJobTypes();
+        setJobTypes(list);
+      } catch (err) {
+        console.error("Error loading job types", err);
+      }
+    };
+
+    const fetchPays = async () => {
+      try {
+        const list = await GlobalService.getPayList();
+        setPays(list);
+      } catch (err) {
+        console.error("Error loading pay list", err);
+      }
+    };
+
+    fetchJobTypes();
+    fetchPays();
+  }, []);
 
   const resetForm = () => {
     setEditing(null);
@@ -95,9 +171,8 @@ const JobsList: React.FC = () => {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const payload = {
-        id: editing?.id ?? 0,
-        user_id: 2, // example user_id, replace dynamically if needed
+      const payload: any = {
+        user_id: 2,
         full_name: fullName,
         job_title: jobTitle,
         company_name: companyName,
@@ -112,6 +187,10 @@ const JobsList: React.FC = () => {
         job_description: jobDescription,
         status: status === "Active" ? 1 : 0,
       };
+
+      if (editing?.id) {
+        payload.job_id = editing.id;
+      }
 
       const res = await jobsService.save(payload);
 
@@ -140,15 +219,24 @@ const JobsList: React.FC = () => {
     setFullName(item.full_name ?? "");
     setJobTitle(item.job_title ?? "");
     setCompanyName(item.company_name ?? "");
+    setCountryId(item.country_id ?? "");
+    setStateId(item.state_id ?? "");
+    setCityId(item.city_id ?? "");
+    setAddress(item.address ?? "");
+    setJobLat(item.job_lat ?? "");
+    setJobLng(item.job_lng ?? "");
+    setJobTypeId(item.job_type_id ?? "");
+    setPayId(item.pay_id ?? "");
+    setJobDescription(item.job_description ?? "");
     setStatus(item.status ?? "Active");
   };
 
-  const onDelete = async (item: JobModel) => {
-    if (!item.id) return;
+  const onDelete = async (id: number) => {
+    if (!id) return;
     if (!window.confirm(CONSTANTS.MESSAGES.DELETE_CONFIRM)) return;
 
     try {
-      const res = await jobsService.delete(item.id);
+      const res = await jobsService.delete(id);
       const success =
         res &&
         (res.status === "Success" ||
@@ -177,16 +265,16 @@ const JobsList: React.FC = () => {
         headerName: JOBS_STRINGS.TABLE.HEADER_STATUS,
         width: 120,
         renderCell: (params: any) => {
-          const active = params.value.toLowerCase().includes("active");
+          const isActive = params.value?.toString().toLowerCase() === "active";
           return (
             <span
               className="text-center p-1 rounded"
               style={{
-                backgroundColor: active ? `${COLORS.green}30` : `${COLORS.red}30`,
-                color: active ? COLORS.green : COLORS.red,
+                backgroundColor: isActive ? `${COLORS.green}30` : `${COLORS.red}30`,
+                color: isActive ? COLORS.green : COLORS.red,
               }}
             >
-              {params.value}
+              {isActive ? JOBS_STRINGS.TABLE.STATUS_ACTIVE : JOBS_STRINGS.TABLE.STATUS_INACTIVE}
             </span>
           );
         },
@@ -200,7 +288,7 @@ const JobsList: React.FC = () => {
         renderCell: (params: any) => (
           <div className="d-flex align-items-center gap-3 w-100 h-100">
             <FiEdit size={18} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
-            <FiTrash2 size={18} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
+            <FiTrash2 size={18} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row.id)} />
           </div>
         ),
       },
@@ -263,28 +351,60 @@ const JobsList: React.FC = () => {
 
                   {/* Country */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Country *</label>
-                    <select className="form-select" value={countryId} onChange={(e) => setCountryId(Number(e.target.value))} required>
+                    <label className="form-label" style={STYLES.field_label}>
+                      Country *
+                    </label>
+                    <select
+                      className="form-select"
+                      value={countryId}
+                      onChange={(e) => setCountryId(e.target.value ? Number(e.target.value) : "")}
+                    >
                       <option value="">Select Country</option>
-                      <option value={166}>Test Country</option>
+                      {countries.map((c) => (
+                        <option key={c.country_id} value={c.country_id}>
+                          {c.country_name}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
                   {/* State */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>State *</label>
-                    <select className="form-select" value={stateId} onChange={(e) => setStateId(Number(e.target.value))} required>
+                    <label className="form-label" style={STYLES.field_label}>
+                      State *
+                    </label>
+                    <select
+                      className="form-select"
+                      value={stateId}
+                      onChange={(e) => setStateId(e.target.value ? Number(e.target.value) : "")}
+                      disabled={!countryId}
+                    >
                       <option value="">Select State</option>
-                      <option value={2728}>Test State</option>
+                      {states.map((s) => (
+                        <option key={s.state_id} value={s.state_id}>
+                          {s.state_name}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
                   {/* City */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>City *</label>
-                    <select className="form-select" value={cityId} onChange={(e) => setCityId(Number(e.target.value))} required>
+                    <label className="form-label" style={STYLES.field_label}>
+                      City *
+                    </label>
+                    <select
+                      className="form-select"
+                      value={cityId}
+                      onChange={(e) => setCityId(e.target.value ? Number(e.target.value) : "")}
+                      disabled={!stateId}
+                    >
                       <option value="">Select City</option>
-                      <option value={31439}>Test City</option>
+                      {cities.map((ct) => (
+                      <option key={ct.city_id} value={ct.city_id}>
+                        {ct.city_name}
+                      </option>
+                      ))}
                     </select>
                   </div>
 
@@ -309,22 +429,36 @@ const JobsList: React.FC = () => {
                   {/* Job Type */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>Job Type *</label>
-                    <select className="form-select" value={jobTypeId} onChange={(e) => setJobTypeId(Number(e.target.value))} required>
+                    <select
+                      className="form-select"
+                      value={jobTypeId}
+                      onChange={(e) => setJobTypeId(e.target.value ? Number(e.target.value) : "")}
+                      required
+                    >
                       <option value="">Select Job Type</option>
-                      <option value={1}>Full Time</option>
-                      <option value={2}>Part Time</option>
-                      <option value={3}>Internship</option>
+                      {jobTypes.map((jt) => (
+                        <option key={jt.job_type_id} value={jt.job_type_id}>
+                          {jt.job_type}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
                   {/* Pay */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>Pay *</label>
-                    <select className="form-select" value={payId} onChange={(e) => setPayId(Number(e.target.value))} required>
+                    <select
+                      className="form-select"
+                      value={payId}
+                      onChange={(e) => setPayId(e.target.value ? Number(e.target.value) : "")}
+                      required
+                    >
                       <option value="">Select Pay</option>
-                      <option value={1}>Monthly</option>
-                      <option value={2}>Salary</option>
-                      <option value={3}>Equity</option>
+                      {pays.map((p) => (
+                        <option key={p.pay_id} value={p.pay_id}>
+                          {p.pay}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
