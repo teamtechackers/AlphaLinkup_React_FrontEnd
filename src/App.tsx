@@ -55,7 +55,7 @@ const AppRoutes: React.FC = () => {
         <Route path={APP_ROUTES.INVESTORS} element={<InvestorsList />} />
         <Route path={APP_ROUTES.SERVICE_PROVIDERS} element={<ServiceProvidersList />} />
         <Route path={APP_ROUTES.CARD_ACTIVATION_REQUESTS} element={<CardActivationRequestsList />} />
-        
+   
         {/* Masters */}
         <Route path={APP_ROUTES.COUNTRIES} element={<CountriesList />} />
         <Route path={APP_ROUTES.STATES} element={<StatesList />} />
