@@ -18,9 +18,9 @@ const employmentTypeService = {
     });
 
     const list: EmploymentTypeModel[] = (res.data?.data || []).map((row: any[]) => ({
-      id: row[0],
-      name: row[1],
-      status: row[2]?.includes("Active") ? 1 : 0,
+      id: row[1],
+      name: row[2],
+      status: row[3]?.includes("Active") ? 1 : 0,
     }));
 
     return {

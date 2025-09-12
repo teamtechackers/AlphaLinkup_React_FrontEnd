@@ -1,4 +1,3 @@
-// services/investors_service.ts
 import axios from "axios";
 import qs from "qs";
 import { VARIABLES } from "../utils/strings/variables";
