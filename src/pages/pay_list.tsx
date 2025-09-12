@@ -19,20 +19,36 @@ const PayList: React.FC = () => {
     page: 0,
     pageSize: 10,
   });
-  const load = async () => {
+  const [draw, setDraw] = useState(1);
+  const [rowCount, setRowCount] = useState(0);
+
+
+  const load = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
     setLoading(true);
     try {
-      const data = await payService.getPayList();
-      const list = Array.isArray(data?.pay_list) ? data.pay_list : [];
-      setItems(list as PayModel[]);
+      const start = page * pageSize;
+
+      const data = await payService.getPayList(draw, start, pageSize);
+
+      const list: PayModel[] = Array.isArray(data?.data)
+        ? data.data.map((row: any) => ({
+            id: Number(row[3]),
+            name: row[1],
+            status: row[2].includes("Active") ? 1 : 0,
+          }))
+        : [];
+
+      setItems(list);
+      setRowCount(data.recordsTotal || 0);
+      setDraw((d) => d + 1);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    load();
-  }, []);
+  load();
+  }, [paginationModel]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,16 +135,17 @@ const PayList: React.FC = () => {
         <div className="col-lg-8 p-0">
           <Box sx={{ height: 800, width: "100%" }}>
           <DataGrid
-  rows={items}
-  columns={columns}
-  loading={loading}
-  getRowId={(row) => row.id}
-  disableRowSelectionOnClick
-  pageSizeOptions={[5, 10, 20, 50]}
-  paginationModel={paginationModel}
-  onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
-  pagination
-/>
+            rows={items}
+            columns={columns}
+            loading={loading}
+            getRowId={(row) => row.id}
+            disableRowSelectionOnClick
+            paginationMode="server"
+            rowCount={rowCount}
+            paginationModel={paginationModel}
+            onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
+            pageSizeOptions={[5, 10, 20, 50]}
+          />
           </Box>
         </div>
 

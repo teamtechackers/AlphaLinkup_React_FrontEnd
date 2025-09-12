@@ -5,19 +5,26 @@ import { API_ROUTES } from "../utils/strings/api_routes";
 const baseUrl = process.env.REACT_APP_API_BASE_URL as string;
 
 const payService = {
-  getPayList: async () => {
-    const res = await axios.get(`${baseUrl}${API_ROUTES.PAY.GET}`, {
-      params: { user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN },
-    });
-    return res.data;
+
+  getPayList: async (draw = 1, start = 0, length = 10) => {
+  const res = await axios.get(`${baseUrl}${API_ROUTES.PAY.GET_AJAX}`, {
+    params: {
+      user_id: VARIABLES.USER_ID,
+      token: VARIABLES.TOKEN,
+      draw,
+      start,
+      length,
+    },
+  });
+  return res.data;
   },
 
   savePay: async (payload: { id: number; name: string; status: number }) => {
-    const res = await axios.post(`${baseUrl}${API_ROUTES.PAY.SAVE}`, null, {
+    const res = await axios.post(`${baseUrl}${API_ROUTES.PAY.SUBMIT}`, null, {
       params: {
         user_id: VARIABLES.USER_ID,
         token: VARIABLES.TOKEN,
-        id: payload.id,
+        row_id: payload.id,
         name: payload.name,
         status: payload.status,
       },

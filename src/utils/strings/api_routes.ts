@@ -64,9 +64,8 @@ export const API_ROUTES = {
   },
 
   PAY: {
-    GET: "/list-pay",
-    SAVE: "/submit-pay",
-    EDIT: "/edit-pay",
+    GET_AJAX: "/list-pay-ajax",
+    SUBMIT: "/submit-pay",
     DELETE: "/delete-pay",
     CHECK_DUPLICATE: "/check-duplicate-pay",
   },
