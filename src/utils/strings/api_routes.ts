@@ -122,10 +122,8 @@ export const API_ROUTES = {
   },
 
   EVENTS: {
-    GET: "/list-events",
     GET_AJAX: "/list_events_ajax",
-    SAVE: "/save-events",
-    EDIT: "/edit-event",
+    SUBMIT: "/submit-events",
     DELETE: "/delete-events",
     CHECK_DUPLICATE: "/check-duplicate-event",
   },

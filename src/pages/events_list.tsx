@@ -4,6 +4,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { FiTrash2, FiEdit } from "react-icons/fi";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 import eventsService from "../services/events_service";
 import { EVENTS_STRINGS } from "../utils/strings/pages/events_strings";
 import { CONSTANTS } from "../utils/strings/constants";
@@ -15,12 +16,12 @@ import GlobalService from "../services/global_service";
 const EventsList: React.FC = () => {
   const [items, setItems] = useState<EventModel[]>([]);
   const [loading, setLoading] = useState(false);
-  const [editing, setEditing] = useState<EventModel | null>(null);
 
+  // form states
+  const [userId, setUserId] = useState<number | "">("");
   const [fullName, setFullName] = useState("");
   const [eventName, setEventName] = useState("");
   const [industryType, setIndustryType] = useState<number | "">("");
-  const [selectedIndustry, setSelectedIndustry] = useState<number | "">(""); 
   const [country, setCountry] = useState<number | "">("");
   const [state, setState] = useState<number | "">("");
   const [city, setCity] = useState<number | "">("");
@@ -38,36 +39,62 @@ const EventsList: React.FC = () => {
   const [eventBanner, setEventBanner] = useState<File | null>(null);
   const [status, setStatus] = useState("Active");
 
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
-  const [rowCount, setRowCount] = useState(0);
-
+  // dropdown lists
   const [countries, setCountries] = useState<any[]>([]);
   const [states, setStates] = useState<any[]>([]);
   const [cities, setCities] = useState<any[]>([]);
   const [eventModes, setEventModes] = useState<any[]>([]);
   const [eventTypes, setEventTypes] = useState<any[]>([]);
 
+  const [editing, setEditing] = useState<EventModel | null>(null);
+
+  // pagination
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
+  const [rowCount, setRowCount] = useState(0);
+
+  // load data
   const load = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
     setLoading(true);
     try {
+      const draw = page + 1;
       const start = page * pageSize;
-      const data = await eventsService.getList(page + 1, start, pageSize);
+      const length = pageSize;
+      const res = await eventsService.getList(draw, start, length);
 
-      const list = Array.isArray(data?.data)
-        ? data.data.map((row: any[]) => ({
-            id: Number(row[0]),
-            full_name: row[1] ?? "",
-            event_name: row[2] ?? "",
-            event_venue: row[3] ?? "",
-            status: row[4]?.replace(/<[^>]+>/g, "").trim() ?? "",
-            actions: row[5] ?? "",
-          }))
-        : [];
+      if (res?.status === true || res?.status === "Success") {
+        const list = Array.isArray(res.events_list)
+          ? res.events_list.map((row: any) => ({
+              row_id: Number(row.row_id),
+              event_id: row.event_id ?? "",
+              user_name: row.user_name ?? "",
+              event_name: row.event_name ?? "",
+              event_venue: row.event_venue ?? "",
+              event_link: row.event_link ?? "",
+              latitude: row.latitude ?? "",
+              longitude: row.longitude ?? "",
+              event_geo_address: row.event_geo_address ?? "",
+              date: row.date ?? "",
+              start_time: row.start_time ?? "",
+              end_time: row.end_time ?? "",
+              event_details: row.event_details ?? "",
+              status: row.status ?? "Inactive",
+              industry_id: row.industry_id ?? "",
+              country_id: row.country_id ?? "",
+              state_id: row.state_id ?? "",
+              city_id: row.city_id ?? "",
+              event_mode_id: row.event_mode_id ?? "",
+              event_type_id: row.event_type_id ?? "",
+              event_banner: row.event_banner ?? null,
+            }))
+          : [];
 
-      setItems(list);
-      setRowCount(data?.recordsTotal ?? 0);
-    } catch (err) {
-      console.error(err);
+        setItems(list);
+        setRowCount(res.recordsTotal ?? 0);
+      } else {
+        setItems([]);
+        toast.error(res.message || CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
+      }
+    } catch {
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     } finally {
       setLoading(false);
@@ -78,94 +105,80 @@ const EventsList: React.FC = () => {
     load(paginationModel.page, paginationModel.pageSize);
   }, [paginationModel]);
 
-  // Countries
+  // dropdown fetchers
   useEffect(() => {
-    const fetchCountries = async () => {
-      try {
-        const list = await GlobalService.getCountries();
-        setCountries(list);
-      } catch (err) {
-        console.error("Error loading countries", err);
-      }
-    };
-    fetchCountries();
+    GlobalService.getCountries().then(setCountries).catch(console.error);
+    GlobalService.getEventModes().then(setEventModes).catch(console.error);
+    GlobalService.getEventTypes().then(setEventTypes).catch(console.error);
   }, []);
 
-  // States (depends on country)
   useEffect(() => {
-    if (!country) {
+    if (country) {
+      GlobalService.getStates(country).then(setStates).catch(console.error);
+    } else {
       setStates([]);
-      setCities([]);
       setState("");
-      setCity("");
-      return;
     }
-    const fetchStates = async () => {
-      try {
-        const list = await GlobalService.getStates(country);
-        setStates(list);
-        setCities([]);
-        setState("");
-        setCity("");
-      } catch (err) {
-        console.error("Error loading states", err);
-      }
-    };
-    fetchStates();
   }, [country]);
 
-  // Cities (depends on state)
   useEffect(() => {
-    if (!state) {
+    if (state) {
+      GlobalService.getCities(state).then(setCities).catch(console.error);
+    } else {
       setCities([]);
       setCity("");
-      return;
     }
-    const fetchCities = async () => {
-      try {
-        const list = await GlobalService.getCities(state);
-        setCities(list);
-        setCity("");
-      } catch (err) {
-        console.error("Error loading cities", err);
-      }
-    };
-    fetchCities();
   }, [state]);
 
-  // Event Modes
-  useEffect(() => {
-    const fetchEventModes = async () => {
-      try {
-        const list = await GlobalService.getEventModes();
-        setEventModes(list);
-      } catch (err) {
-        console.error("Error loading event modes", err);
-      }
-    };
-    fetchEventModes();
-  }, []);
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  // Event Types
-  useEffect(() => {
-    const fetchEventTypes = async () => {
-      try {
-        const list = await GlobalService.getEventTypes();
-        setEventTypes(list);
-      } catch (err) {
-        console.error("Error loading event types", err);
-      }
+    const payload = {
+      user_id: userId,
+      event_name: eventName,
+      industry_type: industryType,
+      country_id: country,
+      state_id: state,
+      city_id: city,
+      event_venue: eventVenue,
+      event_link: eventLink,
+      event_lat: latitude,
+      event_lng: longitude,
+      event_geo_address: geoAddress,
+      event_date: eventDate,
+      event_start_time: startTime,
+      event_end_time: endTime,
+      event_mode_id: eventMode,
+      event_type_id: eventType,
+      event_details: eventDetails,
+      status: status === "Active" ? 1 : 0,
+      ...(editing ? { row_id: Number(editing.event_id) } : {}),
     };
-    fetchEventTypes();
-  }, []);
 
+    console.log("Submitting event payload:", payload, "Row ID:", editing?.event_id);
+
+    try {
+      const res = await eventsService.save(payload, editing ? Number(editing.event_id) : undefined);
+      console.log("Save response:", res);
+
+      if (res.status === "Success" || res.status === true) {
+        toast.success(res.info || res.message);
+        resetForm();
+        await load();
+      } else {
+        toast.error(res.info || res.message);
+      }
+    } catch (err) {
+      console.error("Save error:", err);
+      toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
+    }
+  };
 
   const resetForm = () => {
     setEditing(null);
     setFullName("");
     setEventName("");
     setIndustryType("");
-    setSelectedIndustry("");
     setCountry("");
     setState("");
     setCity("");
@@ -184,107 +197,70 @@ const EventsList: React.FC = () => {
     setStatus("Active");
   };
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    try {
-      const formData = new FormData();
-      formData.append("user_id", fullName);
-      formData.append("full_name", fullName || "");
-      formData.append("event_name", eventName || "");
-      formData.append("industry_type", industryType !== "" ? industryType.toString() : "");
-      formData.append("selected_industry", selectedIndustry !== "" ? selectedIndustry.toString() : "");
-      formData.append("country_id", country !== "" ? country.toString() : "");
-      formData.append("state_id", state !== "" ? state.toString() : "");
-      formData.append("city_id", city !== "" ? city.toString() : "");
-      formData.append("event_venue", eventVenue || "");
-      formData.append("event_link", eventLink || "");
-      formData.append("event_lat", latitude || "");
-      formData.append("event_lng", longitude || "");
-      formData.append("event_geo_address", geoAddress || "");
-      formData.append("event_date", eventDate || "");
-      formData.append("event_start_time", startTime || "");
-      formData.append("event_end_time", endTime || "");
-      formData.append("event_mode_id", eventMode !== "" ? eventMode.toString() : "");
-      formData.append("event_type_id", eventType !== "" ? eventType.toString() : "");
-      formData.append("event_details", eventDetails || "");
-      if (eventBanner) formData.append("event_banner", eventBanner);
-      formData.append("status", status === "Active" ? "1" : "0");
-
-      const res = await eventsService.save(formData, editing?.id);
-
-      if (res?.status === "Success") {
-        toast.success(editing ? CONSTANTS.MESSAGES.UPDATE_SUCCESS : CONSTANTS.MESSAGES.SAVE_SUCCESS);
-        resetForm();
-        await load();
-      } else {
-        toast.error(res?.info || CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
-    }
-  };
-
   const onEdit = (item: EventModel) => {
     setEditing(item);
-
-    setFullName(item.user_id?.toString() ?? "");
+    setUserId(item.user_id ? Number(item.user_id) : "");
+    setFullName(item.user_name ?? "");
     setEventName(item.event_name ?? "");
-    setIndustryType(item.industry_type ?? "");
-    setSelectedIndustry(item.industry_id ?? "");
-    setCountry(item.country_id ?? "");
-    setState(item.state_id ?? "");
-    setCity(item.city_id ?? "");
+    setIndustryType(item.industry_id ? Number(item.industry_id) : "");
+    setCountry(item.country_id ? Number(item.country_id) : "");
+    setState(item.state_id ? Number(item.state_id) : "");
+    setCity(item.city_id ? Number(item.city_id) : "");
     setEventVenue(item.event_venue ?? "");
     setEventLink(item.event_link ?? "");
-    setLatitude(item.event_lat ?? "");
-    setLongitude(item.event_lng ?? "");
+    setLatitude(item.latitude ?? "");
+    setLongitude(item.longitude ?? "");
     setGeoAddress(item.event_geo_address ?? "");
-    setEventDate(item.event_date ?? "");
-    setStartTime(item.event_start_time ?? "");
-    setEndTime(item.event_end_time ?? "");
-    setEventMode(item.event_mode_id ?? "");
-    setEventType(item.event_type_id ?? "");
+    setEventDate(item.date ?? "");
+    setStartTime(item.start_time ?? "");
+    setEndTime(item.end_time ?? "");
+    setEventMode(item.event_mode_id ? Number(item.event_mode_id) : "");
+    setEventType(item.event_type_id ? Number(item.event_type_id) : "");
     setEventDetails(item.event_details ?? "");
     setEventBanner(null);
-    setStatus(item.status === 1 ? "Active" : "Inactive");
+    setStatus(item.status ?? "Active");
   };
 
   const onDelete = async (item: EventModel) => {
-    if (!item.id) return;
+    if (!item.event_id) return;
     if (!window.confirm(CONSTANTS.MESSAGES.DELETE_CONFIRM)) return;
 
     try {
-      const res = await eventsService.delete(item.id);
-      if (res?.status === "Success") {
-        toast.success(res.info || CONSTANTS.MESSAGES.DELETE_SUCCESS);
+      const res = await eventsService.delete(Number(item.event_id));
+      const success =
+        res &&
+        (res.status === true ||
+          res.status === "Success" ||
+          res.success === true ||
+          res.rcode === 200);
+
+      if (success) {
+        toast.success(res.info || res.message || CONSTANTS.MESSAGES.DELETE_SUCCESS);
         await load();
       } else {
-        toast.error(res?.info || CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
+        toast.error(res.info || res.message || CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
       }
-    } catch (err) {
-      console.error(err);
+    } catch {
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     }
   };
 
   const columns = useMemo(
     () => [
-      { field: EventLabels.ID, headerName: EVENTS_STRINGS.TABLE.HEADER_ID, width: 100 },
-      { field: EventLabels.FULL_NAME, headerName: EVENTS_STRINGS.TABLE.HEADER_FULL_NAME, width: 200 },
-      { field: EventLabels.NAME, headerName: EVENTS_STRINGS.TABLE.HEADER_NAME, width: 200 },
-      { field: EventLabels.VENUE, headerName: EVENTS_STRINGS.TABLE.HEADER_VENUE, width: 250 },
+      { field: EventLabels.EVENT_ID, headerName: EVENTS_STRINGS.TABLE.HEADER_ID, width: 100 },
+      { field: EventLabels.USER_NAME, headerName: EVENTS_STRINGS.TABLE.HEADER_FULL_NAME, flex: 1 },
+      { field: EventLabels.EVENT_NAME, headerName: EVENTS_STRINGS.TABLE.HEADER_EVENT_NAME, flex: 1 },
+      { field: EventLabels.EVENT_VENUE, headerName: EVENTS_STRINGS.TABLE.HEADER_EVENT_VENUE, flex: 1 },
       {
         field: EventLabels.STATUS,
         headerName: EVENTS_STRINGS.TABLE.HEADER_STATUS,
-        width: 140,
+        width: 120,
         renderCell: (params: any) => (
           <span
             className="text-center p-1 rounded"
             style={{
-              backgroundColor: params.value.toLowerCase().includes("active") ? `${COLORS.green}30` : `${COLORS.red}30`,
-              color: params.value.toLowerCase().includes("active") ? COLORS.green : COLORS.red,
+              backgroundColor: params.value === "Active" ? `${COLORS.green}30` : `${COLORS.red}30`,
+              color: params.value === "Active" ? COLORS.green : COLORS.red,
             }}
           >
             {params.value}
@@ -299,8 +275,8 @@ const EventsList: React.FC = () => {
         filterable: false,
         renderCell: (params: any) => (
           <div className="d-flex align-items-center gap-3 w-100 h-100">
-            <FiEdit className="icon-hover" size={18} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
-            <FiTrash2 className="icon-hover" size={18} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
+            <FiEdit size={18} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
+            <FiTrash2 size={18} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
           </div>
         ),
       },
@@ -319,7 +295,7 @@ const EventsList: React.FC = () => {
               rows={items}
               columns={columns}
               loading={loading}
-              getRowId={(row) => row.id}
+              getRowId={(row) => Number(row.event_id)}
               disableRowSelectionOnClick
               pageSizeOptions={[5, 10, 20, 50]}
               paginationModel={paginationModel}
@@ -339,10 +315,18 @@ const EventsList: React.FC = () => {
             <div className="card-body">
               <form onSubmit={onSubmit} encType="multipart/form-data">
                 <div className="row g-3">
-                  <select className="form-select" value={fullName} onChange={(e) => setFullName(e.target.value)} required>
-                    <option value="">Select User</option>
-                    <option value="54">Test User</option>
-                  </select>
+                  <div className="col-md-12">
+                    <label className="form-label" style={STYLES.field_label}>User *</label>
+                    <select
+                      className="form-select"
+                      value={userId}
+                      onChange={(e) => setUserId(Number(e.target.value))}
+                      required
+                    >
+                      <option value="">Select User</option>
+                      <option value={55}>Test User</option>
+                    </select>
+                  </div>
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>Event Name *</label>
                     <input type="text" className="form-control" value={eventName} onChange={(e) => setEventName(e.target.value)} required />
@@ -374,11 +358,16 @@ const EventsList: React.FC = () => {
                     </select>
                   </div>
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}> City *</label>
-                    <select className="form-select" value={city} onChange={(e) => setCity(Number(e.target.value))} required>
+                    <label className="form-label" style={STYLES.field_label}> City </label>
+                    <select
+                      className="form-select"
+                      value={city}
+                      onChange={(e) => setCity(Number(e.target.value))}>
                       <option value="">Select City</option>
                       {cities.map((c) => (
-                        <option key={c.city_id} value={c.city_id}>{c.city_name}</option>
+                        <option key={c.city_id} value={c.city_id}>
+                          {c.city_name}
+                        </option>
                       ))}
                     </select>
                   </div>

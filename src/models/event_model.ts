@@ -1,48 +1,40 @@
 export interface EventModel {
-  id: number;
-  user_id: number | null;
-  full_name: string | null;
+  row_id: number;
+  user_id: string | null;
+  user_name: string | null;
+  event_id: string | null;
   event_name: string | null;
-  industry_type: number | null;
-  industry_id: number | null;
-  country_id: number | null;
-  state_id: number | null;
-  city_id: number | null;
+  industry_type?: string | null;
+  industry_id?: string | null;
+  industry_name?: string | null;
+  country_id: string | null;
+  country_name?: string | null;
+  state_id: string | null;
+  state_name?: string | null;
+  city_id: string | null;
+  city_name?: string | null;
   event_venue: string | null;
   event_link: string | null;
-  event_lat: string | null;
-  event_lng: string | null;
+  latitude: string | null;
+  longitude: string | null;
   event_geo_address: string | null;
-  event_date: string | null;
-  event_start_time: string | null;
-  event_end_time: string | null;
-  event_mode_id: number | null;
-  event_type_id: number | null;
+  date: string | null;
+  start_time: string | null;
+  end_time: string | null;
+  event_mode_id: string | null;
+  event_mode_name?: string | null;
+  event_type_id: string | null;
+  event_type_name?: string | null;
   event_details: string | null;
-  status: number | null;
+  event_banner?: string | null;
+  status: string | null;
 }
 
 export const EventLabels = {
-  ID: "id",
-  USER_ID: "user_id",
-  NAME: "event_name",
-  FULL_NAME: "full_name", 
-  INDUSTRY_TYPE: "industry_type",
-  INDUSTRY_ID: "industry_id",
-  COUNTRY_ID: "country_id",
-  STATE_ID: "state_id",
-  CITY_ID: "city_id",
-  VENUE: "event_venue",
-  LINK: "event_link",
-  LAT: "event_lat",
-  LNG: "event_lng",
-  GEO_ADDRESS: "event_geo_address",
-  DATE: "event_date",
-  START_TIME: "event_start_time",
-  END_TIME: "event_end_time",
-  MODE_ID: "event_mode_id",
-  TYPE_ID: "event_type_id",
-  DETAILS: "event_details",
+  EVENT_ID: "event_id",
+  USER_NAME: "user_name",
+  EVENT_NAME: "event_name", 
+  EVENT_VENUE: "event_venue", 
   STATUS: "status",
   ACTIONS: "actions",
 };
