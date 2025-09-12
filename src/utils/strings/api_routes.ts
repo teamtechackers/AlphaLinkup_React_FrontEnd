@@ -129,10 +129,8 @@ export const API_ROUTES = {
   },
 
   CARD_ACTIVATION: {
-    GET: "/list-card-activation-requests",
     GET_AJAX: "/list-card-activation-requests-ajax",
-    SAVE: "/save-card-activation-requests",
-    EDIT: "/edit-card-activation-requests",
+    SUBMIT: "/submit-card-activation-requests",
     DELETE: "/delete-card-activation-requests",
     CHECK_DUPLICATE: "/check-duplicate-card-activation-requests",
   },

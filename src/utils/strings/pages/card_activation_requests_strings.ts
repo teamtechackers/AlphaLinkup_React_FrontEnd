@@ -3,9 +3,9 @@ export const CARD_ACTIVATION_REQUESTS_STRINGS = {
   TABLE: {
     TABLE_TITLE: "Card Activation Requests",
     HEADER_ID: "ID",
-    HEADER_NAME: "Name",
+    HEADER_NAME: "Full Name",
     HEADER_DESCRIPTION: "Description",
-    HEADER_REQUEST_STATUS: "Request Status",
+    HEADER_REQUEST_STATUS: "Approval Status",
     HEADER_OVERALL_STATUS: "Status",
     HEADER_ACTIONS: "Actions",
   },

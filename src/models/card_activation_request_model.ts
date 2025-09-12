@@ -1,31 +1,30 @@
 export interface CardActivationRequestModel {
-  id: number;
-  sp_user_id: number | null;
-  name: string | null;
+  row_id: number | string | null;
+  ubc_id: number | string | null;
+  sp_user_id: number | string | null;
+  user_id: number | string | null;
+  user_name: string | null;
+  card_activation_name: string | null;
   business_name: string | null;
   business_location: string | null;
-  country_id: number | null;
-  state_id: number | null;
-  city_id: number | null;
+  country_id: number | string | null;
+  country_name: string | null;
+  state_id: number | string | null;
+  state_name: string | null;
+  city_id: number | string | null;
+  city_name: string | null;
   description: string | null;
   card_number: string | null;
   card_status: string | null;
-  overall_status: string | null;
+  status: string | null;
 }
 
+
 export const CardActivationRequestLabels = {
-  ID: "id",
-  SP_USER_ID: "sp_user_id",
-  NAME: "name",
-  BUSINESS_NAME: "business_name",
-  BUSINESS_LOCATION: "business_location",
-  COUNTRY_ID: "country_id",
-  STATE_ID: "state_id",
-  CITY_ID: "city_id",
+  UBC_ID: "ubc_id",
+  USER_NAME: "user_name",
   DESCRIPTION: "description",
-  CARD_NUMBER: "card_number",
   CARD_STATUS: "card_status",
-  REQUEST_STATUS: "request_status",
-  OVERALL_STATUS: "overall_status",
+  STATUS: "status",
   ACTIONS: "actions",
 };

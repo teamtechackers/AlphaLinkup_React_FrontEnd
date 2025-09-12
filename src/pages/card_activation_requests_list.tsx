@@ -19,6 +19,7 @@ const CardActivationRequestsList: React.FC = () => {
 
   const [editing, setEditing] = useState<CardActivationRequestModel | null>(null);
   const [spUserId, setSpUserId] = useState<number | "">("");
+  const [userId, setUserId] = useState<number | "">("");
   const [fullName, setFullName] = useState("");
   const [name, setName] = useState("");
   const [businessName, setBusinessName] = useState("");
@@ -28,14 +29,36 @@ const CardActivationRequestsList: React.FC = () => {
   const [cityId, setCityId] = useState<number | "">("");
   const [description, setDescription] = useState("");
   const [cardNumber, setCardNumber] = useState("");
-  const [overallStatus, setOverallStatus] = useState("Active");
-  const [requestStatus, setRequestStatus] = useState("Pending");
+
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const [rowCount, setRowCount] = useState(0);
+
+  const [requestStatus, setRequestStatus] = useState<number | "">(1);
+  const [overallStatus, setOverallStatus] = useState<number | "">(1);
 
   const [countries, setCountries] = useState<any[]>([]);
   const [states, setStates] = useState<any[]>([]);
   const [cities, setCities] = useState<any[]>([]);
+
+  const parseCardStatus = (raw: any): number => {
+    if (raw == null) return 1;
+    if (typeof raw === "number") return raw;
+    const s = String(raw).trim();
+    if (!isNaN(Number(s)) && s !== "") return Number(s);
+    const l = s.toLowerCase();
+    if (l.startsWith("pend")) return 1;
+    if (l.startsWith("app")) return 2;
+    if (l.startsWith("rej")) return 3;
+    return 1;
+  };
+
+  const parseOverallStatus = (raw: any): number => {
+    if (raw == null) return 1;
+    if (typeof raw === "number") return raw;
+    const s = String(raw).trim().toLowerCase();
+    if (s === "1" || s.includes("active")) return 1;
+    return 0;
+  };
 
   const load = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
     setLoading(true);
@@ -43,20 +66,26 @@ const CardActivationRequestsList: React.FC = () => {
       const start = page * pageSize;
       const data = await cardActivationRequestsService.getList(page + 1, start, pageSize);
 
-      const list = Array.isArray(data?.data)
-        ? data.data.map((row: any[]) => ({
-            id: Number(row[0]),
-            name: row[1] ?? "",
-            description: row[2] ?? "",
-            request_status: row[3]?.replace(/<[^>]+>/g, "").trim() ?? "",
-            overall_status: row[4]?.replace(/<[^>]+>/g, "").trim() ?? "",
-            business_name: "",
-            sp_user_id: null,
-            country_id: null,
-            state_id: null,
-            city_id: null,
-            card_number: "",
-            card_status: "",
+      const list = Array.isArray(data?.card_activation_requests_list)
+        ? data.card_activation_requests_list.map((row: any) => ({
+            row_id: Number(row.row_id),
+            ubc_id: row.ubc_id ? Number(row.ubc_id) : null,
+            sp_user_id: row.sp_user_id ? Number(row.sp_user_id) : null,
+            user_id: row.user_id ? Number(row.user_id) : null,
+            user_name: row.user_name ?? "",
+            card_activation_name: row.card_activation_name ?? "",
+            business_name: row.business_name ?? "",
+            business_location: row.business_location ?? "",
+            country_id: row.country_id ?? null,
+            country_name: row.country_name ?? "",
+            state_id: row.state_id ?? null,
+            state_name: row.state_name ?? "",
+            city_id: row.city_id ?? null,
+            city_name: row.city_name ?? "",
+            description: row.description ?? "",
+            card_number: row.card_number ?? "",
+            card_status: row.card_status ?? "",
+            status: row.status ?? "",
           }))
         : [];
 
@@ -122,33 +151,27 @@ const CardActivationRequestsList: React.FC = () => {
     fetchCities();
   }, [stateId]);
 
-
-  const resetForm = () => {
-    setEditing(null);
-    setSpUserId("");
-    setFullName("");
-    setName("");
-    setBusinessName("");
-    setBusinessLocation("");
-    setCountryId("");
-    setStateId("");
-    setCityId("");
-    setDescription("");
-    setCardNumber("");
-    setRequestStatus("Pending");
-    setOverallStatus("Active");
-  };
-
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const payload = {
-        id: editing?.id ?? 0,
-        sp_user_id: Number(spUserId),
-        description,
-        status: overallStatus === "Active" ? 1 : 0,
+      const payload: Partial<CardActivationRequestModel> = {
+        ...(editing ? { row_id: editing.ubc_id } : {}),
+        sp_user_id: spUserId !== "" ? spUserId : editing?.sp_user_id ?? "",
+        user_name: name || editing?.user_name || "",
+        card_activation_name: fullName || editing?.card_activation_name || "",
+        business_name: businessName || editing?.business_name || "",
+        business_location: businessLocation || editing?.business_location || "",
+        country_id: countryId !== "" ? countryId : editing?.country_id ?? "",
+        state_id: stateId !== "" ? stateId : editing?.state_id ?? "",
+        city_id: cityId !== "" ? cityId : editing?.city_id ?? "",
+        description: description || editing?.description || "",
+        card_number: cardNumber || editing?.card_number || "",
+        card_status: String(requestStatus !== "" ? requestStatus : parseCardStatus(editing?.card_status)),
+        status: String(overallStatus !== "" ? overallStatus : parseOverallStatus(editing?.status)),
       };
+
+      console.log("Submit payload: ", payload);
 
       const res = await cardActivationRequestsService.save(payload);
 
@@ -174,18 +197,45 @@ const CardActivationRequestsList: React.FC = () => {
 
   const onEdit = (item: CardActivationRequestModel) => {
     setEditing(item);
-    setSpUserId(item.id);
-    setFullName(item.name ?? "");
+
+    setSpUserId(item.sp_user_id !== null && item.sp_user_id !== undefined ? Number(item.sp_user_id) : "");
+    setUserId(item.user_id !== null && item.user_id !== undefined ? Number(item.user_id) : "");
+    setFullName(item.card_activation_name ?? "");
+    setName(item.user_name ?? "");
+    setBusinessName(item.business_name ?? "");
+    setBusinessLocation(item.business_location ?? "");
+    setCountryId(item.country_id ? Number(item.country_id) : "");
+    setStateId(item.state_id ? Number(item.state_id) : "");
+    setCityId(item.city_id ? Number(item.city_id) : "");
     setDescription(item.description ?? "");
-    setOverallStatus(item.overall_status ?? "Active");
+    setCardNumber(item.card_number ?? "");
+    setRequestStatus(parseCardStatus(item.card_status));
+    setOverallStatus(parseOverallStatus(item.status));
+  };
+
+  const resetForm = () => {
+    setEditing(null);
+    setSpUserId("");
+    setUserId("");
+    setFullName("");
+    setName("");
+    setBusinessName("");
+    setBusinessLocation("");
+    setCountryId("");
+    setStateId("");
+    setCityId("");
+    setDescription("");
+    setCardNumber("");
+     setRequestStatus(1);
+    setOverallStatus(1);
   };
 
   const onDelete = async (item: CardActivationRequestModel) => {
-    if (!item.id) return;
+    if (!item.ubc_id) return;
     if (!window.confirm(CONSTANTS.MESSAGES.DELETE_CONFIRM)) return;
 
     try {
-      const res = await cardActivationRequestsService.delete(item.id);
+      const res = await cardActivationRequestsService.delete(Number(item.ubc_id));
       const success =
         res &&
         (res.status === "Success" ||
@@ -248,18 +298,18 @@ const CardActivationRequestsList: React.FC = () => {
 
   const columns = useMemo(
     () => [
-      { field: CardActivationRequestLabels.ID, headerName: CARD_ACTIVATION_REQUESTS_STRINGS.TABLE.HEADER_ID, width: 100 },
-      { field: CardActivationRequestLabels.NAME, headerName: CARD_ACTIVATION_REQUESTS_STRINGS.TABLE.HEADER_NAME, width: 150 },
+      { field: CardActivationRequestLabels.UBC_ID, headerName: CARD_ACTIVATION_REQUESTS_STRINGS.TABLE.HEADER_ID, width: 100 },
+      { field: CardActivationRequestLabels.USER_NAME, headerName: CARD_ACTIVATION_REQUESTS_STRINGS.TABLE.HEADER_NAME, width: 150 },
       { field: CardActivationRequestLabels.DESCRIPTION, headerName: CARD_ACTIVATION_REQUESTS_STRINGS.TABLE.HEADER_DESCRIPTION, width: 250 },
       {
-        field: CardActivationRequestLabels.REQUEST_STATUS,
+        field: CardActivationRequestLabels.CARD_STATUS,
         headerName: CARD_ACTIVATION_REQUESTS_STRINGS.TABLE.HEADER_REQUEST_STATUS,
         width: 160,
         renderCell: (params: any) =>
           renderRequestStatus(params.value ?? params.row?.request_status),
       },
       {
-        field: CardActivationRequestLabels.OVERALL_STATUS,
+        field: CardActivationRequestLabels.STATUS,
         headerName: CARD_ACTIVATION_REQUESTS_STRINGS.TABLE.HEADER_OVERALL_STATUS,
         width: 140,
         renderCell: (params: any) => (
@@ -302,7 +352,7 @@ const CardActivationRequestsList: React.FC = () => {
               rows={items}
               columns={columns}
               loading={loading}
-              getRowId={(row) => row.id}
+              getRowId={(row) => row.ubc_id ?? 0}
               disableRowSelectionOnClick
               pageSizeOptions={[5, 10, 20, 50]}
               paginationModel={paginationModel}
@@ -322,11 +372,22 @@ const CardActivationRequestsList: React.FC = () => {
             <div className="card-body">
               <form onSubmit={onSubmit}>
                 <div className="row g-3 align-items-end">
-                  {/* Full Name */}
+                  {/* Full Name (static single user per your instruction) */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>{CARD_ACTIVATION_REQUESTS_STRINGS.FORM.LABELS.FULL_NAME} *</label>
-                    <select className="form-select" value={spUserId} onChange={(e) => setSpUserId(Number(e.target.value))} required>
-                      <option value={54}>Test User</option>
+                    <select
+                      className="form-select"
+                      value={spUserId === "" ? 0 : spUserId}
+                      onChange={(e) => {
+                        const v = e.target.value === "" ? "" : Number(e.target.value);
+                        setSpUserId(v === "" ? "" : Number(v));
+                        // since only one user exists, keep userId same as spUserId
+                        setUserId(v === "" ? "" : Number(v));
+                      }}
+                      required
+                    >
+                      <option value={0}>Select User</option>
+                      <option value={42}>Test User</option>
                     </select>
                   </div>
 
@@ -392,7 +453,7 @@ const CardActivationRequestsList: React.FC = () => {
                       className="form-select"
                       value={cityId}
                       onChange={(e) => setCityId(Number(e.target.value))}
-                      required
+                      
                       disabled={!stateId}
                     >
                       <option value="">-- Select City --</option>
@@ -416,29 +477,29 @@ const CardActivationRequestsList: React.FC = () => {
                     <input type="text" className="form-control" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} required />
                   </div>
 
-                  {/* Request Status */}
+                  {/* Request Status (numbers!) */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
                       {CARD_ACTIVATION_REQUESTS_STRINGS.FORM.LABELS.CARD_STATUS} *
                     </label>
                     <select
                       className="form-select"
-                      value={requestStatus}
-                      onChange={(e) => setRequestStatus(e.target.value)}
+                      value={requestStatus === "" ? 1 : requestStatus}
+                      onChange={(e) => setRequestStatus(e.target.value === "" ? "" : Number(e.target.value))}
                       required
                     >
-                      <option value="1">Pending</option>
-                      <option value="2">Approved</option>
-                      <option value="3">Rejected</option>
+                      <option value={1}>Pending</option>
+                      <option value={2}>Approved</option>
+                      <option value={3}>Rejected</option>
                     </select>
                   </div>
 
-                  {/* Overall Status */}
+                  {/* Overall Status (numbers!) */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>{CARD_ACTIVATION_REQUESTS_STRINGS.FORM.LABELS.STATE} *</label>
-                    <select className="form-select" value={overallStatus} onChange={(e) => setOverallStatus(e.target.value)} required>
-                      <option value="1">Active</option>
-                      <option value="0">Inactive</option>
+                    <select className="form-select" value={overallStatus === "" ? 1 : overallStatus} onChange={(e) => setOverallStatus(e.target.value === "" ? "" : Number(e.target.value))} required>
+                      <option value={1}>Active</option>
+                      <option value={0}>Inactive</option>
                     </select>
                   </div>
                 </div>
