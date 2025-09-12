@@ -33,9 +33,9 @@ const InterestsList: React.FC = () => {
             const statusHtml = row[2] as string;
             const isActive = statusHtml.toLowerCase().includes("active");
             return {
-              id: row[0],
               name: row[1],
-              status: isActive ? 1 : 0,
+               status: row[2]?.includes("Active") ? 1 : 0,
+              id: row[3],
             } as InterestModel;
           })
         : [];
