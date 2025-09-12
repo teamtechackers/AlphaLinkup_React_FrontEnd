@@ -5,23 +5,29 @@ import { API_ROUTES } from "../utils/strings/api_routes";
 const baseUrl = process.env.REACT_APP_API_BASE_URL as string;
 
 const eventTypesService = {
-  getEventTypesList: async () => {
-    const res = await axios.get(`${baseUrl}${API_ROUTES.EVENT_TYPE.GET}`, {
-      params: { user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN },
+  getEventTypesList: async (draw = 1, start = 0, length = 10) => {
+    const res = await axios.get(`${baseUrl}${API_ROUTES.EVENT_TYPE.GET_AJAX}`, {
+      params: {
+        user_id: VARIABLES.USER_ID,
+        token: VARIABLES.TOKEN,
+        draw,
+        start,
+        length,
+      },
     });
     return res.data;
   },
 
-  saveEventType: async (payload: { id: number; name: string; status: number }) => {
-    const res = await axios.post(`${baseUrl}${API_ROUTES.EVENT_TYPE.SAVE}`, null, {
-      params: {
-        user_id: VARIABLES.USER_ID,
-        token: VARIABLES.TOKEN,
-        id: payload.id,
-        name: payload.name,
-        status: payload.status,
-      },
-    });
+  saveEventType: async (payload: { id?: number; name: string; status: number }) => {
+    const params: any = {
+      user_id: VARIABLES.USER_ID,
+      token: VARIABLES.TOKEN,
+      name: payload.name,
+      status: payload.status,
+    };
+    if (payload.id && payload.id > 0) params.id = payload.id;
+
+    const res = await axios.post(`${baseUrl}${API_ROUTES.EVENT_TYPE.SUBMIT}`, null, { params });
     return res.data;
   },
 

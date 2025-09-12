@@ -17,13 +17,27 @@ const EventTypesList: React.FC = () => {
   const [editing, setEditing] = useState<EventTypeModel | null>(null);
   const [name, setName] = useState("");
   const [status, setStatus] = useState("1");
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
+  const [draw, setDraw] = useState(1);
+  const [rowCount, setRowCount] = useState(0);
 
-  const load = async () => {
+  const load = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
     setLoading(true);
     try {
-      const data = await eventTypesService.getEventTypesList();
-      const list = Array.isArray(data?.event_type_list) ? data.event_type_list : [];
-      setItems(list as EventTypeModel[]);
+      const start = page * pageSize;
+      const data = await eventTypesService.getEventTypesList(draw, start, pageSize);
+
+      const list: EventTypeModel[] = Array.isArray(data?.data)
+        ? data.data.map((row: any) => ({
+            id: Number(row[3]),
+            name: row[1],
+            status: row[2].includes("Active") ? 1 : 0,
+          }))
+        : [];
+
+      setItems(list);
+      setRowCount(data.recordsTotal || 0);
+      setDraw((d) => d + 1);
     } finally {
       setLoading(false);
     }
@@ -31,12 +45,12 @@ const EventTypesList: React.FC = () => {
 
   useEffect(() => {
     load();
-  }, []);
+  }, [paginationModel]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const payload = { id: editing?.id ?? 0, name, status: Number(status) };
+      const payload = { id: editing?.id, name, status: Number(status) };
       const res = await eventTypesService.saveEventType(payload);
 
       if (res.status === "Success" || res.status === true) {
@@ -117,7 +131,6 @@ const EventTypesList: React.FC = () => {
     <div className="container-fluid page-padding-2 vh-100" style={{ backgroundColor: COLORS.lightGray }}>
       <h4 className="my-4">{EVENT_TYPES_STRINGS.TITLE}</h4>
       <div className="row g-4 w-100">
-        {/* Table */}
         <div className="col-lg-8 p-0">
           <Box sx={{ height: 800, width: "100%" }}>
             <DataGrid
@@ -126,14 +139,15 @@ const EventTypesList: React.FC = () => {
               loading={loading}
               getRowId={(row) => row.id}
               disableRowSelectionOnClick
+              paginationMode="server"
+              rowCount={rowCount}
+              paginationModel={paginationModel}
+              onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
               pageSizeOptions={[5, 10, 20, 50]}
-              paginationModel={{ page: 0, pageSize: 10 }}
-              pagination
             />
           </Box>
         </div>
 
-        {/* Form */}
         <div className="col-lg-4">
           <div className="card shadow-sm">
             <div className="card-header" style={{ backgroundColor: COLORS.lightGray }}>
@@ -144,7 +158,6 @@ const EventTypesList: React.FC = () => {
             <div className="card-body">
               <form onSubmit={onSubmit}>
                 <div className="row g-3 align-items-end">
-                  {/* Name */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
                       {EVENT_TYPES_STRINGS.TABLE.HEADER_NAME} *
@@ -158,7 +171,6 @@ const EventTypesList: React.FC = () => {
                     />
                   </div>
 
-                  {/* Status */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
                       {EVENT_TYPES_STRINGS.TABLE.HEADER_STATUS} *

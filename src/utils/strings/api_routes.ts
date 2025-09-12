@@ -71,17 +71,15 @@ export const API_ROUTES = {
   },
 
   EVENT_MODES: {
-    GET: "/list-event-mode",
-    SAVE: "/submit-event-mode",
-    EDIT: "/edit-event-mode",
+    GET_AJAX: "/list-event-mode-ajax",
+    SUBMIT: "/submit-event-mode",
     DELETE: "/delete-event-mode",
     CHECK_DUPLICATE: "/check-duplicate-event-mode",
   },
 
   EVENT_TYPE: {
-    GET: "/list-event-type",
-    SAVE: "/submit-event-type",
-    EDIT: "/edit-event-type",
+    GET_AJAX: "/list-event-type-ajax",
+    SUBMIT: "/submit-event-type",
     DELETE: "/delete-event-type",
     CHECK_DUPLICATE: "/check-duplicate-event-type",
   },

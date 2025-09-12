@@ -18,19 +18,35 @@ const EventModesList: React.FC = () => {
   const [editing, setEditing] = useState<EventModeModel | null>(null);
   const [name, setName] = useState("");
   const [status, setStatus] = useState("1");
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 5 });
+  const [draw, setDraw] = useState(1);
+  const [rowCount, setRowCount] = useState(0);
 
   const load = async () => {
     setLoading(true);
     try {
-      const data = await eventModesService.getEventModesList();
-      const list = Array.isArray(data?.event_mode_list) ? data.event_mode_list : [];
-      setItems(list as EventModeModel[]);
+      const { page, pageSize } = paginationModel;
+      const start = page * pageSize;
+
+      const data = await eventModesService.getEventModesList(draw, start, pageSize);
+
+      const list: EventModeModel[] = Array.isArray(data?.data)
+        ? data.data.map((row: any) => ({
+            id: Number(row[3]),
+            name: row[1],
+            status: row[2].includes("Active") ? 1 : 0,
+          }))
+        : [];
+
+      setItems(list);
+      setRowCount(data.recordsTotal || 0);
+      setDraw((d) => d + 1);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [paginationModel]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,9 +138,10 @@ const EventModesList: React.FC = () => {
               loading={loading}
               getRowId={(row) => row.id}
               disableRowSelectionOnClick
-              pageSizeOptions={[5, 10, 20, 50]}
-              paginationModel={{ page: 0, pageSize: 10 }}
-              pagination
+              paginationMode="server"
+              rowCount={rowCount}
+              paginationModel={paginationModel}
+              onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
             />
           </Box>
         </div>

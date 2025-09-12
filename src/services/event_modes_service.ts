@@ -5,9 +5,15 @@ import { API_ROUTES } from "../utils/strings/api_routes";
 const baseUrl = process.env.REACT_APP_API_BASE_URL as string;
 
 const eventModesService = {
-  getEventModesList: async () => {
-    const res = await axios.get(`${baseUrl}${API_ROUTES.EVENT_MODES.GET}`, {
-      params: { user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN },
+  getEventModesList: async (draw = 1, start = 0, length = 10) => {
+    const res = await axios.get(`${baseUrl}${API_ROUTES.EVENT_MODES.GET_AJAX}`, {
+      params: {
+        user_id: VARIABLES.USER_ID,
+        token: VARIABLES.TOKEN,
+        draw,
+        start,
+        length,
+      },
     });
     return res.data;
   },
@@ -24,7 +30,7 @@ const eventModesService = {
       params.row_id = payload.id;
     }
 
-    const res = await axios.post(`${baseUrl}${API_ROUTES.EVENT_MODES.SAVE}`, null, { params });
+    const res = await axios.post(`${baseUrl}${API_ROUTES.EVENT_MODES.SUBMIT}`, null, { params });
     return res.data;
   },
 
