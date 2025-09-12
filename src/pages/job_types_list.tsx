@@ -1,4 +1,3 @@
-// pages/JobTypesList.tsx
 import React, { useEffect, useState, useMemo } from "react";
 import Box from "@mui/material/Box";
 import { DataGrid } from "@mui/x-data-grid";
@@ -21,24 +20,45 @@ const JobTypesList: React.FC = () => {
     page: 0,
     pageSize: 10,
   });
-  
+  const [draw, setDraw] = useState(1);
+  const [rowCount, setRowCount] = useState(0);
+
   const load = async () => {
     setLoading(true);
     try {
-      const data = await jobTypesService.getJobTypesList();
-      const list = Array.isArray(data?.job_type_list) ? data.job_type_list : [];
-      setItems(list as JobTypeModel[]);
+      const { page, pageSize } = paginationModel;
+      const start = page * pageSize;
+
+      const data = await jobTypesService.getJobTypesList(draw, start, pageSize);
+
+      console.log(data);
+
+      const list: JobTypeModel[] = Array.isArray(data?.data)
+        ? data.data.map((row: any) => ({
+            id: Number(row[3]),
+            name: row[1],
+            status: row[2].includes("Active") ? 1 : 0,
+          }))
+        : [];
+
+      setItems(list);
+      setRowCount(data.recordsTotal || 0);
+      setDraw((d) => d + 1);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [paginationModel]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const payload = { id: editing?.id ?? 0, name, status: Number(status) };
+      const payload = { 
+        row_id: editing?.id,
+        name, 
+        status: Number(status) 
+      };
       const res = await jobTypesService.saveJobType(payload);
 
       if (res.status === "Success" || res.status === true) {
@@ -120,17 +140,16 @@ const JobTypesList: React.FC = () => {
         <div className="col-lg-8 p-0">
           <Box sx={{ height: 800, width: '100%' }}>
           <DataGrid
-  rows={items}
-  columns={columns}
-  loading={loading}
-  getRowId={(row) => row.id}
-  disableRowSelectionOnClick
-  pageSizeOptions={[5, 10, 20, 50]}
-  paginationModel={paginationModel}
-  onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
-  pagination
-/>
-
+            rows={items}
+            columns={columns}
+            loading={loading}
+            getRowId={(row) => row.id}
+            disableRowSelectionOnClick
+            paginationMode="server"
+            rowCount={rowCount}
+            paginationModel={paginationModel}
+            onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
+          />
           </Box>
         </div>
 

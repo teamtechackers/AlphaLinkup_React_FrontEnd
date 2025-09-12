@@ -55,14 +55,14 @@ export const API_ROUTES = {
     DELETE: "/delete-interest",
     CHECK_DUPLICATE: "/check-duplicate-interests",
   },
+
   JOB_TYPE: {
-    GET: "/list-job-type",
     GET_AJAX: "/list-job-type-ajax",
-    SAVE: "/submit-job-type",
-    EDIT: "/edit-job-type",
+    SUBMIT: "/submit-job-type",
     DELETE: "/delete-job-type",
     CHECK_DUPLICATE: "/check-duplicate-job-type",
   },
+
   PAY: {
     GET: "/list-pay",
     SAVE: "/submit-pay",
@@ -70,6 +70,7 @@ export const API_ROUTES = {
     DELETE: "/delete-pay",
     CHECK_DUPLICATE: "/check-duplicate-pay",
   },
+
   EVENT_MODES: {
     GET: "/list-event-mode",
     SAVE: "/submit-event-mode",
@@ -77,6 +78,7 @@ export const API_ROUTES = {
     DELETE: "/delete-event-mode",
     CHECK_DUPLICATE: "/check-duplicate-event-mode",
   },
+
   EVENT_TYPE: {
     GET: "/list-event-type",
     SAVE: "/submit-event-type",
@@ -84,6 +86,7 @@ export const API_ROUTES = {
     DELETE: "/delete-event-type",
     CHECK_DUPLICATE: "/check-duplicate-event-type",
   },
+
   INDUSTRY_TYPE: {
     GET: "/list-industry-type",
     SAVE: "/submit-industry-type",
@@ -91,6 +94,7 @@ export const API_ROUTES = {
     DELETE: "/delete-industry-type",
     CHECK_DUPLICATE: "/check-duplicate-industry-type",
   },
+
   FUND_SIZE: {
     GET: "/list-fund-size",
     SAVE: "submit-fund-size",
