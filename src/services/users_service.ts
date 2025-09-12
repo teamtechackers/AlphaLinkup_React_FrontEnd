@@ -37,7 +37,7 @@ const usersService = {
       params.row_id = payload.user_id;
     }
 
-    const res = await axios.post(`${baseUrl}${API_ROUTES.USERS.SAVE}`, null, { params });
+    const res = await axios.post(`${baseUrl}${API_ROUTES.USERS.SUBMIT}`, null, { params });
     return res.data;
   },
 

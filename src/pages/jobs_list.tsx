@@ -44,29 +44,34 @@ const JobsList: React.FC = () => {
     setLoading(true);
     try {
       const start = page * pageSize;
-      const data = await jobsService.getList(page + 1, start, pageSize);
+      const { data, recordsTotal } = await jobsService.getList(page + 1, start, pageSize);
 
-      const list = Array.isArray(data?.jobs_list)
-        ? data.jobs_list.map((row: any) => ({
-            id: Number(row.job_id),
-            full_name: row.user_name ?? "",
-            job_title: row.job_title ?? "",
+      const list: JobModel[] = Array.isArray(data)
+        ? data.map((row: any) => ({
+            row_id: Number(row.row_id),
+            job_id: row.job_id ?? "",
+            user_id: row.user_id ?? "",
+            user_name: row.user_name ?? "",
             company_name: row.company_name ?? "",
-            status: row.status === "1" ? "Active" : "Inactive",
-            country_id: row.country_id ? Number(row.country_id) : null,
-            state_id: row.state_id ? Number(row.state_id) : null,
-            city_id: row.city_id ? Number(row.city_id) : null,
+            country_id: row.country_id ?? "",
+            country_name: row.country_name ?? "",
+            state_id: row.state_id ?? "",
+            state_name: row.state_name ?? "",
+            city_id: row.city_id ?? "",
+            city_name: row.city_name ?? "",
             address: row.address ?? "",
-            job_lat: row.job_lat ? Number(row.job_lat) : null,
-            job_lng: row.job_lng ? Number(row.job_lng) : null,
-            job_type_id: row.job_type_id ? Number(row.job_type_id) : null,
-            pay_id: row.pay_id ? Number(row.pay_id) : null,
-            job_description: row.job_description ?? "",
+            latitude: row.latitude ?? "",
+            longitude: row.longitude ?? "",
+            job_type_id: row.job_type_id ?? "",
+            job_type_name: row.job_type_name ?? "",
+            pay_id: row.pay_id ?? "",
+            pay_name: row.pay_name ?? "",
+            status: row.status ?? "Inactive",
           }))
         : [];
 
       setItems(list);
-      setRowCount(data?.recordsTotal ?? 0);
+      setRowCount(recordsTotal ?? 0);
     } catch (err) {
       console.error(err);
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
@@ -172,24 +177,26 @@ const JobsList: React.FC = () => {
     e.preventDefault();
     try {
       const payload: any = {
-        user_id: 2,
-        full_name: fullName,
+        user_id: "2",
         job_title: jobTitle,
         company_name: companyName,
-        country_id: Number(countryId),
-        state_id: Number(stateId),
-        city_id: Number(cityId),
+        country_id: countryId || "",
+        state_id: stateId || "",
+        city_id: cityId || "",
         address,
-        job_lat: Number(jobLat),
-        job_lng: Number(jobLng),
-        job_type_id: Number(jobTypeId),
-        pay_id: Number(payId),
+        job_lat: jobLat || "",
+        job_lng: jobLng || "",
+        job_type_id: jobTypeId || "",
+        pay_id: payId || "",
         job_description: jobDescription,
         status: status === "Active" ? 1 : 0,
       };
 
-      if (editing?.id) {
-        payload.job_id = editing.id;
+      if (editing && editing.row_id) {
+        payload.row_id = editing.row_id;
+        console.log("Updating with row_id:", payload.row_id);
+      } else {
+        console.log("Creating new job");
       }
 
       const res = await jobsService.save(payload);
@@ -197,9 +204,9 @@ const JobsList: React.FC = () => {
       const success =
         res &&
         (res.status === true ||
-          (typeof res.status === "string" && res.status.toLowerCase().includes("success")) ||
+          res.rcode === 200 ||
           res.success === true ||
-          res.rcode === 200);
+          (typeof res.status === "string" && res.status.toLowerCase().includes("success")));
 
       if (success) {
         toast.success(editing ? CONSTANTS.MESSAGES.UPDATE_SUCCESS : CONSTANTS.MESSAGES.SAVE_SUCCESS);
@@ -215,37 +222,39 @@ const JobsList: React.FC = () => {
   };
 
   const onEdit = (item: JobModel) => {
+    console.log("Editing item:", item); 
+
     setEditing(item);
-    setFullName(item.full_name ?? "");
-    setJobTitle(item.job_title ?? "");
+    setJobTitle("");
     setCompanyName(item.company_name ?? "");
-    setCountryId(item.country_id ?? "");
-    setStateId(item.state_id ?? "");
-    setCityId(item.city_id ?? "");
+    setCountryId(item.country_id ? Number(item.country_id) : "");
+    setStateId(item.state_id ? Number(item.state_id) : "");
+    setCityId(item.city_id ? Number(item.city_id) : "");
     setAddress(item.address ?? "");
-    setJobLat(item.job_lat ?? "");
-    setJobLng(item.job_lng ?? "");
-    setJobTypeId(item.job_type_id ?? "");
-    setPayId(item.pay_id ?? "");
-    setJobDescription(item.job_description ?? "");
+    setJobLat(item.latitude ? Number(item.latitude) : "");
+    setJobLng(item.longitude ? Number(item.longitude) : "");
+    setJobTypeId(item.job_type_id ? Number(item.job_type_id) : "");
+    setPayId(item.pay_id ? Number(item.pay_id) : "");
+    setJobDescription("");
     setStatus(item.status ?? "Active");
   };
 
-  const onDelete = async (id: number) => {
-    if (!id) return;
+  const onDelete = async (rowId: number) => {
+    if (!rowId) return;
     if (!window.confirm(CONSTANTS.MESSAGES.DELETE_CONFIRM)) return;
 
     try {
-      const res = await jobsService.delete(id);
+      const res = await jobsService.delete(rowId);
+
       const success =
         res &&
-        (res.status === "Success" ||
-          (typeof res.status === "string" && res.status.toLowerCase().includes("success")) ||
-          res.success === true);
+        (res.success === true || (res.status && res.status.toString().toLowerCase() === "success"));
 
       if (success) {
         toast.success(res.info || CONSTANTS.MESSAGES.DELETE_SUCCESS);
-        await load();
+
+        setItems(prev => prev.filter(item => item.row_id !== rowId));
+        setRowCount(prev => prev - 1);
       } else {
         toast.error(res.message || CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
       }
@@ -257,7 +266,8 @@ const JobsList: React.FC = () => {
 
   const columns = useMemo(
     () => [
-      { field: JobLabels.FULL_NAME, headerName: JOBS_STRINGS.TABLE.HEADER_FULL_NAME, width: 150 },
+      { field: JobLabels.ROW_ID, headerName: JOBS_STRINGS.TABLE.HEADER_ROW_ID, width: 150 },
+      { field: JobLabels.USER_NAME, headerName: JOBS_STRINGS.TABLE.HEADER_FULL_NAME, width: 150 },
       { field: JobLabels.JOB_TITLE, headerName: JOBS_STRINGS.TABLE.HEADER_JOB_TITLE, width: 150 },
       { field: JobLabels.COMPANY_NAME, headerName: JOBS_STRINGS.TABLE.HEADER_COMPANY_NAME, width: 150 },
       {
@@ -288,7 +298,11 @@ const JobsList: React.FC = () => {
         renderCell: (params: any) => (
           <div className="d-flex align-items-center gap-3 w-100 h-100">
             <FiEdit size={18} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
-            <FiTrash2 size={18} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row.id)} />
+            <FiTrash2
+              size={18}
+              style={{ cursor: "pointer" }}
+              onClick={() => onDelete(params.row.row_id)}
+            />
           </div>
         ),
       },
@@ -307,7 +321,7 @@ const JobsList: React.FC = () => {
               rows={items}
               columns={columns}
               loading={loading}
-              getRowId={(row) => row.id}
+              getRowId={(row) => row.row_id}
               disableRowSelectionOnClick
               pageSizeOptions={[5, 10, 20, 50]}
               paginationModel={paginationModel}

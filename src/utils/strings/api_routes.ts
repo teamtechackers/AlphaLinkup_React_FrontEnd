@@ -109,16 +109,14 @@ export const API_ROUTES = {
 
   USERS: {
     GET_AJAX: "/list-users-ajax",
-    SAVE: "/submit-users",
+    SUBMIT: "/submit-users",
     DELETE: "/delete-users",
     CHECK_DUPLICATE: "/check-duplicate-users",
   },
 
   JOBS: {
-    GET: "/list-jobs",
     GET_AJAX: "/list-jobs-ajax",
-    SAVE: "/save-jobs",
-    EDIT: "/edit-job",
+    SUBMIT: "/submit-jobs",
     DELETE: "/delete-jobs",
     CHECK_DUPLICATE: "/check-duplicate-job",
   },

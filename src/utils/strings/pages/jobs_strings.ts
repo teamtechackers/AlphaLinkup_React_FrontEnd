@@ -2,6 +2,7 @@ export const JOBS_STRINGS = {
   TITLE: "Jobs",
   TABLE: {
     TABLE_TITLE: "Jobs List",
+    HEADER_ROW_ID: "ID",
     HEADER_FULL_NAME: "Full Name",
     HEADER_JOB_TITLE: "Job Title",
     HEADER_COMPANY_NAME: "Company Name",

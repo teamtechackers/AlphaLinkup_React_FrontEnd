@@ -16,13 +16,18 @@ const jobsService = {
         length,
       },
     });
-    return res.data;
+
+    return {
+      data: res.data.jobs_list,
+      recordsTotal: res.data.recordsTotal,
+      recordsFiltered: res.data.recordsFiltered,
+    };
   },
 
   save: async (payload: any) => {
     const body = qs.stringify(payload);
 
-    const res = await axios.post(`${baseUrl}${API_ROUTES.JOBS.SAVE}`, body, {
+    const res = await axios.post(`${baseUrl}${API_ROUTES.JOBS.SUBMIT}`, body, {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       params: { user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN },
     });
