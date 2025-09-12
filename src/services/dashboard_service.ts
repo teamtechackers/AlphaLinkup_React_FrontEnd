@@ -11,7 +11,7 @@ const dashboardService = {
 
     const currentUser = authService.getUser();
 
-    const userIdSource = userIdPlain || currentUser.id;
+    const userIdSource = userIdPlain || currentUser.user_id;
 
     const userdB64 = userIdSource ? toBase64(String(userIdSource)).replace(/=+$/, '') : undefined;
 

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { VARIABLES } from "../utils/strings/variables";
 import { API_ROUTES } from "../utils/strings/api_routes";
+import { UserModel } from "../models/user_model";
 
 const baseUrl = process.env.REACT_APP_API_BASE_URL as string;
 
@@ -18,57 +19,52 @@ const usersService = {
     return res.data;
   },
 
-  // saveUser handles both create and update:
-  saveUser: async (payload: {
-    id?: number;
-    full_name?: string;
-    mobile?: string;
-    email?: string;
-    address?: string;
-    country_id?: number;
-    state_id?: number;
-    city_id?: number;
-    status?: number;
-  }) => {
-    // if id present -> call edit_users (keys param)
-    const commonParams: any = {
+  saveUser: async (payload: UserModel) => {
+    const params: any = {
       user_id: VARIABLES.USER_ID,
       token: VARIABLES.TOKEN,
-      full_name: payload.full_name,
-      mobile: payload.mobile,
-      email: payload.email,
+      full_name: payload.user_name,
+      mobile: payload.phone_number,
+      email: payload.email_address,
       address: payload.address,
       country_id: payload.country_id,
       state_id: payload.state_id,
       city_id: payload.city_id,
-      status: payload.status,
+      status: payload.status === "Active" || payload.status ? 1 : 0,
     };
 
-    if (payload.id && payload.id > 0) {
-      // update
-      const params = { ...commonParams, keys: payload.id };
-      const res = await axios.post(`${baseUrl}${API_ROUTES.USERS.SAVE}`, null, { params });
-      return res.data;
-    } else {
-      // create
-      const params = { ...commonParams };
-      const res = await axios.post(`${baseUrl}${API_ROUTES.USERS.SAVE}`, null, { params });
-      return res.data;
+    if (payload.user_id) {
+      params.row_id = payload.user_id;
     }
-  },
 
-  deleteUser: async (id: number) => {
-    const res = await axios.post(`${baseUrl}${API_ROUTES.USERS.DELETE}`, null, {
-      params: { keys: id, user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN },
-    });
+    const res = await axios.post(`${baseUrl}${API_ROUTES.USERS.SAVE}`, null, { params });
     return res.data;
   },
 
-  checkDuplicateUser: async (mobile?: string, email?: string, id?: number) => {
-    const params: any = { user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN };
+  deleteUser: async (userIdToDelete: number) => {
+    const res = await axios.post(
+      `${baseUrl}${API_ROUTES.USERS.DELETE}`,
+      {},
+      {
+        params: {
+          user_id: VARIABLES.USER_ID,
+          token: VARIABLES.TOKEN,
+          keys: userIdToDelete,
+        },
+      }
+    );
+    return res.data;
+  },
+
+  checkDuplicateUser: async (mobile?: string, email?: string, user_id?: number) => {
+    const params: any = {
+      user_id: VARIABLES.USER_ID,
+      token: VARIABLES.TOKEN,
+    };
     if (mobile) params.mobile = mobile;
     if (email) params.email = email;
-    if (id) params.keys = id;
+    if (user_id) params.row_id = user_id;
+
     const res = await axios.post(`${baseUrl}${API_ROUTES.USERS.CHECK_DUPLICATE}`, null, { params });
     return res.data;
   },

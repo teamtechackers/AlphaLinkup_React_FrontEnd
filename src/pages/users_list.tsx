@@ -43,20 +43,22 @@ const UsersList: React.FC = () => {
       const start = page * pageSize;
       const data = await usersService.getUsersList(page + 1, start, pageSize);
 
-      const list = Array.isArray(data?.data)
-        ? data.data.map((row: any[]) => {
-            return {
-              id: Number(row[0]),
-              full_name: row[1] ?? "",
-              mobile: row[2] ?? "",
-              email: row[3] ?? "",
-              status: row[4]?.includes("Active") ? 1 : 0,
-              address: row[5] ?? "",
-              country_id: row[6] ? Number(row[5]) : undefined,
-              state_id: row[7] ? Number(row[6]) : undefined,
-              city_id: row[8] ? Number(row[7]) : undefined,
-            } as UserModel;
-          })
+      const list = Array.isArray(data?.users_list)
+        ? data.users_list.map((row: any) => ({
+            user_id: Number(row.user_id),
+            user_name: row.user_name ?? "",
+            phone_number: row.phone_number ?? "",
+            email_address: row.email_address ?? "",
+            profile_photo: row.profile_photo ?? "",
+            address: row.address ?? "",
+            country_id: row.country_id ? Number(row.country_id) : null,
+            country_name: row.country_name ?? "",
+            state_id: row.state_id ? Number(row.state_id) : null,
+            state_name: row.state_name ?? "",
+            city_id: row.city_id ? Number(row.city_id) : null,
+            city_name: row.city_name ?? "",
+            status: row.status === "Active" ? "Active" : "Inactive",
+          }))
         : [];
 
       setItems(list);
@@ -139,24 +141,25 @@ const UsersList: React.FC = () => {
     e.preventDefault();
 
     try {
-      const dup = await usersService.checkDuplicateUser(mobile, email, editing?.id);
+      const dup = await usersService.checkDuplicateUser(mobile, email, editing?.user_id);
       const isValid = dup && (dup.validate === true || dup.validate === "true" || dup.status === true);
       if (!isValid) {
         toast.error(CONSTANTS.MESSAGES.DUPLICATE_FOUND);
         return;
       }
 
-      const payload = {
-        id: editing?.id ?? 0,
-        full_name: fullName,
-        mobile,
-        email,
-        address,
-        country_id: countryId ? Number(countryId) : undefined,
-        state_id: stateId ? Number(stateId) : undefined,
-        city_id: cityId ? Number(cityId) : undefined,
-        status: Number(status),
-      };
+      const payload: UserModel = {
+      user_id: editing?.user_id ?? 0,
+      user_name: fullName,
+      phone_number: mobile,
+      email_address: email,
+      profile_photo: profilePhoto ? profilePhoto.name : "",
+      address,
+      country_id: countryId ? Number(countryId) : undefined,
+      state_id: stateId ? Number(stateId) : undefined,
+      city_id: cityId ? Number(cityId) : undefined,
+      status: status === "1" ? "Active" : "Inactive",
+    };
 
       const res = await usersService.saveUser(payload);
 
@@ -182,63 +185,68 @@ const UsersList: React.FC = () => {
 
   const onEdit = (item: UserModel) => {
     setEditing(item);
-    setFullName(item.full_name ?? "");
-    setMobile(item.mobile ?? "");
-    setEmail(item.email ?? "");
+    setFullName(item.user_name ?? "");
+    setMobile(item.phone_number ?? "");
+    setEmail(item.email_address ?? "");
     setProfilePhoto(null);
     setAddress(item.address ?? "");
     setCountryId(item.country_id ? String(item.country_id) : "");
     setStateId(item.state_id ? String(item.state_id) : "");
     setCityId(item.city_id ? String(item.city_id) : "");
-    setStatus(String(item.status ?? "1"));
+    setStatus(item.status === "Active" ? "1" : "0");
   };
 
   const onDelete = async (item: UserModel) => {
-    if (!item.id) return;
-    if (!window.confirm(CONSTANTS.MESSAGES.DELETE_CONFIRM )) return;
+    if (!item.user_id) return;
+    if (!window.confirm(CONSTANTS.MESSAGES.DELETE_CONFIRM)) return;
+
     try {
-      const res = await usersService.deleteUser(item.id);
+      const res = await usersService.deleteUser(item.user_id);
+
       const success =
         res &&
         (res.status === true ||
-          (typeof res.status === "string" && res.status.toLowerCase().includes("success")) ||
+          res.status === "Success" ||
           res.success === true ||
-          res.rcode === 200 ||
-          (res.info && typeof res.info === "string"));
+          res.rcode === 200);
 
       if (success) {
-        toast.success((res.info as string) || CONSTANTS.MESSAGES.DELETE_SUCCESS);
+        toast.success(res.info || res.message || CONSTANTS.MESSAGES.DELETE_SUCCESS);
         await load();
       } else {
-        toast.error(res.message || CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
+        toast.error(res.info || res.message || CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
       }
     } catch (err) {
-      console.error(err);
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     }
   };
 
   const columns = useMemo(
     () => [
-      { field: UserModelLabels.ID, headerName: USERS_STRINGS.TABLE.HEADER_ID, width: 100 },
-      { field: UserModelLabels.FULL_NAME, headerName: USERS_STRINGS.TABLE.HEADER_FULL_NAME, width: 150 },
-      { field: UserModelLabels.MOBILE, headerName: USERS_STRINGS.TABLE.HEADER_MOBILE, width: 170 },
-      { field: UserModelLabels.EMAIL, headerName: USERS_STRINGS.TABLE.HEADER_EMAIL, width: 220 },
+      { field: UserModelLabels.USER_ID, headerName: USERS_STRINGS.TABLE.HEADER_ID, width: 100 },
+      { field: UserModelLabels.USER_NAME, headerName: USERS_STRINGS.TABLE.HEADER_FULL_NAME, width: 150 },
+      { field: UserModelLabels.PHONE_NUMBER, headerName: USERS_STRINGS.TABLE.HEADER_MOBILE, width: 170 },
+      { field: UserModelLabels.EMAIL_ADDRESS, headerName: USERS_STRINGS.TABLE.HEADER_EMAIL, width: 220 },
       {
         field: UserModelLabels.STATUS,
         headerName: USERS_STRINGS.TABLE.HEADER_STATUS,
         width: 140,
-        renderCell: (params: any) => (
-          <span
-            className="text-center p-1 rounded"
-            style={{
-              backgroundColor: params.value === 1 ? `${COLORS.green}30` : `${COLORS.red}30`,
-              color: params.value === 1 ? COLORS.green : COLORS.red,
-            }}
-          >
-            {params.value === 1 ? USERS_STRINGS.TABLE.STATUS_ACTIVE : USERS_STRINGS.TABLE.STATUS_INACTIVE}
-          </span>
-        ),
+        renderCell: (params: any) => {
+          const isActive = params.value?.toLowerCase() === "active";
+          return (
+            <span
+              className="text-center p-1 rounded"
+              style={{
+                backgroundColor: isActive ? `${COLORS.green}30` : `${COLORS.red}30`,
+                color: isActive ? COLORS.green : COLORS.red,
+              }}
+            >
+              {isActive
+                ? USERS_STRINGS.TABLE.STATUS_ACTIVE
+                : USERS_STRINGS.TABLE.STATUS_INACTIVE}
+            </span>
+          );
+        },
       },
       {
         field: UserModelLabels.ACTIONS,
@@ -278,7 +286,7 @@ const UsersList: React.FC = () => {
               rows={items}
               columns={columns}
               loading={loading}
-              getRowId={(row) => row.id}
+              getRowId={(row) => row.user_id}
               disableRowSelectionOnClick
               pageSizeOptions={[5, 10, 20, 50]}
               paginationModel={paginationModel}

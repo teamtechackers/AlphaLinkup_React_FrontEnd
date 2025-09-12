@@ -18,11 +18,11 @@ const authService = {
     localStorage.setItem("user_name", userName);
 
     authService.currentUser = {
-      id: Number(userId),
-      full_name: userName,
-      mobile: "",
-      email: null,
-      status: 1,
+      user_id: Number(userId),
+      user_name: userName,
+      phone_number: "",
+      email_address: null,
+      status: "Active",
     };
   },
 
@@ -47,11 +47,11 @@ const authService = {
     const userName = localStorage.getItem("user_name") ?? "";
 
     authService.currentUser = {
-      id: userIdStr ? Number(userIdStr) : 0,
-      full_name: userName,
-      mobile: "",
-      email: null,
-      status: 1,
+      user_id: userIdStr ? Number(userIdStr) : 0,
+      user_name: userName,
+      phone_number: "",
+      email_address: null,
+      status: "Active",
     };
 
     return true;
