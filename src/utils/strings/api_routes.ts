@@ -136,10 +136,8 @@ export const API_ROUTES = {
   },
 
   SERVICE_PROVIDERS: {
-    GET: "/list-service-provider",
     GET_AJAX: "/list-service-provider-ajax",
-    SAVE: "/save-service-provider",
-    EDIT: "/edit-service-provider",
+    SUBMIT: "/submit-service-provider",
     DELETE: "/delete-service-provider",
     CHECK_DUPLICATE: "/check-duplicate-service-provider",
   },

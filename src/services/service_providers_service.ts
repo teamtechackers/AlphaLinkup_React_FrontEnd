@@ -1,4 +1,3 @@
-// services/service_providers_service.ts
 import axios from "axios";
 import { VARIABLES } from "../utils/strings/variables";
 import { API_ROUTES } from "../utils/strings/api_routes";
@@ -20,9 +19,8 @@ const serviceProvidersService = {
   },
 
   save: async (payload: {
-    id?: number;
+    sp_id?: number;
     sp_user_id: number;
-    full_name: string;
     description: string;
     country_id: number;
     state_id: number;
@@ -35,7 +33,6 @@ const serviceProvidersService = {
       user_id: VARIABLES.USER_ID,
       token: VARIABLES.TOKEN,
       sp_user_id: payload.sp_user_id,
-      full_name: payload.full_name,
       description: payload.description,
       country_id: payload.country_id,
       state_id: payload.state_id,
@@ -43,9 +40,10 @@ const serviceProvidersService = {
       avg_sp_rating: payload.avg_sp_rating,
       approval_status: payload.approval_status,
       status: payload.status,
+      row_id: payload.sp_id,
     };
 
-    const res = await axios.post(`${baseUrl}${API_ROUTES.SERVICE_PROVIDERS.SAVE}`, null, { params });
+    const res = await axios.post(`${baseUrl}${API_ROUTES.SERVICE_PROVIDERS.SUBMIT}`, null, { params });
     return res.data;
   },
 

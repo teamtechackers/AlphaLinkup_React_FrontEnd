@@ -24,8 +24,8 @@ const ServiceProvidersList: React.FC = () => {
   const [cityId, setCityId] = useState("1726");
   const [description, setDescription] = useState("");
   const [avgSpRating, setAvgSpRating] = useState("0");
-  const [approvalStatus, setApprovalStatus] = useState("1");
-  const [status, setStatus] = useState("1");
+  const [approvalStatus, setApprovalStatus] = useState<number>(1);
+  const [status, setStatus] = useState<number>(1);
 
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const [rowCount, setRowCount] = useState(0);
@@ -34,22 +34,40 @@ const ServiceProvidersList: React.FC = () => {
   const [states, setStates] = useState<any[]>([]);
   const [cities, setCities] = useState<any[]>([]);
 
+  const approvalStatusStringToNumber: Record<string, number> = {
+    Pending: 1,
+    Approved: 2,
+    Rejected: 3,
+  };
+
+  const statusStringToNumber: Record<string, number> = {
+    Active: 1,
+    Inactive: 0,
+  };
+
   const load = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
     setLoading(true);
     try {
       const start = page * pageSize;
       const data = await serviceProvidersService.getList(page + 1, start, pageSize);
 
-      const list = Array.isArray(data?.data)
-        ? data.data.map((row: any[]) => {
-            return {
-              id: Number(row[0]),
-              full_name: row[1],
-              description: row[2],
-              approval_status: row[3]?.replace(/<[^>]+>/g, ""),
-              status: row[4]?.replace(/<[^>]+>/g, ""),
-            } as ServiceProviderModel;
-          })
+      const list: ServiceProviderModel[] = Array.isArray(data?.service_providers_list)
+        ? data.service_providers_list.map((row: any) => ({
+            row_id: row.row_id,
+            sp_id: row.sp_id,
+            user_id: row.user_id,
+            user_name: row.user_name,
+            country_id: row.country_id,
+            country_name: row.country_name,
+            state_id: row.state_id,
+            state_name: row.state_name,
+            city_id: row.city_id,
+            city_name: row.city_name,
+            description: row.description,
+            sp_rating: row.sp_rating,
+            approval_status: row.approval_status,
+            status: row.status,
+          }))
         : [];
 
       setItems(list);
@@ -125,29 +143,33 @@ const ServiceProvidersList: React.FC = () => {
     setCityId("1726");
     setDescription("");
     setAvgSpRating("0");
-    setApprovalStatus("1");
-    setStatus("1");
+    setApprovalStatus(1);
+    setStatus(1);
   };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const payload = {
-        id: editing?.id,
+        sp_id: editing?.sp_id ? Number(editing.sp_id) : undefined,
         sp_user_id: Number(spUserId),
-        full_name: fullName,
         country_id: Number(countryId),
         state_id: Number(stateId),
         city_id: Number(cityId),
         description,
         avg_sp_rating: Number(avgSpRating),
-        approval_status: Number(approvalStatus),
-        status: Number(status),
+        approval_status: approvalStatus,
+        status: status, 
       };
 
+      console.log("Submitting payload:", payload);
+
       const res = await serviceProvidersService.save(payload);
+      
+      console.log("API Response:", res);
+
       if (res.status?.toLowerCase() === "success") {
-        toast.success(res.info || "Saved successfully");
+        toast.success(res.info);
         resetForm();
         await load();
       } else {
@@ -161,18 +183,22 @@ const ServiceProvidersList: React.FC = () => {
 
   const onEdit = (item: ServiceProviderModel) => {
     setEditing(item);
-    setFullName(item.full_name ?? "");
+    setSpUserId(item.user_id);
+    setFullName(item.user_name ?? "");
     setDescription(item.description ?? "");
-    setApprovalStatus(String(item.approval_status));
-    setStatus(String(item.status));
-    // TODO: set other fields (spUserId, countryId, etc.) when backend sends them
+    setCountryId(item.country_id ?? "101");
+    setStateId(item.state_id ?? "");
+    setCityId(item.city_id ?? "");
+    setAvgSpRating(item.sp_rating ?? "0");
+    setApprovalStatus(approvalStatusStringToNumber[item.approval_status] ?? 1);
+    setStatus(statusStringToNumber[item.status] ?? 1);
   };
 
   const onDelete = async (item: ServiceProviderModel) => {
-    if (!item.id) return;
+    if (!item.sp_id) return;
     if (!window.confirm(CONSTANTS.MESSAGES.DELETE_CONFIRM)) return;
     try {
-      const res = await serviceProvidersService.delete(item.id);
+      const res = await serviceProvidersService.delete(Number(item.sp_id));
       if (res.status?.toLowerCase() === "success") {
         toast.success(res.info || CONSTANTS.MESSAGES.DELETE_SUCCESS);
         await load();
@@ -228,8 +254,8 @@ const ServiceProvidersList: React.FC = () => {
 
   const columns = useMemo(
     () => [
-      { field: ServiceProviderModelLabels.ID, headerName: SERVICE_PROVIDERS_STRINGS.TABLE.HEADER_ID, width: 80 },
-      { field: ServiceProviderModelLabels.FULL_NAME, headerName: SERVICE_PROVIDERS_STRINGS.TABLE.HEADER_FULL_NAME, width: 200 },
+      { field: ServiceProviderModelLabels.SP_ID, headerName: SERVICE_PROVIDERS_STRINGS.TABLE.HEADER_ID, width: 80 },
+      { field: ServiceProviderModelLabels.USER_NAME, headerName: SERVICE_PROVIDERS_STRINGS.TABLE.HEADER_FULL_NAME, width: 200 },
       { field: ServiceProviderModelLabels.DESCRIPTION, headerName: SERVICE_PROVIDERS_STRINGS.TABLE.HEADER_DESCRIPTION, width: 300 },
       {
         field: ServiceProviderModelLabels.APPROVAL_STATUS,
@@ -242,17 +268,25 @@ const ServiceProvidersList: React.FC = () => {
         field: ServiceProviderModelLabels.STATUS,
         headerName: SERVICE_PROVIDERS_STRINGS.TABLE.HEADER_STATUS,
         width: 140,
-        renderCell: (params: any) => (
-          <span
-            className="text-center p-1 rounded"
-            style={{
-              backgroundColor: params.value === 1 ? `${COLORS.green}30` : `${COLORS.red}30`,
-              color: params.value === 1 ? COLORS.green : COLORS.red,
-            }}
-          >
-            {params.value === 1 ? SERVICE_PROVIDERS_STRINGS.TABLE.STATUS_ACTIVE : SERVICE_PROVIDERS_STRINGS.TABLE.STATUS_INACTIVE}
-          </span>
-        ),
+        renderCell: (params: any) => {
+          const normalized = typeof params.value === "string"
+            ? statusStringToNumber[params.value] ?? 0
+            : Number(params.value);
+
+          return (
+            <span
+              className="text-center p-1 rounded"
+              style={{
+                backgroundColor: normalized === 1 ? `${COLORS.green}30` : `${COLORS.red}30`,
+                color: normalized === 1 ? COLORS.green : COLORS.red,
+              }}
+            >
+              {normalized === 1
+                ? SERVICE_PROVIDERS_STRINGS.TABLE.STATUS_ACTIVE
+                : SERVICE_PROVIDERS_STRINGS.TABLE.STATUS_INACTIVE}
+            </span>
+          );
+        },
       },
       {
         field: ServiceProviderModelLabels.ACTIONS,
@@ -260,12 +294,23 @@ const ServiceProvidersList: React.FC = () => {
         width: 120,
         sortable: false,
         filterable: false,
-        renderCell: (params: any) => (
-          <div className="d-flex align-items-center gap-3 w-100 h-100">
-            <FiEdit size={18} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
-            <FiTrash2 size={18} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
-          </div>
-        ),
+        renderCell: (params: any) => {
+          const row: ServiceProviderModel & { approval_status_num?: number; status_num?: number } = {
+            ...params.row,
+            approval_status_num: typeof params.row.approval_status === "string"
+              ? approvalStatusStringToNumber[params.row.approval_status] ?? 1
+              : Number(params.row.approval_status),
+            status_num: typeof params.row.status === "string"
+              ? statusStringToNumber[params.row.status] ?? 1
+              : Number(params.row.status),
+          };
+          return (
+            <div className="d-flex align-items-center gap-3 w-100 h-100">
+              <FiEdit size={18} style={{ cursor: "pointer" }} onClick={() => onEdit(row)} />
+              <FiTrash2 size={18} style={{ cursor: "pointer" }} onClick={() => onDelete(row)} />
+            </div>
+          );
+        },
       },
     ],
     [items]
@@ -282,7 +327,7 @@ const ServiceProvidersList: React.FC = () => {
               rows={items}
               columns={columns}
               loading={loading}
-              getRowId={(row) => row.id}
+              getRowId={(row) => row.sp_id}
               disableRowSelectionOnClick
               pageSizeOptions={[5, 10, 20, 50]}
               paginationModel={paginationModel}
@@ -304,17 +349,12 @@ const ServiceProvidersList: React.FC = () => {
                 <div className="row g-3 align-items-end">
 
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Select Users</label>
+                    <label className="form-label" style={STYLES.field_label}>{SERVICE_PROVIDERS_STRINGS.TABLE.HEADER_FULL_NAME}</label>
                     <select className="form-select" value={spUserId} onChange={(e) => setSpUserId(e.target.value)}>
                       <option value="0">-- Select User --</option>
                       <option value="54">User 54</option>
                       {/* TODO: populate dynamically */}
                     </select>
-                  </div>
-
-                  <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>{SERVICE_PROVIDERS_STRINGS.TABLE.HEADER_FULL_NAME}</label>
-                    <input className="form-control" value={fullName} onChange={(e) => setFullName(e.target.value)} />
                   </div>
 
                   {/* Country */}
@@ -388,7 +428,7 @@ const ServiceProvidersList: React.FC = () => {
 
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>{SERVICE_PROVIDERS_STRINGS.TABLE.HEADER_APPROVAL_STATUS}</label>
-                    <select className="form-select" value={approvalStatus} onChange={(e) => setApprovalStatus(e.target.value)}>
+                    <select className="form-select" value={approvalStatus} onChange={(e) => setApprovalStatus(Number(e.target.value))}>
                       <option value="1">Pending</option>
                       <option value="2">Approved</option>
                       <option value="3">Rejected</option>
@@ -397,7 +437,7 @@ const ServiceProvidersList: React.FC = () => {
 
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>{SERVICE_PROVIDERS_STRINGS.TABLE.HEADER_STATUS}</label>
-                    <select className="form-select" value={status} onChange={(e) => setStatus(e.target.value)}>
+                    <select className="form-select" value={status} onChange={(e) => setStatus(Number(e.target.value))}>
                       <option value="1">Active</option>
                       <option value="0">Inactive</option>
                     </select>

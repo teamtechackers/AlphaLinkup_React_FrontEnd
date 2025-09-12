@@ -1,25 +1,24 @@
 export interface ServiceProviderModel {
-  id: number;
-  full_name: string;
-  sp_user_id: number;
-  country_id: number;
-  state_id: number;
-  city_id: number;
+  row_id: number;
+  sp_id: string;
+  user_id: string;
+  user_name: string;
+  country_id: string;
+  country_name: string;
+  state_id: string;
+  state_name: string;
+  city_id: string;
+  city_name: string;
   description: string;
-  avg_sp_rating: number;
-  approval_status: number;
-  status: number;
+  sp_rating: string;
+  approval_status: string;
+  status: string;
 }
 
 export const ServiceProviderModelLabels = {
-  ID: "id",
-  FULL_NAME: "full_name",
-  SP_USER_ID: "sp_user_id",
-  COUNTRY_ID: "country_id",
-  STATE_ID: "state_id",
-  CITY_ID: "city_id",
+  SP_ID: "sp_id",
+  USER_NAME: "user_name",
   DESCRIPTION: "description",
-  AVG_SP_RATING: "avg_sp_rating",
   APPROVAL_STATUS: "approval_status",
   STATUS: "status",
   ACTIONS: "actions",
