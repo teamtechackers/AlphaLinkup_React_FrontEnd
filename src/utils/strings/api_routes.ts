@@ -4,13 +4,18 @@ export const API_ROUTES = {
   LOGIN: "/admin-login",
   LOGOUT: "/admin-logout",
   DASHBOARD: "/admin-dashboard",
-  API_COUNTRY_LIST: "/Api-Country-List",
-  API_STATE_LIST: "/Api-State-List",
-  API_CITY_LIST: "/Api-City-List",
-  API_PAY_LIST: "/Api-Pay-List",
-  API_JOB_TYPE_LIST: "/Api-Job-Type-List",
-  API_EVENT_MODE_LIST: "/Api-Event-Mode-List",
-  API_EVENT_TYPE_LIST: "/Api-Event-Type-List",
+
+  GLOBAL_API: {
+    API_COUNTRY_LIST: "/Api-Country-List",
+    API_STATE_LIST: "/Api-State-List",
+    API_CITY_LIST: "/Api-City-List",
+    API_PAY_LIST: "/Api-Pay-List",
+    API_JOB_TYPE_LIST: "/Api-Job-Type-List",
+    API_EVENT_MODE_LIST: "/Api-Event-Mode-List",
+    API_EVENT_TYPE_LIST: "/Api-Event-Type-List",
+    API_EMPLOYMENT_TYPE_LIST: "/Api-Employment-Type-List",
+    API_USER_LIST: "/Api-User-List",
+  },
 
   COUNTRY_LIST: {
     GET: "/list-country",

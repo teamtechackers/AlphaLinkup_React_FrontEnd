@@ -1,7 +1,7 @@
 export interface JobModel {
   row_id: number;
   job_id: string;
-  //job_title: string;
+  job_title: string;
   user_id: string;
   user_name: string;
   company_name: string;
@@ -16,7 +16,7 @@ export interface JobModel {
   longitude: string;
   job_type_id: string;
   job_type_name: string;
-  //job_description: string;
+  job_description: string;
   pay_id: string;
   pay_name: string;
   status: string;

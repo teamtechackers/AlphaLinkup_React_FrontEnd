@@ -6,7 +6,7 @@ const baseUrl = process.env.REACT_APP_API_BASE_URL as string;
 
 class GlobalService {
   static async getCountries() {
-    const res = await axios.get(`${baseUrl}${API_ROUTES.API_COUNTRY_LIST}`, {
+    const res = await axios.get(`${baseUrl}${API_ROUTES.GLOBAL_API.API_COUNTRY_LIST}`, {
       params: {
         user_id: VARIABLES.USER_ID,
         token: VARIABLES.TOKEN,
@@ -16,7 +16,7 @@ class GlobalService {
   }
 
   static async getStates(countryId: number | string) {
-    const res = await axios.get(`${baseUrl}${API_ROUTES.API_STATE_LIST}`, {
+    const res = await axios.get(`${baseUrl}${API_ROUTES.GLOBAL_API.API_STATE_LIST}`, {
       params: {
         user_id: VARIABLES.USER_ID,
         token: VARIABLES.TOKEN,
@@ -27,7 +27,7 @@ class GlobalService {
   }
 
   static async getCities(stateId: number | string) {
-    const res = await axios.get(`${baseUrl}${API_ROUTES.API_CITY_LIST}`, {
+    const res = await axios.get(`${baseUrl}${API_ROUTES.GLOBAL_API.API_CITY_LIST}`, {
       params: {
         user_id: VARIABLES.USER_ID,
         token: VARIABLES.TOKEN,
@@ -38,7 +38,7 @@ class GlobalService {
   }
 
   static async getPayList() {
-    const res = await axios.get(`${baseUrl}${API_ROUTES.API_PAY_LIST}`, {
+    const res = await axios.get(`${baseUrl}${API_ROUTES.GLOBAL_API.API_PAY_LIST}`, {
       params: {
         user_id: VARIABLES.USER_ID,
         token: VARIABLES.TOKEN,
@@ -48,7 +48,7 @@ class GlobalService {
   }
 
   static async getJobTypes() {
-    const res = await axios.get(`${baseUrl}${API_ROUTES.API_JOB_TYPE_LIST}`, {
+    const res = await axios.get(`${baseUrl}${API_ROUTES.GLOBAL_API.API_JOB_TYPE_LIST}`, {
       params: {
         user_id: VARIABLES.USER_ID,
         token: VARIABLES.TOKEN,
@@ -58,7 +58,7 @@ class GlobalService {
   }
   
   static async getEventModes() {
-    const res = await axios.get(`${baseUrl}${API_ROUTES.API_EVENT_MODE_LIST}`, {
+    const res = await axios.get(`${baseUrl}${API_ROUTES.GLOBAL_API.API_EVENT_MODE_LIST}`, {
       params: {
         user_id: VARIABLES.USER_ID,
         token: VARIABLES.TOKEN,
@@ -67,15 +67,34 @@ class GlobalService {
     return res.data?.event_mode_list || [];
   }
 
-  // Fetch Event Types
   static async getEventTypes() {
-    const res = await axios.get(`${baseUrl}${API_ROUTES.API_EVENT_TYPE_LIST}`, {
+    const res = await axios.get(`${baseUrl}${API_ROUTES.GLOBAL_API.API_EVENT_TYPE_LIST}`, {
       params: {
         user_id: VARIABLES.USER_ID,
         token: VARIABLES.TOKEN,
       },
     });
     return res.data?.event_type_list || [];
+  }
+
+    static async getEmploymentTypes() {
+    const res = await axios.get(`${baseUrl}${API_ROUTES.GLOBAL_API.API_EMPLOYMENT_TYPE_LIST}`, {
+      params: {
+        user_id: VARIABLES.USER_ID,
+        token: VARIABLES.TOKEN,
+      },
+    });
+    return res.data?.employment_type_list || [];
+  }
+
+  static async getUsers() {
+    const res = await axios.get(`${baseUrl}${API_ROUTES.GLOBAL_API.API_USER_LIST}`, {
+      params: {
+        user_id: VARIABLES.USER_ID,
+        token: VARIABLES.TOKEN,
+      },
+    });
+    return res.data?.user_list || [];
   }
 
 }

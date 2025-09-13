@@ -37,7 +37,7 @@ const jobsService = {
 
   delete: async (id: number) => {
     const res = await axios.post(`${baseUrl}${API_ROUTES.JOBS.DELETE}`, null, {
-      params: { keys: id, user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN },
+      params: { row_id: id, user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN },
     });
     return res.data;
   },

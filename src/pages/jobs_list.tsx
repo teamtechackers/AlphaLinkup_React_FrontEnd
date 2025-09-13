@@ -17,7 +17,7 @@ const JobsList: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   const [editing, setEditing] = useState<JobModel | null>(null);
-  const [fullName, setFullName] = useState("");
+  const [userName, setUserName] = useState("");
   const [jobTitle, setJobTitle] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [countryId, setCountryId] = useState<number | "">("");
@@ -37,6 +37,7 @@ const JobsList: React.FC = () => {
   const [countries, setCountries] = useState<any[]>([]);
   const [states, setStates] = useState<any[]>([]);
   const [cities, setCities] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [jobTypes, setJobTypes] = useState<any[]>([]);
   const [pays, setPays] = useState<any[]>([]);
 
@@ -50,6 +51,7 @@ const JobsList: React.FC = () => {
         ? data.map((row: any) => ({
             row_id: Number(row.row_id),
             job_id: row.job_id ?? "",
+            job_title: row.job_title ?? "", 
             user_id: row.user_id ?? "",
             user_name: row.user_name ?? "",
             company_name: row.company_name ?? "",
@@ -66,6 +68,7 @@ const JobsList: React.FC = () => {
             job_type_name: row.job_type_name ?? "",
             pay_id: row.pay_id ?? "",
             pay_name: row.pay_name ?? "",
+            job_description: row.job_description ?? "",
             status: row.status ?? "Inactive",
           }))
         : [];
@@ -156,9 +159,21 @@ const JobsList: React.FC = () => {
     fetchPays();
   }, []);
 
+  useEffect(() => {
+  const fetchUsers = async () => {
+      try {
+        const list = await GlobalService.getUsers();
+        setUsers(list);
+      } catch (err) {
+        console.error("Error loading users", err);
+      }
+    };
+    fetchUsers();
+  }, []);
+
   const resetForm = () => {
     setEditing(null);
-    setFullName("");
+    setUserName("");
     setJobTitle("");
     setCompanyName("");
     setCountryId("");
@@ -177,7 +192,7 @@ const JobsList: React.FC = () => {
     e.preventDefault();
     try {
       const payload: any = {
-        user_id: "2",
+        user_id: userName,
         job_title: jobTitle,
         company_name: companyName,
         country_id: countryId || "",
@@ -192,11 +207,8 @@ const JobsList: React.FC = () => {
         status: status === "Active" ? 1 : 0,
       };
 
-      if (editing && editing.row_id) {
-        payload.row_id = editing.row_id;
-        console.log("Updating with row_id:", payload.row_id);
-      } else {
-        console.log("Creating new job");
+      if (editing && editing.job_id) {
+        payload.row_id = editing.job_id;
       }
 
       const res = await jobsService.save(payload);
@@ -221,30 +233,50 @@ const JobsList: React.FC = () => {
     }
   };
 
-  const onEdit = (item: JobModel) => {
-    console.log("Editing item:", item); 
-
+  const onEdit = async (item: JobModel) => {
     setEditing(item);
-    setJobTitle("");
+    setUserName(item.user_id ?? "");
+    setJobTitle(item.job_title ?? "");
     setCompanyName(item.company_name ?? "");
-    setCountryId(item.country_id ? Number(item.country_id) : "");
-    setStateId(item.state_id ? Number(item.state_id) : "");
-    setCityId(item.city_id ? Number(item.city_id) : "");
     setAddress(item.address ?? "");
     setJobLat(item.latitude ? Number(item.latitude) : "");
     setJobLng(item.longitude ? Number(item.longitude) : "");
+    setJobDescription(item.job_description ?? "");
+    setStatus(item.status ?? "Active");
     setJobTypeId(item.job_type_id ? Number(item.job_type_id) : "");
     setPayId(item.pay_id ? Number(item.pay_id) : "");
-    setJobDescription("");
-    setStatus(item.status ?? "Active");
+
+    if (item.country_id) {
+      const countryId = Number(item.country_id);
+      setCountryId(countryId);
+
+      try {
+        const statesList = await GlobalService.getStates(countryId);
+        setStates(statesList);
+
+        if (item.state_id) {
+          const stateId = Number(item.state_id);
+          setStateId(stateId);
+
+          const citiesList = await GlobalService.getCities(stateId);
+          setCities(citiesList);
+
+          if (item.city_id) {
+            setCityId(Number(item.city_id));
+          }
+        }
+      } catch (err) {
+        console.error("Error loading states/cities for edit", err);
+      }
+    }
   };
 
-  const onDelete = async (rowId: number) => {
-    if (!rowId) return;
+  const onDelete = async (jobId: number) => {
+    if (!jobId) return;
     if (!window.confirm(CONSTANTS.MESSAGES.DELETE_CONFIRM)) return;
 
     try {
-      const res = await jobsService.delete(rowId);
+      const res = await jobsService.delete(jobId);
 
       const success =
         res &&
@@ -253,7 +285,7 @@ const JobsList: React.FC = () => {
       if (success) {
         toast.success(res.info || CONSTANTS.MESSAGES.DELETE_SUCCESS);
 
-        setItems(prev => prev.filter(item => item.row_id !== rowId));
+        setItems(prev => prev.filter(item => item.job_id !== jobId.toString()));
         setRowCount(prev => prev - 1);
       } else {
         toast.error(res.message || CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
@@ -301,7 +333,7 @@ const JobsList: React.FC = () => {
             <FiTrash2
               size={18}
               style={{ cursor: "pointer" }}
-              onClick={() => onDelete(params.row.row_id)}
+              onClick={() => onDelete(params.row.job_id)}
             />
           </div>
         ),
@@ -344,10 +376,18 @@ const JobsList: React.FC = () => {
                   {/* Full Name / Select User */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>Full Name *</label>
-                    <select className="form-select" value={fullName} onChange={(e) => setFullName(e.target.value)} required>
+                    <select
+                      className="form-select"
+                      value={userName}
+                      onChange={(e) => setUserName(e.target.value)}
+                      required
+                    >
                       <option value="">Select User</option>
-                      <option value="54">Test User</option>
-                      {/* Populate dynamically from API if needed */}
+                      {users.map((u) => (
+                        <option key={u.user_id} value={u.user_id}>
+                          {u.user_name}
+                        </option>
+                      ))}
                     </select>
                   </div>
 

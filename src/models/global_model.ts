@@ -39,3 +39,15 @@ export interface EventType {
   event_type_id: string;
   event_type: string;
 }
+
+// EmploymentType model
+export interface EmploymentType {
+  employment_type_id: string;
+  employment_type: string;
+}
+
+// User model
+export interface User {
+  user_id: string;
+  user_name: string;
+}
