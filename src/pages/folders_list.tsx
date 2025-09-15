@@ -18,7 +18,8 @@ const FoldersList: React.FC = () => {
   const [editing, setEditing] = useState<FolderModel | null>(null);
   const [name, setName] = useState("");
   const [status, setStatus] = useState("1");
-
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
+  const [errors, setErrors] = useState<{ name?: string; status?: string }>({});
   const load = async () => {
     setLoading(true);
     try {
@@ -35,6 +36,19 @@ const FoldersList: React.FC = () => {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const newErrors: { name?: string; status?: string } = {};
+    if (!name.trim()) {
+      newErrors.name = "Folder name is required";
+    }
+    if (!status) {
+      newErrors.status = "Status is required";
+    }
+  
+    setErrors(newErrors);
+  
+    if (Object.keys(newErrors).length > 0) {
+      return; // prevent submission
+    }
     try {
       const payload = { id: editing?.id, name, status: Number(status) };
       const res = await foldersService.saveFolder(payload);
@@ -131,18 +145,21 @@ const FoldersList: React.FC = () => {
         
         {/* Table */}
         <div className="col-lg-8 p-0">
-          <Box sx={{ height: 800, width: '100%' }}>
-            <DataGrid
-              rows={items}
-              columns={columns}
-              loading={loading}
-              getRowId={(row) => row.id}
-              disableRowSelectionOnClick
-              pageSizeOptions={[5, 10, 20, 50]}
-              paginationModel={{ page: 0, pageSize: 10 }}
-              pagination
-            />
-          </Box>
+        <Box sx={{ height: 800, width: '100%' }}>
+                    <DataGrid
+  rows={items}
+  columns={columns}
+  loading={loading}
+  getRowId={(row) => row.id}
+  disableRowSelectionOnClick
+  pageSizeOptions={[5, 10, 20, 50]}
+  paginationModel={paginationModel}
+  onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
+  paginationMode="client"
+  pagination
+/>
+
+                    </Box>
         </div>
 
         {/* Form */}
@@ -166,6 +183,7 @@ const FoldersList: React.FC = () => {
                       onChange={(e) => setName(e.target.value)}
                       required
                     />
+                    {errors.name && <div className="invalid-feedback">{errors.name}</div>}
                   </div>
 
                   {/* Status */}
@@ -181,6 +199,7 @@ const FoldersList: React.FC = () => {
                       <option value="1">{FOLDERS_STRINGS.TABLE.STATUS_ACTIVE}</option>
                       <option value="0">{FOLDERS_STRINGS.TABLE.STATUS_INACTIVE}</option>
                     </select>
+                    {errors.status && <div className="invalid-feedback">{errors.status}</div>}
                   </div>
                 </div>
 

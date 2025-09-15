@@ -88,10 +88,9 @@ export const API_ROUTES = {
     DELETE: "/delete-event-type",
     CHECK_DUPLICATE: "/check-duplicate-event-type",
   },
-
   INDUSTRY_TYPE: {
     GET: "/list-industry-type",
-    SAVE: "/submit-industry-type",
+    SAVE: "/submit-industry-type",  
     EDIT: "/edit-industry-type",
     DELETE: "/delete-industry-type",
     CHECK_DUPLICATE: "/check-duplicate-industry-type",
