@@ -242,8 +242,8 @@ const UsersList: React.FC = () => {
               }}
             >
               {isActive
-                ? USERS_STRINGS.TABLE.STATUS_ACTIVE
-                : USERS_STRINGS.TABLE.STATUS_INACTIVE}
+                ? USERS_STRINGS.FORM.FIELD_LABELS.STATUS_ACTIVE
+                : USERS_STRINGS.FORM.FIELD_LABELS.STATUS_INACTIVE}
             </span>
           );
         },
@@ -309,20 +309,23 @@ const UsersList: React.FC = () => {
                   {/* Full Name */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      {USERS_STRINGS.TABLE.HEADER_FULL_NAME} *
+                      {USERS_STRINGS.FORM.FIELD_LABELS.FULL_NAME} 
+                      <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <input
                       type="text"
                       className="form-control"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
+                      required
                     />
                   </div>
 
                   {/* Mobile */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      {USERS_STRINGS.TABLE.HEADER_MOBILE} *
+                      {USERS_STRINGS.FORM.FIELD_LABELS.MOBILE} 
+                      <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <input
                       type="text"
@@ -336,20 +339,22 @@ const UsersList: React.FC = () => {
                   {/* Email */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      {USERS_STRINGS.TABLE.HEADER_EMAIL} *
+                      {USERS_STRINGS.FORM.FIELD_LABELS.EMAIL} 
+                      <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <input
                       type="email"
                       className="form-control"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      required
                     />
                   </div>
 
                   {/* Profile Photo */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      Profile Photo
+                      {USERS_STRINGS.FORM.FIELD_LABELS.PROFILE_PHOTO} 
                     </label>
                     <input
                       type="file"
@@ -362,25 +367,29 @@ const UsersList: React.FC = () => {
                   {/* Address */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      Address *
+                      {USERS_STRINGS.FORM.FIELD_LABELS.ADDRESS}  
+                      <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <input
                       type="text"
                       className="form-control"
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
+                      required
                     />
                   </div>
 
                   {/* Country */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      Country *
+                      {USERS_STRINGS.FORM.FIELD_LABELS.COUNTRY}  
+                      <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <select
                       className="form-select"
                       value={countryId}
                       onChange={(e) => setCountryId(e.target.value)}
+                      required
                     >
                       <option value="">Select Country</option>
                       {countries.map((c) => (
@@ -394,12 +403,14 @@ const UsersList: React.FC = () => {
                   {/* State */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      State *
+                      {USERS_STRINGS.FORM.FIELD_LABELS.STATE}   
+                      <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <select
                       className="form-select"
                       value={stateId}
                       onChange={(e) => setStateId(e.target.value)}
+                      required
                       disabled={!countryId}
                     >
                       <option value="">Select State</option>
@@ -414,7 +425,8 @@ const UsersList: React.FC = () => {
                   {/* City */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      City *
+                      {USERS_STRINGS.FORM.FIELD_LABELS.CITY}  
+                      <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <select
                       className="form-select"
@@ -434,11 +446,12 @@ const UsersList: React.FC = () => {
                   {/* Status */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      {USERS_STRINGS.TABLE.HEADER_STATUS} *
+                      {USERS_STRINGS.TABLE.HEADER_STATUS} 
+                      <span style={{ color: COLORS.red}}> *</span>
                     </label>
-                    <select className="form-select" value={status} onChange={(e) => setStatus(e.target.value)}>
-                      <option value="1">{USERS_STRINGS.TABLE.STATUS_ACTIVE}</option>
-                      <option value="0">{USERS_STRINGS.TABLE.STATUS_INACTIVE}</option>
+                    <select className="form-select" value={status} onChange={(e) => setStatus(e.target.value)} required>
+                      <option value="1">{USERS_STRINGS.FORM.FIELD_LABELS.STATUS_ACTIVE}</option>
+                      <option value="0">{USERS_STRINGS.FORM.FIELD_LABELS.STATUS_INACTIVE}</option>
                     </select>
                   </div>
                 </div>

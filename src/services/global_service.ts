@@ -97,6 +97,20 @@ class GlobalService {
     return res.data?.user_list || [];
   }
 
+    static async getIndustryTypes() {
+    const res = await axios.post(
+      `${baseUrl}${API_ROUTES.GLOBAL_API.API_INDUSTRY_TYPE_LIST}`,
+      {},
+      {
+        params: {
+          user_id: VARIABLES.USER_ID,
+          token: VARIABLES.TOKEN,
+        },
+      }
+    );
+    return res.data?.industry_type_list || [];
+  }
+
 }
 
 export default GlobalService;

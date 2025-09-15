@@ -17,7 +17,6 @@ const EventsList: React.FC = () => {
   const [items, setItems] = useState<EventModel[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // form states
   const [userId, setUserId] = useState<number | "">("");
   const [fullName, setFullName] = useState("");
   const [eventName, setEventName] = useState("");
@@ -39,20 +38,19 @@ const EventsList: React.FC = () => {
   const [eventBanner, setEventBanner] = useState<File | null>(null);
   const [status, setStatus] = useState("Active");
 
-  // dropdown lists
   const [countries, setCountries] = useState<any[]>([]);
   const [states, setStates] = useState<any[]>([]);
   const [cities, setCities] = useState<any[]>([]);
   const [eventModes, setEventModes] = useState<any[]>([]);
   const [eventTypes, setEventTypes] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
+  const [industryTypes, setIndustryTypes] = useState<any[]>([]);
 
   const [editing, setEditing] = useState<EventModel | null>(null);
 
-  // pagination
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const [rowCount, setRowCount] = useState(0);
 
-  // load data
   const load = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
     setLoading(true);
     try {
@@ -66,6 +64,7 @@ const EventsList: React.FC = () => {
           ? res.events_list.map((row: any) => ({
               row_id: Number(row.row_id),
               event_id: row.event_id ?? "",
+              user_id: row.user_id ?? "",  
               user_name: row.user_name ?? "",
               event_name: row.event_name ?? "",
               event_venue: row.event_venue ?? "",
@@ -110,6 +109,7 @@ const EventsList: React.FC = () => {
     GlobalService.getCountries().then(setCountries).catch(console.error);
     GlobalService.getEventModes().then(setEventModes).catch(console.error);
     GlobalService.getEventTypes().then(setEventTypes).catch(console.error);
+    GlobalService.getIndustryTypes().then(setIndustryTypes).catch(console.error); 
   }, []);
 
   useEffect(() => {
@@ -129,6 +129,18 @@ const EventsList: React.FC = () => {
       setCity("");
     }
   }, [state]);
+
+  useEffect(() => {
+  const fetchUsers = async () => {
+      try {
+        const list = await GlobalService.getUsers();
+        setUsers(list);
+      } catch (err) {
+        console.error("Error loading users", err);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -200,7 +212,6 @@ const EventsList: React.FC = () => {
   const onEdit = (item: EventModel) => {
     setEditing(item);
     setUserId(item.user_id ? Number(item.user_id) : "");
-    setFullName(item.user_name ?? "");
     setEventName(item.event_name ?? "");
     setIndustryType(item.industry_id ? Number(item.industry_id) : "");
     setCountry(item.country_id ? Number(item.country_id) : "");
@@ -316,7 +327,10 @@ const EventsList: React.FC = () => {
               <form onSubmit={onSubmit} encType="multipart/form-data">
                 <div className="row g-3">
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>User *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {EVENTS_STRINGS.FORM.FIELD_LABELS.FULL_NAME}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <select
                       className="form-select"
                       value={userId}
@@ -324,23 +338,46 @@ const EventsList: React.FC = () => {
                       required
                     >
                       <option value="">Select User</option>
-                      <option value={55}>Test User</option>
+                      {users.map((u) => (
+                        <option key={u.user_id} value={u.user_id}>
+                          {u.user_name}
+                        </option>
+                      ))}
                     </select>
                   </div>
+
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Event Name *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {EVENTS_STRINGS.FORM.FIELD_LABELS.NAME}
+                      <span style={{ color: COLORS.red}}> *</span></label>
                     <input type="text" className="form-control" value={eventName} onChange={(e) => setEventName(e.target.value)} required />
                   </div>
+
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Industry Type *</label>
-                    <select className="form-select" value={industryType ?? ""} onChange={(e) => setIndustryType(Number(e.target.value))} required>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {EVENTS_STRINGS.FORM.FIELD_LABELS.INDUSTRY_TYPE}
+                      <span style={{ color: COLORS.red }}> *</span>
+                    </label>
+                    <select
+                      className="form-select"
+                      value={industryType ?? ""}
+                      onChange={(e) => setIndustryType(Number(e.target.value))}
+                      required
+                    >
                       <option value="">Select Industry Type</option>
-                      <option value={1}>Industry 1</option>
-                      <option value={2}>Industry 2</option>
+                      {industryTypes.map((ind) => (
+                        <option key={ind.industry_type_id} value={ind.industry_type_id}>
+                          {ind.industry_type_name}
+                        </option>
+                      ))}
                     </select>
                   </div>
+
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}> Country *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {EVENTS_STRINGS.FORM.FIELD_LABELS.COUNTRY}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <select className="form-select" value={country} onChange={(e) => setCountry(Number(e.target.value))} required>
                       <option value="">Select Country</option>
                       {countries.map((c) => (
@@ -348,8 +385,12 @@ const EventsList: React.FC = () => {
                       ))}
                     </select>
                   </div>
+
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}> State *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {EVENTS_STRINGS.FORM.FIELD_LABELS.STATE}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <select className="form-select" value={state} onChange={(e) => setState(Number(e.target.value))} required>
                       <option value="">Select State</option>
                       {states.map((s) => (
@@ -357,8 +398,12 @@ const EventsList: React.FC = () => {
                       ))}
                     </select>
                   </div>
+
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}> City </label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {EVENTS_STRINGS.FORM.FIELD_LABELS.CITY}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <select
                       className="form-select"
                       value={city}
@@ -371,40 +416,76 @@ const EventsList: React.FC = () => {
                       ))}
                     </select>
                   </div>
+
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Event Venue *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {EVENTS_STRINGS.FORM.FIELD_LABELS.VENUE}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <input type="text" className="form-control" value={eventVenue} onChange={(e) => setEventVenue(e.target.value)} required />
                   </div>
+
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Event Link</label>
-                    <input type="text" className="form-control" value={eventLink} onChange={(e) => setEventLink(e.target.value)} />
+                    <label className="form-label" style={STYLES.field_label}>
+                      {EVENTS_STRINGS.FORM.FIELD_LABELS.LINK}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
+                    <input type="text" className="form-control" value={eventLink} onChange={(e) => setEventLink(e.target.value)} required/>
                   </div>
+
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Latitude *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {EVENTS_STRINGS.FORM.FIELD_LABELS.LAT}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <input type="text" className="form-control" value={latitude} onChange={(e) => setLatitude(e.target.value)} required />
                   </div>
+
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Longitude *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {EVENTS_STRINGS.FORM.FIELD_LABELS.LNG}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <input type="text" className="form-control" value={longitude} onChange={(e) => setLongitude(e.target.value)} required />
                   </div>
+
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Event GEO Address *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {EVENTS_STRINGS.FORM.FIELD_LABELS.GEO_ADDRESS}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <input type="text" className="form-control" value={geoAddress} onChange={(e) => setGeoAddress(e.target.value)} required />
                   </div>
+
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Date *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {EVENTS_STRINGS.FORM.FIELD_LABELS.DATE}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <input type="date" className="form-control" value={eventDate} onChange={(e) => setEventDate(e.target.value)} required />
                   </div>
+
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Start Time *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {EVENTS_STRINGS.FORM.FIELD_LABELS.START_TIME}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <input type="time" className="form-control" value={startTime} onChange={(e) => setStartTime(e.target.value)} required />
                   </div>
+
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>End Time *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {EVENTS_STRINGS.FORM.FIELD_LABELS.END_TIME}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <input type="time" className="form-control" value={endTime} onChange={(e) => setEndTime(e.target.value)} required />
                   </div>
+
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Event Mode *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {EVENTS_STRINGS.FORM.FIELD_LABELS.MODE}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <select className="form-select" value={eventMode} onChange={(e) => setEventMode(Number(e.target.value))} required>
                       <option value="">Select Event Mode</option>
                       {eventModes.map((m) => (
@@ -412,8 +493,12 @@ const EventsList: React.FC = () => {
                       ))}
                     </select>
                   </div>
+
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Event Type *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {EVENTS_STRINGS.FORM.FIELD_LABELS.TYPE}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <select className="form-select" value={eventType} onChange={(e) => setEventType(Number(e.target.value))} required>
                       <option value="">Select Event Type</option>
                       {eventTypes.map((t) => (
@@ -421,19 +506,31 @@ const EventsList: React.FC = () => {
                       ))}
                     </select>
                   </div>
+
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Event Details *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {EVENTS_STRINGS.FORM.FIELD_LABELS.DETAILS}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <textarea className="form-control" value={eventDetails} onChange={(e) => setEventDetails(e.target.value)} required />
                   </div>
+
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Event Banner *</label>
-                    <input type="file" className="form-control" onChange={(e) => setEventBanner(e.target.files?.[0] ?? null)} />
+                    <label className="form-label" style={STYLES.field_label}>
+                      {EVENTS_STRINGS.FORM.FIELD_LABELS.BANNER}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
+                    <input type="file" className="form-control" onChange={(e) => setEventBanner(e.target.files?.[0] ?? null)} required/>
                   </div>
+
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Status *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {EVENTS_STRINGS.FORM.FIELD_LABELS.STATUS}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <select className="form-select" value={status} onChange={(e) => setStatus(e.target.value)} required>
-                      <option value="Active">Active</option>
-                      <option value="Inactive">Inactive</option>
+                      <option value="Active">{EVENTS_STRINGS.FORM.FIELD_LABELS.STATUS_ACTIVE}</option>
+                      <option value="Inactive">{EVENTS_STRINGS.FORM.FIELD_LABELS.STATUS_INACTIVE}</option>
                     </select>
                   </div>
                 </div>

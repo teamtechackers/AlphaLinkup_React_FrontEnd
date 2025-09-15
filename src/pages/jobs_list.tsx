@@ -190,6 +190,21 @@ const JobsList: React.FC = () => {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!userName) return toast.error("Full Name is required");
+    if (!jobTitle) return toast.error("Job Title is required");
+    if (!companyName) return toast.error("Company Name is required");
+    if (!countryId) return toast.error("Country is required");
+    if (!stateId) return toast.error("State is required");
+    // if (!cityId) return toast.error("City is required");
+    if (!address) return toast.error("Address is required");
+    if (!jobLat) return toast.error("Latitude is required");
+    if (!jobLng) return toast.error("Longitude is required");
+    if (!jobTypeId) return toast.error("Job Type is required");
+    if (!payId) return toast.error("Pay is required");
+    if (!jobDescription) return toast.error("Description is required");
+    if (!status) return toast.error("Status is required");
+
     try {
       const payload: any = {
         user_id: userName,
@@ -375,7 +390,9 @@ const JobsList: React.FC = () => {
                 <div className="row g-3">
                   {/* Full Name / Select User */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Full Name *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {JOBS_STRINGS.FORM.FIELD_LABELS.FULL_NAME}
+                      <span style={{ color: COLORS.red}}> *</span></label>
                     <select
                       className="form-select"
                       value={userName}
@@ -393,25 +410,31 @@ const JobsList: React.FC = () => {
 
                   {/* Job Title */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Job Title *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {JOBS_STRINGS.FORM.FIELD_LABELS.JOB_TITLE}
+                      <span style={{ color: COLORS.red}}> *</span></label>
                     <input type="text" className="form-control" value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} required />
                   </div>
 
                   {/* Company Name */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Company Name *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {JOBS_STRINGS.FORM.FIELD_LABELS.COMPANY_NAME} 
+                      <span style={{ color: COLORS.red}}> *</span></label>
                     <input type="text" className="form-control" value={companyName} onChange={(e) => setCompanyName(e.target.value)} required />
                   </div>
 
                   {/* Country */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      Country *
+                      {JOBS_STRINGS.FORM.FIELD_LABELS.COUNTRY} 
+                      <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <select
                       className="form-select"
                       value={countryId}
                       onChange={(e) => setCountryId(e.target.value ? Number(e.target.value) : "")}
+                      required
                     >
                       <option value="">Select Country</option>
                       {countries.map((c) => (
@@ -425,13 +448,15 @@ const JobsList: React.FC = () => {
                   {/* State */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      State *
+                      {JOBS_STRINGS.FORM.FIELD_LABELS.STATE}
+                      <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <select
                       className="form-select"
                       value={stateId}
                       onChange={(e) => setStateId(e.target.value ? Number(e.target.value) : "")}
                       disabled={!countryId}
+                      required
                     >
                       <option value="">Select State</option>
                       {states.map((s) => (
@@ -445,7 +470,8 @@ const JobsList: React.FC = () => {
                   {/* City */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      City *
+                      {JOBS_STRINGS.FORM.FIELD_LABELS.CITY} 
+                      <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <select
                       className="form-select"
@@ -464,25 +490,33 @@ const JobsList: React.FC = () => {
 
                   {/* Address */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Address *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                     {JOBS_STRINGS.FORM.FIELD_LABELS.ADDRESS}
+                      <span style={{ color: COLORS.red}}> *</span></label>
                     <input type="text" className="form-control" value={address} onChange={(e) => setAddress(e.target.value)} required />
                   </div>
 
                   {/* Latitude */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Latitude *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {JOBS_STRINGS.FORM.FIELD_LABELS.LAT} 
+                      <span style={{ color: COLORS.red}}> *</span></label>
                     <input type="text" className="form-control" value={jobLat} onChange={(e) => setJobLat(Number(e.target.value))} required />
                   </div>
 
                   {/* Longitude */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Longitude *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {JOBS_STRINGS.FORM.FIELD_LABELS.LNG}
+                      <span style={{ color: COLORS.red}}> *</span></label>
                     <input type="text" className="form-control" value={jobLng} onChange={(e) => setJobLng(Number(e.target.value))} required />
                   </div>
 
                   {/* Job Type */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Job Type *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {JOBS_STRINGS.FORM.FIELD_LABELS.TYPE} 
+                      <span style={{ color: COLORS.red}}> *</span></label>
                     <select
                       className="form-select"
                       value={jobTypeId}
@@ -500,7 +534,9 @@ const JobsList: React.FC = () => {
 
                   {/* Pay */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Pay *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {JOBS_STRINGS.FORM.FIELD_LABELS.PAY}  
+                      <span style={{ color: COLORS.red}}> *</span></label>
                     <select
                       className="form-select"
                       value={payId}
@@ -518,13 +554,17 @@ const JobsList: React.FC = () => {
 
                   {/* Description */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Description *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {JOBS_STRINGS.FORM.FIELD_LABELS.DESCRIPTION} 
+                      <span style={{ color: COLORS.red}}> *</span></label>
                     <textarea className="form-control" value={jobDescription} onChange={(e) => setJobDescription(e.target.value)} required />
                   </div>
 
                   {/* Status */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Status *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {JOBS_STRINGS.FORM.FIELD_LABELS.STATUS}  
+                      <span style={{ color: COLORS.red}}> *</span></label>
                     <select className="form-select" value={status} onChange={(e) => setStatus(e.target.value)} required>
                       <option value="Active">Active</option>
                       <option value="Inactive">Inactive</option>
@@ -537,9 +577,10 @@ const JobsList: React.FC = () => {
                   <button type="submit" className="btn" style={{ backgroundColor: COLORS.purple, color: COLORS.white }}>
                     {editing ? "Update" : "Save"}
                   </button>
-                  <button type="button" className="btn btn-outline-secondary" onClick={resetForm}>
-                    Cancel
-                  </button>
+                  {editing ? 
+                   <button type="button" className="btn btn-outline-secondary" onClick={resetForm}>
+                    {CONSTANTS.BUTTONS.CANCEL}
+                  </button> : <div></div> }
                 </div>
               </form>
             </div>

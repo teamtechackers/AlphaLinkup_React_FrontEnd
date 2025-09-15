@@ -51,3 +51,10 @@ export interface User {
   user_id: string;
   user_name: string;
 }
+
+// IndustryType model
+export interface IndustryType {
+  industry_type_id: string;
+  industry_type_name: string;
+}
+

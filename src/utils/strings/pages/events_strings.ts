@@ -12,7 +12,8 @@ export const EVENTS_STRINGS = {
   FORM: {
     ADD: "Add Event",
     EDIT: "Edit Event",
-    LABELS: {
+    FIELD_LABELS: {
+      FULL_NAME: "Full Name",
       NAME: "Event Name",
       INDUSTRY_TYPE: "Industry Type",
       COUNTRY: "Country",
@@ -22,14 +23,17 @@ export const EVENTS_STRINGS = {
       LINK: "Event Link",
       LAT: "Latitude",
       LNG: "Longitude",
-      GEO_ADDRESS: "Geo Address",
+      GEO_ADDRESS: "Event Geo Address",
       DATE: "Date",
       START_TIME: "Start Time",
       END_TIME: "End Time",
-      MODE_ID: "Event Mode",
-      TYPE_ID: "Event Type",
+      MODE: "Event Mode",
+      TYPE: "Event Type",
       DETAILS: "Event Details",
+      BANNER: "Event Banner",
       STATUS: "Status",
+      STATUS_ACTIVE: "Active",
+      STATUS_INACTIVE: "Inactive",
     },
   },
 };

@@ -14,7 +14,7 @@ export const JOBS_STRINGS = {
   FORM: {
     ADD: "Add Job",
     EDIT: "Edit Job",
-    LABELS: {
+    FIELD_LABELS: {
       FULL_NAME: "Full Name",
       JOB_TITLE: "Job Title",
       COMPANY_NAME: "Company Name",
@@ -22,11 +22,11 @@ export const JOBS_STRINGS = {
       STATE: "State",
       CITY: "City",
       ADDRESS: "Address",
-      JOB_LAT: "Latitude",
-      JOB_LNG: "Longitude",
-      JOB_TYPE: "Job Type",
+      LAT: "Latitude",
+      LNG: "Longitude",
+      TYPE: "Job Type",
       PAY: "Pay",
-      JOB_DESCRIPTION: "Job Description",
+      DESCRIPTION: "Description",
       STATUS: "Status",
     },
   },
