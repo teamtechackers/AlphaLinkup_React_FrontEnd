@@ -105,7 +105,7 @@ export const API_ROUTES = {
   },
 
   FOLDERS: {
-    GET: "/list-folders-ajax",
+    GET: "/list-folders",
     SAVE: "/submit-folders",
     EDIT: "/edit-folder",
     DELETE: "/delete-folders",

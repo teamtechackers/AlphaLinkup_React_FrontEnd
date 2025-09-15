@@ -36,23 +36,21 @@ const FoldersList: React.FC = () => {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+  
     const newErrors: { name?: string; status?: string } = {};
-    if (!name.trim()) {
-      newErrors.name = "Folder name is required";
-    }
-    if (!status) {
-      newErrors.status = "Status is required";
-    }
+    if (!name.trim()) newErrors.name = "Folder name is required";
+    if (!status) newErrors.status = "Status is required";
   
     setErrors(newErrors);
   
-    if (Object.keys(newErrors).length > 0) {
-      return; // prevent submission
-    }
+    if (Object.keys(newErrors).length > 0) return;
+  
     try {
-      const payload = { id: editing?.id, name, status: Number(status) };
+      const payload = { id: editing ? editing.id : undefined, name, status: Number(status) };
+      console.log("Payload sending to API:", payload); // 🔍 debug line
+  
       const res = await foldersService.saveFolder(payload);
-
+  
       if (res.status === "Success") {
         toast.success(res.info);
         setEditing(null);
@@ -67,6 +65,7 @@ const FoldersList: React.FC = () => {
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     }
   };
+  
 
   const onEdit = (item: FolderModel) => {
     setEditing(item);
