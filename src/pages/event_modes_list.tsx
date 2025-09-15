@@ -31,12 +31,14 @@ const EventModesList: React.FC = () => {
       const data = await eventModesService.getEventModesList(draw, start, pageSize);
 
       const list: EventModeModel[] = Array.isArray(data?.data)
-        ? data.data.map((row: any) => ({
-            id: Number(row[3]),
-            name: row[1],
-            status: row[2].includes("Active") ? 1 : 0,
-          }))
-        : [];
+  ? data.data.map((row: any) => ({
+      id: Number(row[3]),
+      name: row[1],
+      status: Number(row[2]), // <-- FIXED
+    }))
+  : [];
+
+      
 
       setItems(list);
       setRowCount(data.recordsTotal || 0);

@@ -38,7 +38,11 @@ const IndustryTypeList: React.FC = () => {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const payload = { id: editing?.id ?? 0, name, status: Number(status) };
+      const payload: any = { name, status: Number(status) };
+      if (editing?.id) {
+        payload.id = editing.id; // only set id if editing
+      }
+  
       const res = await industryTypeService.saveIndustryType(payload);
       if (res.status === "Success") {
         toast.success(res.info || "Saved successfully");
@@ -54,6 +58,7 @@ const IndustryTypeList: React.FC = () => {
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     }
   };
+  
 
   const onEdit = (item: IndustryTypeModel) => {
     setEditing(item);
