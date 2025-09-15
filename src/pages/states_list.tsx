@@ -53,13 +53,15 @@ const StatesList: React.FC = () => {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const payload = {
-        id: editing?.id,
+      const payload: any = {
         country_id: countryId > 0 ? countryId : undefined,
         name,
         status: Number(status),
-        
       };
+      
+      if (editing?.id) {
+        payload.id = editing.id; // ✅ use row_id to match backend
+      }
 
       const res = await statesService.saveOrUpdateState(payload);
 
