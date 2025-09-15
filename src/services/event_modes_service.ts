@@ -24,6 +24,7 @@ const eventModesService = {
       token: VARIABLES.TOKEN,
       name: payload.name,
       status: payload.status,
+      row_id:payload.id
     };
     const body: any = {
       user_id: VARIABLES.USER_ID,
