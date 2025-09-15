@@ -12,7 +12,7 @@ export const CARD_ACTIVATION_REQUESTS_STRINGS = {
   FORM: {
     ADD: "Add Request",
     EDIT: "Edit Request",
-    LABELS: {
+    FIELD_LABELS: {
       FULL_NAME: "Full Name",
       NAME: "Name",
       BUSINESS_NAME: "Business Name",

@@ -15,14 +15,17 @@ export const SERVICE_PROVIDERS_STRINGS = {
     STATUS_INACTIVE: "Inactive",
   },
   FORM: {
-    FULL_NAME: "Full Name",
-    COUNTRY: "Country",
-    STATE: "State",
-    CITY: "City",
-    DESCRIPTION: "Description",
-    SP_RATING: "SP Rating",
-    APPROVAL_STATUS: "Approval Status",
     ADD: "Add Service Provider",
     EDIT: "Edit Service Provider",
+    FIELD_LABELS: {
+      FULL_NAME: "Full Name",
+      COUNTRY: "Country",
+      STATE: "State",
+      CITY: "City",
+      DESCRIPTION: "Description",
+      SP_RATING: "SP Rating",
+      APPROVAL_STATUS: "Approval Status",
+      STATUS: "Status",
+    }
   },
 };

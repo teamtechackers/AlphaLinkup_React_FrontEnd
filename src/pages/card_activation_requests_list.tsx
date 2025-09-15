@@ -39,6 +39,7 @@ const CardActivationRequestsList: React.FC = () => {
   const [countries, setCountries] = useState<any[]>([]);
   const [states, setStates] = useState<any[]>([]);
   const [cities, setCities] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
 
   const parseCardStatus = (raw: any): number => {
     if (raw == null) return 1;
@@ -151,6 +152,18 @@ const CardActivationRequestsList: React.FC = () => {
     fetchCities();
   }, [stateId]);
 
+    useEffect(() => {
+  const fetchUsers = async () => {
+      try {
+        const list = await GlobalService.getUsers();
+        setUsers(list);
+      } catch (err) {
+        console.error("Error loading users", err);
+      }
+    };
+    fetchUsers();
+  }, []);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -199,7 +212,7 @@ const CardActivationRequestsList: React.FC = () => {
     setEditing(item);
 
     setSpUserId(item.sp_user_id !== null && item.sp_user_id !== undefined ? Number(item.sp_user_id) : "");
-    setUserId(item.user_id !== null && item.user_id !== undefined ? Number(item.user_id) : "");
+    setUserId(item.user_id ? Number(item.user_id) : "");
     setFullName(item.card_activation_name ?? "");
     setName(item.user_name ?? "");
     setBusinessName(item.business_name ?? "");
@@ -215,6 +228,7 @@ const CardActivationRequestsList: React.FC = () => {
 
   const resetForm = () => {
     setEditing(null);
+    setFullName("");
     setSpUserId("");
     setUserId("");
     setFullName("");
@@ -372,53 +386,72 @@ const CardActivationRequestsList: React.FC = () => {
             <div className="card-body">
               <form onSubmit={onSubmit}>
                 <div className="row g-3 align-items-end">
-                  {/* Full Name (static single user per your instruction) */}
+                  {/* Full Name */}
+
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>{CARD_ACTIVATION_REQUESTS_STRINGS.FORM.LABELS.FULL_NAME} *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {CARD_ACTIVATION_REQUESTS_STRINGS.FORM.FIELD_LABELS.FULL_NAME}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <select
                       className="form-select"
-                      value={spUserId === "" ? 0 : spUserId}
+                      value={userId}
                       onChange={(e) => {
                         const v = e.target.value === "" ? "" : Number(e.target.value);
                         setSpUserId(v === "" ? "" : Number(v));
-                        // since only one user exists, keep userId same as spUserId
                         setUserId(v === "" ? "" : Number(v));
                       }}
                       required
                     >
-                      <option value={0}>Select User</option>
-                      <option value={42}>Test User</option>
+                      <option value="">Select User</option>
+                      {users.map((u) => (
+                        <option key={u.user_id} value={u.user_id}>
+                          {u.user_name}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
                   {/* Name */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>{CARD_ACTIVATION_REQUESTS_STRINGS.FORM.LABELS.NAME} *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {CARD_ACTIVATION_REQUESTS_STRINGS.FORM.FIELD_LABELS.NAME}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <input type="text" className="form-control" value={name} onChange={(e) => setName(e.target.value)} required />
                   </div>
 
                   {/* Business Name */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>{CARD_ACTIVATION_REQUESTS_STRINGS.FORM.LABELS.BUSINESS_NAME} *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {CARD_ACTIVATION_REQUESTS_STRINGS.FORM.FIELD_LABELS.BUSINESS_NAME}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <input type="text" className="form-control" value={businessName} onChange={(e) => setBusinessName(e.target.value)} required />
                   </div>
 
                   {/* Business Location */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>{CARD_ACTIVATION_REQUESTS_STRINGS.FORM.LABELS.BUSINESS_LOCATION} *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {CARD_ACTIVATION_REQUESTS_STRINGS.FORM.FIELD_LABELS.BUSINESS_LOCATION}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <input type="text" className="form-control" value={businessLocation} onChange={(e) => setBusinessLocation(e.target.value)} required />
                   </div>
 
                   {/* Country */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>{CARD_ACTIVATION_REQUESTS_STRINGS.FORM.LABELS.COUNTRY} *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {CARD_ACTIVATION_REQUESTS_STRINGS.FORM.FIELD_LABELS.COUNTRY}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <select
                         className="form-select"
                         value={countryId}
                         onChange={(e) => setCountryId(Number(e.target.value))}
                         required
                       >
-                        <option value="">-- Select Country --</option>
+                        <option value="">Select Country</option>
                         {countries.map((c) => (
                           <option key={c.country_id} value={c.country_id}>
                             {c.country_name}
@@ -429,7 +462,10 @@ const CardActivationRequestsList: React.FC = () => {
 
                   {/* State */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>{CARD_ACTIVATION_REQUESTS_STRINGS.FORM.LABELS.STATE} *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {CARD_ACTIVATION_REQUESTS_STRINGS.FORM.FIELD_LABELS.STATE}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <select
                       className="form-select"
                       value={stateId}
@@ -437,7 +473,7 @@ const CardActivationRequestsList: React.FC = () => {
                       required
                       disabled={!countryId}
                     >
-                      <option value="">-- Select State --</option>
+                      <option value="">Select State</option>
                       {states.map((s) => (
                         <option key={s.state_id} value={s.state_id}>
                           {s.state_name}
@@ -448,7 +484,10 @@ const CardActivationRequestsList: React.FC = () => {
 
                   {/* City */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>{CARD_ACTIVATION_REQUESTS_STRINGS.FORM.LABELS.CITY} *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {CARD_ACTIVATION_REQUESTS_STRINGS.FORM.FIELD_LABELS.CITY}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <select
                       className="form-select"
                       value={cityId}
@@ -456,7 +495,7 @@ const CardActivationRequestsList: React.FC = () => {
                       
                       disabled={!stateId}
                     >
-                      <option value="">-- Select City --</option>
+                      <option value="">Select City</option>
                       {cities.map((c) => (
                         <option key={c.city_id} value={c.city_id}>
                           {c.city_name}
@@ -467,20 +506,27 @@ const CardActivationRequestsList: React.FC = () => {
 
                   {/* Description */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>{CARD_ACTIVATION_REQUESTS_STRINGS.FORM.LABELS.DESCRIPTION} *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {CARD_ACTIVATION_REQUESTS_STRINGS.FORM.FIELD_LABELS.DESCRIPTION}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <textarea className="form-control" value={description} onChange={(e) => setDescription(e.target.value)} required />
                   </div>
 
                   {/* Card Number */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>{CARD_ACTIVATION_REQUESTS_STRINGS.FORM.LABELS.CARD_NUMBER} *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {CARD_ACTIVATION_REQUESTS_STRINGS.FORM.FIELD_LABELS.CARD_NUMBER}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <input type="text" className="form-control" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} required />
                   </div>
 
                   {/* Request Status (numbers!) */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      {CARD_ACTIVATION_REQUESTS_STRINGS.FORM.LABELS.CARD_STATUS} *
+                      {CARD_ACTIVATION_REQUESTS_STRINGS.FORM.FIELD_LABELS.CARD_STATUS}
+                      <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <select
                       className="form-select"
@@ -496,7 +542,10 @@ const CardActivationRequestsList: React.FC = () => {
 
                   {/* Overall Status (numbers!) */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>{CARD_ACTIVATION_REQUESTS_STRINGS.FORM.LABELS.STATE} *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {CARD_ACTIVATION_REQUESTS_STRINGS.FORM.FIELD_LABELS.STATE}
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <select className="form-select" value={overallStatus === "" ? 1 : overallStatus} onChange={(e) => setOverallStatus(e.target.value === "" ? "" : Number(e.target.value))} required>
                       <option value={1}>Active</option>
                       <option value={0}>Inactive</option>

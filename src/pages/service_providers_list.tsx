@@ -17,13 +17,13 @@ const ServiceProvidersList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState<ServiceProviderModel | null>(null);
 
-  const [spUserId, setSpUserId] = useState("0");
+  const [spUserId, setSpUserId] = useState("");
   const [fullName, setFullName] = useState("");
-  const [countryId, setCountryId] = useState("101");
-  const [stateId, setStateId] = useState("17");
-  const [cityId, setCityId] = useState("1726");
+  const [countryId, setCountryId] = useState("");
+  const [stateId, setStateId] = useState("");
+  const [cityId, setCityId] = useState("");
   const [description, setDescription] = useState("");
-  const [avgSpRating, setAvgSpRating] = useState("0");
+  const [avgSpRating, setAvgSpRating] = useState("");
   const [approvalStatus, setApprovalStatus] = useState<number>(1);
   const [status, setStatus] = useState<number>(1);
 
@@ -33,6 +33,7 @@ const ServiceProvidersList: React.FC = () => {
   const [countries, setCountries] = useState<any[]>([]);
   const [states, setStates] = useState<any[]>([]);
   const [cities, setCities] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
 
   const approvalStatusStringToNumber: Record<string, number> = {
     Pending: 1,
@@ -134,18 +135,30 @@ const ServiceProvidersList: React.FC = () => {
       fetchCities();
     }, [stateId]);
 
+    useEffect(() => {
+  const fetchUsers = async () => {
+      try {
+        const list = await GlobalService.getUsers();
+        setUsers(list);
+      } catch (err) {
+        console.error("Error loading users", err);
+      }
+    };
+    fetchUsers();
+  }, []);
+
   const resetForm = () => {
-    setEditing(null);
-    setSpUserId("0");
-    setFullName("");
-    setCountryId("101");
-    setStateId("17");
-    setCityId("1726");
-    setDescription("");
-    setAvgSpRating("0");
-    setApprovalStatus(1);
-    setStatus(1);
-  };
+  setEditing(null);
+  setSpUserId("");
+  setFullName("");
+  setCountryId("");
+  setStateId("");
+  setCityId("");
+  setDescription("");
+  setAvgSpRating("");
+  setApprovalStatus(1);
+  setStatus(1);
+};
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -162,11 +175,7 @@ const ServiceProvidersList: React.FC = () => {
         status: status, 
       };
 
-      console.log("Submitting payload:", payload);
-
       const res = await serviceProvidersService.save(payload);
-      
-      console.log("API Response:", res);
 
       if (res.status?.toLowerCase() === "success") {
         toast.success(res.info);
@@ -183,13 +192,13 @@ const ServiceProvidersList: React.FC = () => {
 
   const onEdit = (item: ServiceProviderModel) => {
     setEditing(item);
-    setSpUserId(item.user_id);
+    setSpUserId(item.user_id ? String(item.user_id) : "");
     setFullName(item.user_name ?? "");
     setDescription(item.description ?? "");
-    setCountryId(item.country_id ?? "101");
+    setCountryId(item.country_id ?? "");
     setStateId(item.state_id ?? "");
     setCityId(item.city_id ?? "");
-    setAvgSpRating(item.sp_rating ?? "0");
+    setAvgSpRating(item.sp_rating ?? "");
     setApprovalStatus(approvalStatusStringToNumber[item.approval_status] ?? 1);
     setStatus(statusStringToNumber[item.status] ?? 1);
   };
@@ -349,18 +358,30 @@ const ServiceProvidersList: React.FC = () => {
                 <div className="row g-3 align-items-end">
 
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>{SERVICE_PROVIDERS_STRINGS.TABLE.HEADER_FULL_NAME}</label>
-                    <select className="form-select" value={spUserId} onChange={(e) => setSpUserId(e.target.value)}>
-                      <option value="0">-- Select User --</option>
-                      <option value="54">User 54</option>
-                      {/* TODO: populate dynamically */}
+                    <label className="form-label" style={STYLES.field_label}>
+                      {SERVICE_PROVIDERS_STRINGS.FORM.FIELD_LABELS.FULL_NAME}
+                      <span style={{ color: COLORS.red }}> *</span>
+                    </label>
+                    <select
+                      className="form-select"
+                      value={spUserId}
+                      onChange={(e) => setSpUserId(e.target.value)}
+                      required
+                    >
+                      <option value="">Select User</option>
+                      {users.map((u) => (
+                        <option key={u.user_id} value={String(u.user_id)}>
+                          {u.user_name}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
                   {/* Country */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      Country *
+                      {SERVICE_PROVIDERS_STRINGS.FORM.FIELD_LABELS.COUNTRY}
+                      <span style={{ color: COLORS.red }}> *</span>
                     </label>
                     <select
                       className="form-select"
@@ -379,7 +400,8 @@ const ServiceProvidersList: React.FC = () => {
                   {/* State */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      State *
+                      {SERVICE_PROVIDERS_STRINGS.FORM.FIELD_LABELS.STATE}
+                      <span style={{ color: COLORS.red }}> *</span>
                     </label>
                     <select
                       className="form-select"
@@ -399,7 +421,8 @@ const ServiceProvidersList: React.FC = () => {
                   {/* City */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      City *
+                      {SERVICE_PROVIDERS_STRINGS.FORM.FIELD_LABELS.CITY}
+                      <span style={{ color: COLORS.red }}> *</span>
                     </label>
                     <select
                       className="form-select"
@@ -417,17 +440,26 @@ const ServiceProvidersList: React.FC = () => {
                   </div>
 
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>{SERVICE_PROVIDERS_STRINGS.TABLE.HEADER_DESCRIPTION}</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {SERVICE_PROVIDERS_STRINGS.FORM.FIELD_LABELS.DESCRIPTION}
+                      <span style={{ color: COLORS.red }}> *</span>
+                    </label>
                     <textarea className="form-control" value={description} onChange={(e) => setDescription(e.target.value)} />
                   </div>
 
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>SP Rating</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {SERVICE_PROVIDERS_STRINGS.FORM.FIELD_LABELS.SP_RATING}
+                      <span style={{ color: COLORS.red }}> *</span>
+                    </label>
                     <input type="number" step="0.1" className="form-control" value={avgSpRating} onChange={(e) => setAvgSpRating(e.target.value)} />
                   </div>
 
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>{SERVICE_PROVIDERS_STRINGS.TABLE.HEADER_APPROVAL_STATUS}</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {SERVICE_PROVIDERS_STRINGS.FORM.FIELD_LABELS.APPROVAL_STATUS}
+                      <span style={{ color: COLORS.red }}> *</span>
+                    </label>
                     <select className="form-select" value={approvalStatus} onChange={(e) => setApprovalStatus(Number(e.target.value))}>
                       <option value="1">Pending</option>
                       <option value="2">Approved</option>
@@ -436,7 +468,10 @@ const ServiceProvidersList: React.FC = () => {
                   </div>
 
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>{SERVICE_PROVIDERS_STRINGS.TABLE.HEADER_STATUS}</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {SERVICE_PROVIDERS_STRINGS.FORM.FIELD_LABELS.STATUS}
+                      <span style={{ color: COLORS.red }}> *</span>
+                    </label>
                     <select className="form-select" value={status} onChange={(e) => setStatus(Number(e.target.value))}>
                       <option value="1">Active</option>
                       <option value="0">Inactive</option>
