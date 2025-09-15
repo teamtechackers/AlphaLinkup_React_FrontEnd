@@ -2,6 +2,7 @@ export const INVESTORS_STRINGS = {
   TITLE: "Investors",
   TABLE: {
     TABLE_TITLE: "Investors List",
+    HEADER_ID: "ID",
     HEADER_FULL_NAME: "Full Name",
     HEADER_REFERENCE_NO: "Reference No",
     HEADER_NAME: "Name",

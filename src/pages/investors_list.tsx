@@ -10,6 +10,7 @@ import { InvestorModel, InvestorLabels } from "../models/investor_model";
 import { COLORS } from "../utils/theme/colors";
 import { STYLES } from "../utils/typography/styles";
 import GlobalService from "../services/global_service";
+import { CONSTANTS } from "../utils/strings/constants";
 
 const InvestorsList: React.FC = () => {
   const [items, setItems] = useState<InvestorModel[]>([]);
@@ -28,17 +29,21 @@ const InvestorsList: React.FC = () => {
   const [bio, setBio] = useState("");
   const [profile, setProfile] = useState("");
   const [investmentStage, setInvestmentStage] = useState("");
-  const [availability, setAvailability] = useState("");
   const [meetingCity, setMeetingCity] = useState("");
   const [countriesToInvest, setCountriesToInvest] = useState("");
   const [investmentIndustry, setInvestmentIndustry] = useState("");
   const [language, setLanguage] = useState("");
-  const [approvalStatus, setApprovalStatus] = useState("Pending");
-  const [overallStatus, setOverallStatus] = useState("Active");
+
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
 
   const [countries, setCountries] = useState<any[]>([]);
   const [states, setStates] = useState<any[]>([]);
   const [cities, setCities] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
+
+  const [availability, setAvailability] = useState<string>("");
+  const [approvalStatus, setApprovalStatus] = useState<string>("");
+  const [status, setStatus] = useState<string>("");
 
   const load = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
     setLoading(true);
@@ -46,22 +51,38 @@ const InvestorsList: React.FC = () => {
       const start = page * pageSize;
       const data = await investorsService.getList(page + 1, start, pageSize);
 
-      const list = Array.isArray(data?.data)
-        ? data.data.map((row: any[]) => ({
-            id: Number(row[0]),
-            full_name: row[1] ?? "",
-            reference_no: row[2] ?? "",
-            name: row[3] ?? "",
-            approval_status: row[4]?.replace(/<[^>]+>/g, "").trim() ?? "",
-            status: row[5]?.replace(/<[^>]+>/g, "").trim() ?? "",
-          }))
-        : [];
+    const list = Array.isArray(data?.investors_list)
+      ? data.investors_list.map((row: any): InvestorModel => ({
+          row_id: Number(row.row_id),
+          investor_id: Number(row.investor_id),
+          user_id: Number(row.user_id),
+          user_name: row.user_name ?? "",
+          name: row.name ?? "",
+          country_id: Number(row.country_id) || 0,
+          state_id: Number(row.state_id) || 0,
+          city_id: Number(row.city_id) || 0,
+          fund_size_id: Number(row.fund_size_id) || 0,
+          linkedin_url: row.linkedin_url ?? "",
+          bio: row.bio ?? "",
+          image: row.profile_image_url ?? "",
+          profile: row.profile ?? "",
+          investment_stage: row.investment_stage ?? "",
+          meeting_city: row.meeting_city ?? "",
+          countries_to_invest: row.countries_to_invest ?? "",
+          investment_industry: row.investment_industry ?? "",
+          language: row.language ?? "",
+          reference_no: row.reference_no ?? "",
+          availability: row.availability_status ?? "",
+          approval_status: row.approval_status ?? "",
+          status: row.status ?? "",
+        }))
+      : [];
 
       setItems(list);
       setRowCount(data?.recordsTotal ?? 0);
     } catch (err) {
       console.error(err);
-      toast.error("Something went wrong!");
+      toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     } finally {
       setLoading(false);
     }
@@ -121,6 +142,18 @@ const InvestorsList: React.FC = () => {
     fetchCities();
   }, [stateId]);
 
+  useEffect(() => {
+  const fetchUsers = async () => {
+      try {
+        const list = await GlobalService.getUsers();
+        setUsers(list);
+      } catch (err) {
+        console.error("Error loading users", err);
+      }
+    };
+    fetchUsers();
+  }, []);
+
   const resetForm = () => {
     setEditing(null);
     setUserId("");
@@ -133,96 +166,107 @@ const InvestorsList: React.FC = () => {
     setBio("");
     setProfile("");
     setInvestmentStage("");
-    setAvailability("");
+    setAvailability("1");
     setMeetingCity("");
     setCountriesToInvest("");
     setInvestmentIndustry("");
     setLanguage("");
-    setApprovalStatus("Pending");
-    setOverallStatus("Active");
+    setApprovalStatus("1");
+    setStatus("1");
   };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      if (!userId) {
-        toast.error("Please select a user");
-        return;
-      }
+    setLoading(true);
 
-      const payload = {
-        id: editing?.id ?? 0,
-        user_id: userId,
-        name,
-        country_id: countryId,
-        state_id: stateId,
-        city_id: cityId,
-        fund_size_id: fundSizeId,
-        linkedin_url: linkedinUrl,
-        bio,
-        profile,
-        investment_stage: investmentStage,
-        availability,
-        meeting_city: meetingCity,
-        countries_to_invest: countriesToInvest,
-        investment_industry: investmentIndustry,
-        language,
-        approval_status: approvalStatus,
-        status: overallStatus === "Active" ? 1 : 0,
-      };
-      const res = await investorsService.save(payload);
-      if (res.status === true || res.success) {
-        toast.success(editing ? "Updated Successfully" : "Saved Successfully");
+    try {
+      const formData = new FormData();
+      formData.append("user_id", "MQ");
+      formData.append("token", "cb28a886fa1802bb98441a69d0566909");
+      formData.append("name", name);
+      formData.append("country_id", String(countryId));
+      formData.append("state_id", stateId ? String(stateId) : "0");
+      formData.append("city_id", cityId ? String(cityId) : "0");
+      formData.append("fund_size_id", fundSizeId ? String(fundSizeId) : "0");
+      formData.append("linkedin_url", linkedinUrl);
+      formData.append("bio", bio);
+      formData.append("profile", profile);
+      formData.append("investment_stage", investmentStage);
+      formData.append("availability", availability);
+      formData.append("meeting_city", meetingCity);
+      formData.append("countries_to_invest", countriesToInvest);
+      formData.append("investment_industry", investmentIndustry);
+      formData.append("language", language);
+      formData.append("approval_status", approvalStatus);
+      formData.append("status", status);
+      formData.append("user_for_investor", userId ? String(userId) : "0");
+
+      if (uploadedImage) {formData.append("image", uploadedImage);}
+      if (editing?.investor_id) formData.append("row_id", String(editing.investor_id));
+
+      console.log("FormData to submit:");
+      Array.from(formData.entries()).forEach(([key, value]) => {
+        console.log(key, value);
+      });
+
+      const res = await investorsService.save(formData);
+
+      if (res.status) {
+        toast.success(res.message);
         resetForm();
         await load();
       } else {
-        toast.error(res.message || "Something went wrong!");
+        toast.error(res.message);
       }
     } catch (err) {
-      console.error(err);
-      toast.error("Something went wrong!");
+      toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
+    } finally {
+      setLoading(false);
     }
   };
 
   const onEdit = (item: InvestorModel) => {
     setEditing(item);
+
     setUserId(item.user_id ?? "");
+    setCountryId(item.country_id ?? "");
+    setStateId(item.state_id ?? "");
+    setCityId(item.city_id ?? "");
+    setFundSizeId(item.fund_size_id ?? "");
     setName(item.name ?? "");
-
-    const approvalMap: Record<number, string> = {
-      1: "Pending",
-      2: "Approved",
-      3: "Rejected",
-    };
-
-    const approvalValue =
-      typeof item.approval_status === "number"
-        ? approvalMap[item.approval_status] ?? "Pending"
-        : item.approval_status ?? "Pending";
-
-    setApprovalStatus(approvalValue);
-    setOverallStatus(item.status === 1 ? "Active" : "Inactive");
+    setLinkedinUrl(item.linkedin_url ?? "");
+    setBio(item.bio ?? "");
+    setProfile(item.profile ?? "");
+    setInvestmentStage(item.investment_stage ?? "");
+    setAvailability(item.availability ?? "1");
+    setMeetingCity(item.meeting_city ?? "");
+    setCountriesToInvest(item.countries_to_invest ?? "");
+    setInvestmentIndustry(item.investment_industry ?? "");
+    setLanguage(item.language ?? "");
+    setApprovalStatus(item.approval_status ?? "1");
+    setStatus(item.status ?? "1"); 
   };
 
   const onDelete = async (item: InvestorModel) => {
-    if (!item.id) return;
+    if (!item.investor_id) return;
     if (!window.confirm("Are you sure you want to delete this investor?")) return;
     try {
-      const res = await investorsService.delete(item.id);
+      const res = await investorsService.delete(item.investor_id);
       if (res.status === "Success" || res.success) {
-        toast.success("Deleted Successfully");
+        toast.success(CONSTANTS.MESSAGES.DELETE_SUCCESS);
         await load();
       } else {
-        toast.error(res.message || "Something went wrong!");
+        toast.error(res.message);
       }
     } catch (err) {
       console.error(err);
-      toast.error("Something went wrong!");
+      toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     }
   };
 
   const columns = useMemo(
     () => [
+      { field: InvestorLabels.ID, headerName: INVESTORS_STRINGS.TABLE.HEADER_ID, width: 100 },
       { field: InvestorLabels.FULL_NAME, headerName: INVESTORS_STRINGS.TABLE.HEADER_FULL_NAME, width: 150 },
       { field: InvestorLabels.REFERENCE_NO, headerName: INVESTORS_STRINGS.TABLE.HEADER_REFERENCE_NO, width: 150 },
       { field: InvestorLabels.NAME, headerName: INVESTORS_STRINGS.TABLE.HEADER_NAME, width: 150 },
@@ -286,7 +330,7 @@ const InvestorsList: React.FC = () => {
               rows={items}
               columns={columns}
               loading={loading}
-              getRowId={(row) => row.id}
+              getRowId={(row) => row.investor_id}
               disableRowSelectionOnClick
               pageSizeOptions={[5, 10, 20, 50]}
               paginationModel={paginationModel}
@@ -308,16 +352,19 @@ const InvestorsList: React.FC = () => {
                 <div className="row g-3 align-items-start">
                   {/* Full Name */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Select User *</label>
+                    <label className="form-label" style={STYLES.field_label}>Full Name *</label>
                     <select
                       className="form-select"
                       value={userId}
-                      onChange={(e) => setUserId(Number(e.target.value))}
+                      onChange={(e) => setUserId(e.target.value ? Number(e.target.value) : "")}
                       required
                     >
                       <option value="">Select User</option>
-                      <option value={54}>Test User</option>
-                      {/* Add more users dynamically here if needed */}
+                      {users.map((u) => (
+                        <option key={u.user_id} value={u.user_id}>
+                          {u.user_name}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
@@ -411,19 +458,19 @@ const InvestorsList: React.FC = () => {
                   </div>
 
                   {/* Profile Image */}
-                  <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Profile Image *</label>
-                    <input
-                      type="file"
-                      className="form-control"
-                      onChange={(e) => {
-                        if (e.target.files && e.target.files[0]) {
-                          // You can handle file upload here
-                          console.log(e.target.files[0]);
-                        }
-                      }}
-                    />
-                  </div>
+                    <div className="col-md-12">
+                      <label className="form-label" style={STYLES.field_label}>Profile Image *</label>
+                      <input
+                        type="file"
+                        className="form-control"
+                        accept="image/*"
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            setUploadedImage(e.target.files[0]);
+                          }
+                        }}
+                      />
+                    </div>
 
                   {/* Availability Status */}
                   <div className="col-md-12">
@@ -435,9 +482,9 @@ const InvestorsList: React.FC = () => {
                       required
                     >
                       <option value="">Select Availability Status</option>
-                      <option value="In-Person">In-Person</option>
-                      <option value="Virtual">Virtual</option>
-                      <option value="Both">Both</option>
+                      <option value="1">In-Person</option>
+                      <option value="2">Virtual</option>
+                      <option value="3">Both</option>
                     </select>
                   </div>
 
@@ -521,6 +568,37 @@ const InvestorsList: React.FC = () => {
                       <option value={1}>Small</option>
                       <option value={2}>Medium</option>
                       <option value={3}>Large</option>
+                    </select>
+                  </div>
+
+                  {/* Approval Status */}
+                  <div className="col-md-12">
+                    <label className="form-label" style={STYLES.field_label}>
+                      Approval Status <span style={{ color: COLORS.red }}> *</span>
+                    </label>
+                    <select
+                      className="form-select"
+                      value={approvalStatus}
+                      onChange={(e) => setApprovalStatus(e.target.value)}
+                    >
+                      <option value="1">Pending</option>
+                      <option value="2">Approved</option>
+                      <option value="3">Rejected</option>
+                    </select>
+                  </div>
+
+                  {/* Status */}
+                  <div className="col-md-12">
+                    <label className="form-label" style={STYLES.field_label}>
+                      Status <span style={{ color: COLORS.red }}> *</span>
+                    </label>
+                    <select
+                      className="form-select"
+                      value={status}
+                      onChange={(e) => setStatus(e.target.value)}
+                    >
+                      <option value="1">Active</option>
+                      <option value="0">Inactive</option>
                     </select>
                   </div>
 

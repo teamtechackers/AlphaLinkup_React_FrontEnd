@@ -150,12 +150,9 @@ export const API_ROUTES = {
   },
 
   INVESTORS: {
-    GET: "/list-investors",
     GET_AJAX: "/list-investors-ajax",
-    SAVE: "/save-investors",
-    EDIT: "/edit-investors",
+    SUBMIT: "/submit-investors",
     DELETE: "/delete-investors",
     CHECK_DUPLICATE: "/check-duplicate-investor",
-    VIEW: "/view-investor-details",
   },
 };

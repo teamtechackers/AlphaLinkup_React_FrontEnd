@@ -1,30 +1,31 @@
 export interface InvestorModel {
-  id: number;
-  user_id: number | null;
-  full_name: string | null;
-  reference_no: string | null;
-  name: string | null;
-  country_id: number | null;
-  state_id: number | null;
-  city_id: number | null;
-  fund_size_id: number | null;
-  linkedin_url: string | null;
-  bio: string | null;
-  image: string | null;
-  profile: string | null;
-  investment_stage: string | null;
-  availability: string | null;
-  meeting_city: string | null;
-  countries_to_invest: string | null;
-  investment_industry: string | null;
-  language: string | null;
-  approval_status: number | null;
-  status: number | null;
+  row_id: number;
+  investor_id: number;
+  user_id: number;
+  user_name: string;
+  name: string;
+  country_id: number;
+  state_id: number;
+  city_id: number;
+  fund_size_id: number;
+  linkedin_url: string;
+  bio: string;
+  image: string;
+  availability: string;
+  profile: string;
+  investment_stage: string;
+  meeting_city: string;
+  countries_to_invest: string;
+  investment_industry: string;
+  language: string;
+  approval_status: string;
+  status: string;
+  reference_no: string;
 }
 
 export const InvestorLabels = {
-  ID: "id",
-  FULL_NAME: "full_name",
+  ID: "investor_id",
+  FULL_NAME: "user_name",
   REFERENCE_NO: "reference_no",
   NAME: "name",
   APPROVAL_STATUS: "approval_status",
