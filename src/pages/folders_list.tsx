@@ -18,7 +18,10 @@ const FoldersList: React.FC = () => {
   const [editing, setEditing] = useState<FolderModel | null>(null);
   const [name, setName] = useState("");
   const [status, setStatus] = useState("1");
-
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 10,
+  });
   const load = async () => {
     setLoading(true);
     try {
@@ -131,17 +134,19 @@ const FoldersList: React.FC = () => {
         
         {/* Table */}
         <div className="col-lg-8 p-0">
-          <Box sx={{ height: 800, width: '100%' }}>
-            <DataGrid
-              rows={items}
-              columns={columns}
-              loading={loading}
-              getRowId={(row) => row.id}
-              disableRowSelectionOnClick
-              pageSizeOptions={[5, 10, 20, 50]}
-              paginationModel={{ page: 0, pageSize: 10 }}
-              pagination
-            />
+        <Box sx={{ height: 800, width: "100%" }}>
+          <DataGrid
+  rows={items}
+  columns={columns}
+  loading={loading}
+  getRowId={(row) => row.id}
+  disableRowSelectionOnClick
+  pageSizeOptions={[5, 10, 20, 50]}
+  paginationModel={paginationModel}
+  onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
+  pagination
+/>
+
           </Box>
         </div>
 
