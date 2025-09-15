@@ -18,19 +18,40 @@ const eventTypesService = {
     return res.data;
   },
 
+  // saveEventType: async (payload: { id?: number; name: string; status: number }) => {
+  //   const params: any = {
+  //     user_id: VARIABLES.USER_ID,
+  //     token: VARIABLES.TOKEN,
+  //     name: payload.name,
+  //     status: payload.status,
+  //   };
+  //   // if (payload.id && payload.id > 0) params.id = payload.id;
+
+  //   // const res = await axios.post(`${baseUrl}${API_ROUTES.EVENT_TYPE.SUBMIT}`, null, { params });
+  //   const res = await axios.post(`${baseUrl}${API_ROUTES.EVENT_TYPE.SUBMIT}`, null, { params });
+  //   return res.data;
+  // },
   saveEventType: async (payload: { id?: number; name: string; status: number }) => {
-    const params: any = {
+    const body: any = {
       user_id: VARIABLES.USER_ID,
       token: VARIABLES.TOKEN,
       name: payload.name,
       status: payload.status,
+      row_id: payload.id,
     };
-    if (payload.id && payload.id > 0) params.id = payload.id;
-
-    const res = await axios.post(`${baseUrl}${API_ROUTES.EVENT_TYPE.SUBMIT}`, null, { params });
+  
+    if (payload.id && payload.id > 0) {
+      body.id = payload.id;
+    }
+  
+    const res = await axios.post(
+      `${baseUrl}${API_ROUTES.EVENT_TYPE.SUBMIT}`,
+      body // 👈 body is here now
+    );
+  
     return res.data;
   },
-
+  
   deleteEventType: async (id: number) => {
     const res = await axios.post(`${baseUrl}${API_ROUTES.EVENT_TYPE.DELETE}`, null, {
       params: {
