@@ -10,7 +10,7 @@ export const loginService = {
     });
     return res.data;
   },
-  adminLogout: async () => {
+   adminLogout: async () => {
     const res = await axios.get(`${baseUrl}${API_ROUTES.LOGOUT}`);
     return res.data;
   },
