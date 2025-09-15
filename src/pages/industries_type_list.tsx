@@ -44,7 +44,6 @@ const IndustryTypeList: React.FC = () => {
     try {
       const payload = { id: editing?.id ?? 0, name, status: Number(status) };
       const res = await industryTypeService.saveIndustryType(payload);
-
       if (res.status === "Success") {
         toast.success(res.info || "Saved successfully");
         setEditing(null);

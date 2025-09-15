@@ -17,10 +17,9 @@ const industryTypeService = {
       params: {
         user_id: VARIABLES.USER_ID,
         token: VARIABLES.TOKEN,
-      
         name: payload.name,
         status: payload.status,
-        row_id:payload.id
+        // row_id:payload.id
       },
     });
     return res.data;
