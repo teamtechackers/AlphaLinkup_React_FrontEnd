@@ -17,13 +17,15 @@ const industryTypeService = {
       params: {
         user_id: VARIABLES.USER_ID,
         token: VARIABLES.TOKEN,
-        id: payload.id,
+      
         name: payload.name,
         status: payload.status,
+        row_id:payload.id
       },
     });
     return res.data;
   },
+
 
   deleteIndustryType: async (keys: string) => {
     const res = await axios.post(`${baseUrl}${API_ROUTES.INDUSTRY_TYPE.DELETE}`, null, {
