@@ -4,14 +4,12 @@ import { DataGrid } from "@mui/x-data-grid";
 import { FiTrash2, FiEdit } from "react-icons/fi";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 import industryTypeService from "../services/industry_type_service";
 import { INDUSTRY_TYPE_STRINGS } from "../utils/strings/pages/industry_type_strings";
 import { CONSTANTS } from "../utils/strings/constants";
 import { IndustryTypeModel, IndustryTypeModelLabels } from "../models/industry_type_model";
 import { COLORS } from "../utils/theme/colors";
 import { STYLES } from "../utils/typography/styles";
-
 const IndustryTypeList: React.FC = () => {
   const [items, setItems] = useState<IndustryTypeModel[]>([]);
   const [loading, setLoading] = useState(false);
@@ -34,17 +32,14 @@ const IndustryTypeList: React.FC = () => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     load();
   }, []);
-
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const payload = { id: editing?.id ?? 0, name, status: Number(status) };
       const res = await industryTypeService.saveIndustryType(payload);
-
       if (res.status === "Success") {
         toast.success(res.info || "Saved successfully");
         setEditing(null);
