@@ -23,7 +23,6 @@ const StatesList: React.FC = () => {
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [rowCount, setRowCount] = useState(0);
-
   const load = async () => {
     setLoading(true);
     try {
@@ -59,6 +58,7 @@ const StatesList: React.FC = () => {
         country_id: countryId > 0 ? countryId : undefined,
         name,
         status: Number(status),
+        
       };
 
       const res = await statesService.saveOrUpdateState(payload);

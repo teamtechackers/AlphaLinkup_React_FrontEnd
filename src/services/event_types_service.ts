@@ -39,14 +39,20 @@ const eventTypesService = {
       status: payload.status,
       row_id: payload.id,
     };
-  
+    const params: any = {
+      user_id: VARIABLES.USER_ID,
+      token: VARIABLES.TOKEN,
+      name: payload.name,
+      status: payload.status,
+      // row_id: payload.id,
+    };
     if (payload.id && payload.id > 0) {
       body.id = payload.id;
     }
   
     const res = await axios.post(
       `${baseUrl}${API_ROUTES.EVENT_TYPE.SUBMIT}`,
-      body // 👈 body is here now
+      body,{params} // 👈 body is here now
     );
   
     return res.data;
