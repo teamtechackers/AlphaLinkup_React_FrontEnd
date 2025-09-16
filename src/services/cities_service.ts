@@ -1,13 +1,14 @@
 import axios from "axios";
 import { VARIABLES } from "../utils/strings/variables";
 import { API_ROUTES } from "../utils/strings/api_routes";
+import { start } from "repl";
 
 const baseUrl = process.env.REACT_APP_API_BASE_URL as string;
 
 const citiesService = {
   getCitiesList: async () => {
     const res = await axios.get(`${baseUrl}${API_ROUTES.CITY_LIST.GET}`, {
-      params: { user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN },
+      params: { user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN, start:VARIABLES.start, length:VARIABLES.length }, 
     });
     return res.data;
   },

@@ -4,6 +4,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { FiTrash2, FiEdit } from "react-icons/fi";
 import { toast } from "react-toastify";
 import citiesService from "../services/cities_service";
+import statesService from "../services/states_service";   // ✅ new
 import { CITIES_STRINGS } from "../utils/strings/pages/cities_strings";
 import { CityModel, CityModelLabels } from "../models/city_model";
 import { COLORS } from "../utils/theme/colors";
@@ -12,25 +13,53 @@ import { CONSTANTS } from "../utils/strings/constants";
 
 const CitiesList: React.FC = () => {
   const [items, setItems] = useState<CityModel[]>([]);
+  const [states, setStates] = useState<any[]>([]);  // ✅ for state dropdown
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState<CityModel | null>(null);
   const [cityName, setCityName] = useState("");
   const [status, setStatus] = useState("1");
   const [stateId, setStateId] = useState<number>(0);
 
+  // ✅ Load Cities
   const loadCities = async () => {
     setLoading(true);
     try {
       const data = await citiesService.getCitiesList();
       const list = Array.isArray(data?.list_state) ? data.list_state : [];
-      setItems(list as CityModel[]);
+
+      const cities = list.map((row: any[]) => ({
+        id: row[3], // city id
+        state_name: row[1] || "-", // adjust if API returns state here
+        city_name: row[2], 
+        status: row[4].includes("Active") ? 1 : 0,
+      }));
+
+      setItems(cities);
     } finally {
       setLoading(false);
     }
   };
 
+  // ✅ Load States (for dropdown)
+  const loadStates = async () => {
+    try {
+      const data = await statesService.getStatesAjaxList();
+      const list = Array.isArray(data?.list_state) ? data.list_state : [];
+
+      const statesList = list.map((row: any[]) => ({
+        id: row[0],          // assuming row[0] is state id
+        name: row[2],        // assuming row[2] is state name
+      }));
+
+      setStates(statesList);
+    } catch (err) {
+      console.error("Error loading states:", err);
+    }
+  };
+
   useEffect(() => {
     loadCities();
+    loadStates(); // ✅ load states separately
   }, []);
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -66,14 +95,16 @@ const CitiesList: React.FC = () => {
     setEditing(item);
     setCityName(item.city_name);
     setStatus(String(item.status));
-    setStateId(item.country_id);
+    // state name is shown, but we need its id → fallback
+    const state = states.find((s) => s.name === item.state_name);
+    setStateId(state ? state.id : 0);
   };
 
   const onDelete = async (item: CityModel) => {
     if (!item.id) return;
     try {
       const res = await citiesService.deleteCity(item.id);
-      if (res.status ===  CONSTANTS.MESSAGE_TAGS.SUCCESS) {
+      if (res.status === CONSTANTS.MESSAGE_TAGS.SUCCESS) {
         toast.success(res.info);
         await loadCities();
       } else {
@@ -151,7 +182,6 @@ const CitiesList: React.FC = () => {
             </div>
             <div className="card-body">
               <form onSubmit={onSubmit}>
-              
                 {/* State select */}
                 <div className="mb-3">
                   <label className="form-label" style={STYLES.field_label}>
@@ -165,11 +195,11 @@ const CitiesList: React.FC = () => {
                     style={{ color: COLORS.darkGray, backgroundColor: COLORS.white }}
                   >
                     <option value={0}>Select State</option>
-                      {items.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {s.state_name}
-                        </option>
-                      ))}
+                    {states.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
