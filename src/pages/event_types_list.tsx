@@ -16,10 +16,16 @@ const EventTypesList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState<EventTypeModel | null>(null);
   const [name, setName] = useState("");
-  const [status, setStatus] = useState("1");
+  const [status, setStatus] = useState<number>(1); // keep as number
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const [draw, setDraw] = useState(1);
   const [rowCount, setRowCount] = useState(0);
+
+  const resetForm = () => {
+    setEditing(null);
+    setName("");
+    setStatus(1);
+  };
 
   const load = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
     setLoading(true);
@@ -31,18 +37,18 @@ const EventTypesList: React.FC = () => {
         ? data.data.map((row: any) => ({
             id: Number(row[3]),
             name: row[1],
-            status: row[2].includes("Active") ? 1 : 0,
+            status: row[2]?.toString().includes("Active") ? 1 : 0,
           }))
         : [];
-
       setItems(list);
-      setRowCount(data.recordsTotal || 0);
+      setRowCount(data?.recordsTotal || 0);
       setDraw((d) => d + 1);
+    } catch (err) {
+      toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     } finally {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     load();
   }, [paginationModel]);
@@ -50,17 +56,15 @@ const EventTypesList: React.FC = () => {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const payload = { id: editing?.id, name, status: Number(status) };
+      const payload = { id: editing?.id, name, status };
       const res = await eventTypesService.saveEventType(payload);
 
       if (res.status === "Success" || res.status === true) {
-        toast.success(res.info || res.message);
-        setEditing(null);
-        setName("");
-        setStatus("1");
+        toast.success(res.info || res.message || CONSTANTS.MESSAGES.SAVE_SUCCESS);
+        resetForm();
         await load();
       } else {
-        toast.error(res.info || res.message);
+        toast.error(res.info || res.message || CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
       }
     } catch {
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
@@ -70,7 +74,7 @@ const EventTypesList: React.FC = () => {
   const onEdit = (item: EventTypeModel) => {
     setEditing(item);
     setName(item.name || "");
-    setStatus(String(item.status ?? "1"));
+    setStatus(item.status ?? 1);
   };
 
   const onDelete = async (item: EventTypeModel) => {
@@ -78,10 +82,10 @@ const EventTypesList: React.FC = () => {
     try {
       const res = await eventTypesService.deleteEventType(item.id);
       if (res.status === "Success" || res.status === true) {
-        toast.success(res.info || res.message);
+        toast.success(res.info || res.message || CONSTANTS.MESSAGES.DELETE_SUCCESS);
         await load();
       } else {
-        toast.error(res.info || res.message);
+        toast.error(res.info || res.message || CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
       }
     } catch {
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
@@ -175,9 +179,13 @@ const EventTypesList: React.FC = () => {
                     <label className="form-label" style={STYLES.field_label}>
                       {EVENT_TYPES_STRINGS.TABLE.HEADER_STATUS} *
                     </label>
-                    <select className="form-select" value={status} onChange={(e) => setStatus(e.target.value)}>
-                      <option value="1">{EVENT_TYPES_STRINGS.TABLE.STATUS_ACTIVE}</option>
-                      <option value="0">{EVENT_TYPES_STRINGS.TABLE.STATUS_INACTIVE}</option>
+                    <select
+                      className="form-select"
+                      value={status}
+                      onChange={(e) => setStatus(Number(e.target.value))}
+                    >
+                      <option value={1}>{EVENT_TYPES_STRINGS.TABLE.STATUS_ACTIVE}</option>
+                      <option value={0}>{EVENT_TYPES_STRINGS.TABLE.STATUS_INACTIVE}</option>
                     </select>
                   </div>
                 </div>
@@ -191,11 +199,7 @@ const EventTypesList: React.FC = () => {
                       type="button"
                       className="btn"
                       style={{ backgroundColor: COLORS.red, color: COLORS.white }}
-                      onClick={() => {
-                        setEditing(null);
-                        setName("");
-                        setStatus("1");
-                      }}
+                      onClick={resetForm}
                     >
                       {CONSTANTS.BUTTONS.CANCEL}
                     </button>

@@ -9,6 +9,8 @@ import { CityModel, CityModelLabels } from "../models/city_model";
 import { COLORS } from "../utils/theme/colors";
 import { STYLES } from "../utils/typography/styles";
 import { CONSTANTS } from "../utils/strings/constants";
+import statesService from "../services/states_service";
+
 
 const CitiesList: React.FC = () => {
   const [items, setItems] = useState<CityModel[]>([]);
@@ -17,7 +19,7 @@ const CitiesList: React.FC = () => {
   const [cityName, setCityName] = useState("");
   const [status, setStatus] = useState("1");
   const [stateId, setStateId] = useState<number>(0);
-
+  const [states, setStates] = useState<any[]>([]);
   const loadCities = async () => {
     setLoading(true);
     try {
@@ -28,9 +30,21 @@ const CitiesList: React.FC = () => {
       setLoading(false);
     }
   };
-
+  const loadStates = async () => {
+    try {
+      // Fetch all (use a large pageSize or real pagination)
+      const res = await statesService.getStatesAjaxList(0, 1000);
+      setStates(res.rows);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load states");
+    }
+  };
+  
+  
   useEffect(() => {
     loadCities();
+    loadStates()
   }, []);
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -158,19 +172,20 @@ const CitiesList: React.FC = () => {
                     State *
                   </label>
                   <select
-                    className="form-select"
-                    value={stateId}
-                    onChange={(e) => setStateId(Number(e.target.value))}
-                    required
-                    style={{ color: COLORS.darkGray, backgroundColor: COLORS.white }}
-                  >
-                    <option value={0}>Select State</option>
-                      {items.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {s.state_name}
-                        </option>
-                      ))}
-                  </select>
+  className="form-select"
+  value={stateId}
+  onChange={(e) => setStateId(Number(e.target.value))}
+  required
+  style={{ color: COLORS.darkGray, backgroundColor: COLORS.white }}
+>
+  <option value={0}>Select State</option>
+  {states.map((s) => (
+    <option key={s.id} value={s.id}>
+      {s.name}
+    </option>
+  ))}
+</select>
+
                 </div>
 
                 {/* City Name */}

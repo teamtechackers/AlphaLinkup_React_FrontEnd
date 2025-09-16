@@ -45,7 +45,6 @@ const EventModesList: React.FC = () => {
       setLoading(false);
     }
   };
-
   useEffect(() => { load(); }, [paginationModel]);
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -53,7 +52,6 @@ const EventModesList: React.FC = () => {
     try {
       const payload = { id: editing?.id ?? 0, name, status: Number(status) };
       const res = await eventModesService.saveEventMode(payload);
-
       if (res.status === "Success" || res.status === true) {
         toast.success(res.info || res.message);
         setEditing(null);
