@@ -82,7 +82,6 @@ export const API_ROUTES = {
     DELETE: "/delete-event-mode",
     CHECK_DUPLICATE: "/check-duplicate-event-mode",
   },
-
   EVENT_TYPE: {
     GET_AJAX: "/list-event-type-ajax",
     SUBMIT: "/submit-event-type",
