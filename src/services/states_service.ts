@@ -65,7 +65,7 @@ const statesService = {
       body,
       {
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "x-www-form-urlencoded",
           Authorization: `Bearer ${VARIABLES.TOKEN}`, // example if you need auth
         }}
       
