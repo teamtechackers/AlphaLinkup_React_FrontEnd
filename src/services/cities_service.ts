@@ -2,28 +2,40 @@ import axios from "axios";
 import { VARIABLES } from "../utils/strings/variables";
 import { API_ROUTES } from "../utils/strings/api_routes";
 import { start } from "repl";
-
+import { stringify } from "querystring";
+import qs from "qs";
 const baseUrl = process.env.REACT_APP_API_BASE_URL as string;
 
 const citiesService = {
   getCitiesList: async () => {
-    const res = await axios.get(`${baseUrl}${API_ROUTES.CITY_LIST.GET}`, {
-      params: { user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN, start:VARIABLES.start, length:VARIABLES.length }, 
-    });
+    const res = await axios.post(
+      `${baseUrl}${API_ROUTES.CITY_LIST.GET}`,
+      {}, // empty body (if backend doesn’t need POST body)
+      {
+        params: {
+          user_id: VARIABLES.USER_ID,
+          token: VARIABLES.TOKEN,
+          draw: VARIABLES.draw,
+          start: VARIABLES.start,
+          length: VARIABLES.length,
+        },
+      }
+    );
+    console.log("Cities List Response:", res.data);
     return res.data;
   },
+  
 
   saveCity: async (payload: { id?: number; state_id: number; name: string; status: number }) => {
-    const res = await axios.post(`${baseUrl}${API_ROUTES.CITY_LIST.SAVE}`, null, {
-      params: {
-        user_id: VARIABLES.USER_ID,
-        token: VARIABLES.TOKEN,
-        state_id: payload.state_id,
-        name: payload.name,
-        status: payload.status,
-        id: payload.id ?? 0,
-      },
-    });
+    const body: any = {
+      user_id: VARIABLES.USER_ID,
+      token: VARIABLES.TOKEN,
+      row_id: payload.id,
+      state_id: payload.state_id,
+      name: payload.name,
+      status: payload.status,
+    };
+    const res = await axios.post(`${baseUrl}${API_ROUTES.CITY_LIST.SAVE}`, qs.stringify(body),);
     return res.data;
   },
 

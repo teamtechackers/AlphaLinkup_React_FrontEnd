@@ -25,35 +25,34 @@ const CitiesList: React.FC = () => {
     setLoading(true);
     try {
       const data = await citiesService.getCitiesList();
-      const list = Array.isArray(data?.list_state) ? data.list_state : [];
-
+      const list = Array.isArray(data?.data) ? data.data : [];
+  
       const cities = list.map((row: any[]) => ({
-        id: row[3], // city id
-        state_name: row[1] || "-", // adjust if API returns state here
-        city_name: row[2], 
-        status: row[4].includes("Active") ? 1 : 0,
+        row_id: row[0], // internal row index
+        state_name: row[1] || "-", // state name (index 1)
+        city_name: row[2], // city name (index 2)
+        id: row[3], // city ID (index 3)
+        status_html: row[4], // raw HTML (Active/Inactive span)
+        actions_html: row[5], // raw HTML (Edit/Delete buttons)
+        status: row[4].includes("Active") ? 1 : 0, // parse HTML into status number
       }));
-
+  
       setItems(cities);
     } finally {
       setLoading(false);
     }
   };
+  
 
   // ✅ Load States (for dropdown)
+   
   const loadStates = async () => {
     try {
-      const data = await statesService.getStatesAjaxList();
-      const list = Array.isArray(data?.list_state) ? data.list_state : [];
-
-      const statesList = list.map((row: any[]) => ({
-        id: row[0],          // assuming row[0] is state id
-        name: row[2],        // assuming row[2] is state name
-      }));
-
-      setStates(statesList);
+      const res = await statesService.getStatesAjaxList(0, 1000);
+      setStates(res.rows);
     } catch (err) {
-      console.error("Error loading states:", err);
+      console.error(err);
+      toast.error("Failed to load states");
     }
   };
 
@@ -118,41 +117,29 @@ const CitiesList: React.FC = () => {
 
   const columns = useMemo(
     () => [
-      { field: CityModelLabels.ID, headerName: CITIES_STRINGS.TABLE.HEADER_ID, width: 100 },
-      { field: CityModelLabels.STATE_NAME, headerName: CITIES_STRINGS.TABLE.HEADER_STATE_NAME, flex: 1 },
-      { field: CityModelLabels.CITY_NAME, headerName: CITIES_STRINGS.TABLE.HEADER_CITY_NAME, flex: 1 },
+      { field: "id", headerName: CITIES_STRINGS.TABLE.HEADER_ID, width: 100 },
+      { field: "state_name", headerName: CITIES_STRINGS.TABLE.HEADER_STATE_NAME, flex: 1 },
+      { field: "city_name", headerName: CITIES_STRINGS.TABLE.HEADER_CITY_NAME, flex: 1 },
       {
-        field: CityModelLabels.STATUS,
+        field: "status_html",
         headerName: CITIES_STRINGS.TABLE.HEADER_STATUS,
-        width: 120,
+        width: 200,
         renderCell: (params: any) => (
-          <span
-            className="text-center p-1 rounded"
-            style={{
-              backgroundColor: params.value === 1 ? `${COLORS.green}30` : `${COLORS.red}30`,
-              color: params.value === 1 ? COLORS.green : COLORS.red,
-            }}
-          >
-            {params.value === 1 ? CITIES_STRINGS.TABLE.STATUS_ACTIVE : CITIES_STRINGS.TABLE.STATUS_INACTIVE}
-          </span>
+          <div dangerouslySetInnerHTML={{ __html: params.value }} />
         ),
       },
       {
-        field: CityModelLabels.ACTIONS,
+        field: "actions_html",
         headerName: CITIES_STRINGS.TABLE.HEADER_ACTIONS,
-        width: 120,
-        sortable: false,
-        filterable: false,
+        width: 250,
         renderCell: (params: any) => (
-          <div className="d-flex align-items-center gap-3 w-100 h-100">
-            <FiEdit size={18} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
-            <FiTrash2 size={18} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
-          </div>
+          <div dangerouslySetInnerHTML={{ __html: params.value }} />
         ),
       },
     ],
-    [items]
+    []
   );
+  
 
   return (
     <div className="container-fluid page-padding-2 vh-100" style={{ backgroundColor: COLORS.lightGray }}>
