@@ -17,7 +17,7 @@ const EventModesList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState<EventModeModel | null>(null);
   const [name, setName] = useState("");
-  const [status, setStatus] = useState("1");
+  const [status, setStatus] = useState<number>(1);
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 5 });
   const [draw, setDraw] = useState(1);
   const [rowCount, setRowCount] = useState(0);
@@ -29,6 +29,8 @@ const EventModesList: React.FC = () => {
       const start = page * pageSize;
 
       const data = await eventModesService.getEventModesList(draw, start, pageSize);
+
+      console.log(data);
 
       const list: EventModeModel[] = Array.isArray(data?.data)
         ? data.data.map((row: any) => ({
@@ -51,13 +53,16 @@ const EventModesList: React.FC = () => {
     e.preventDefault();
     try {
       const payload = { id: editing?.id ?? 0, name, status: Number(status) };
+      
+      console.log(payload);
+
       const res = await eventModesService.saveEventMode(payload);
 
       if (res.status === "Success" || res.status === true) {
         toast.success(res.info || res.message);
         setEditing(null);
         setName("");
-        setStatus("1");
+        setStatus(1);
         await load();
       } else {
         toast.error(res.info || res.message);
@@ -69,7 +74,7 @@ const EventModesList: React.FC = () => {
   const onEdit = (item: EventModeModel) => {
     setEditing(item);
     setName(item.name ||"");
-    setStatus(String(item.status??"1"));
+    setStatus(item.status ?? 1);
   };
   const onDelete = async (item: EventModeModel) => {
     if (!item.id) return;
@@ -167,9 +172,13 @@ const EventModesList: React.FC = () => {
                     <label className="form-label" style={STYLES.field_label}>
                       {EVENT_MODES_STRINGS.TABLE.HEADER_STATUS} *
                     </label>
-                    <select className="form-select" value={status} onChange={(e) => setStatus(e.target.value)}>
-                      <option value="1">{EVENT_MODES_STRINGS.TABLE.STATUS_ACTIVE}</option>
-                      <option value="0">{EVENT_MODES_STRINGS.TABLE.STATUS_INACTIVE}</option>
+                    <select
+                      className="form-select"
+                      value={status}
+                      onChange={(e) => setStatus(parseInt(e.target.value, 10))}
+                    >
+                      <option value={1}>{EVENT_MODES_STRINGS.TABLE.STATUS_ACTIVE}</option>
+                      <option value={0}>{EVENT_MODES_STRINGS.TABLE.STATUS_INACTIVE}</option>
                     </select>
                   </div>
                 </div>
@@ -185,7 +194,7 @@ const EventModesList: React.FC = () => {
                       onClick={() => {
                         setEditing(null);
                         setName("");
-                        setStatus("1");
+                        setStatus(1);
                       }}
                     >
                       {CONSTANTS.BUTTONS.CANCEL}

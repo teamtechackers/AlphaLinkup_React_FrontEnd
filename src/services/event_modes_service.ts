@@ -1,6 +1,7 @@
 import axios from "axios";
 import { VARIABLES } from "../utils/strings/variables";
 import { API_ROUTES } from "../utils/strings/api_routes";
+import qs from "qs";
 
 const baseUrl = process.env.REACT_APP_API_BASE_URL as string;
 
@@ -19,28 +20,27 @@ const eventModesService = {
   },
 
   saveEventMode: async (payload: { id?: number; name: string; status: number }) => {
-    const params: any = {
+    const data = {
       user_id: VARIABLES.USER_ID,
       token: VARIABLES.TOKEN,
       name: payload.name,
       status: payload.status,
-      row_id:payload.id
+      row_id: payload.id ?? 0,
     };
-    const body: any = {
-      user_id: VARIABLES.USER_ID,
-      token: VARIABLES.TOKEN,
-      name: payload.name,
-      status: payload.status,
-      row_id:payload.id
-    };
-    if (payload.id && payload.id > 0) {
-      params.row_id = payload.id;
-    }
 
-    const res = await axios.post(`${baseUrl}${API_ROUTES.EVENT_MODES.SUBMIT}`,body,{ params });
+    const res = await axios.post(
+      `${baseUrl}${API_ROUTES.EVENT_MODES.SUBMIT}`,
+      qs.stringify(data),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+
     return res.data;
   },
-// cosnt form/
+
   deleteEventMode: async (id: number) => {
     const body = {
       user_id: VARIABLES.USER_ID,
