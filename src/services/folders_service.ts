@@ -12,12 +12,12 @@ const foldersService = {
     return res.data.folders_list;
   },
 
-  saveFolder: async (payload: { id?: number; name: string; status: number }) => {
+  saveFolder: async (payload: { row_id?: number; name: string; status: number }) => {
     const res = await axios.post(`${baseUrl}${API_ROUTES.FOLDERS.SAVE}`, null, {
       params: {
         user_id: VARIABLES.USER_ID,
         token: VARIABLES.TOKEN,
-        id: payload.id,
+        row_id: payload.row_id,
         name: payload.name,
         status: payload.status,
       },

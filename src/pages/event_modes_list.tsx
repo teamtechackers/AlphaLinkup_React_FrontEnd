@@ -45,7 +45,6 @@ const EventModesList: React.FC = () => {
       setLoading(false);
     }
   };
-
   useEffect(() => { load(); }, [paginationModel]);
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -67,13 +66,11 @@ const EventModesList: React.FC = () => {
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     }
   };
-
   const onEdit = (item: EventModeModel) => {
     setEditing(item);
-    setName(item.name || "");
-    setStatus(String(item.status ?? "1"));
+    setName(item.name ||"");
+    setStatus(String(item.status??"1"));
   };
-
   const onDelete = async (item: EventModeModel) => {
     if (!item.id) return;
     try {

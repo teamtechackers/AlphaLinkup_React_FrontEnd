@@ -18,6 +18,7 @@ const industryTypeService = {
         user_id: VARIABLES.USER_ID,
         token: VARIABLES.TOKEN,
         id: payload.id,
+        row_id: payload.id,
         name: payload.name,
         status: payload.status,
       },
