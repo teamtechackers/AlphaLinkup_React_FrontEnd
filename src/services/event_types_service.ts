@@ -32,15 +32,14 @@ const eventTypesService = {
   },
 
   deleteEventType: async (id: number) => {
-    const res = await axios.post(`${baseUrl}${API_ROUTES.EVENT_TYPE.DELETE}`, null, {
-      params: {
-        user_id: VARIABLES.USER_ID,
-        token: VARIABLES.TOKEN,
-        keys: id,
-      },
+    const res = await axios.post(`${baseUrl}${API_ROUTES.EVENT_TYPE.DELETE}`, {
+      user_id: VARIABLES.USER_ID,
+      token: VARIABLES.TOKEN,
+      keys: id,
     });
     return res.data;
   },
+  
 
   checkDuplicateEventType: async (name: string, id?: number) => {
     const params: any = { name, user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN };

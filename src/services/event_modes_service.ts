@@ -35,7 +35,11 @@ const eventModesService = {
   },
 
   deleteEventMode: async (id: number) => {
-    const res = await axios.post(`${baseUrl}${API_ROUTES.EVENT_MODES.DELETE}`, null, {
+    const res = await axios.post(`${baseUrl}${API_ROUTES.EVENT_MODES.DELETE}`,{
+      user_id: VARIABLES.USER_ID,
+      token: VARIABLES.TOKEN,
+      keys: id,
+    }, {
       params: {
         user_id: VARIABLES.USER_ID,
         token: VARIABLES.TOKEN,

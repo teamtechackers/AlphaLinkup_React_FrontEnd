@@ -38,7 +38,7 @@ export const API_ROUTES = {
 
   CITY_LIST: {
     GET: "/list-city",
-    SAVE: "/save-city",
+    SAVE: "/submit-city",
     EDIT: "/edit-city",
     DELETE: "/delete-city",
     CHECK_DUPLICATE: "/check-duplicate-city",
