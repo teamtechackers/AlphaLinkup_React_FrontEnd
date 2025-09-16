@@ -11,7 +11,6 @@ import { STYLES } from "../utils/typography/styles";
 import { CONSTANTS } from "../utils/strings/constants";
 import statesService from "../services/states_service";
 
-
 const CitiesList: React.FC = () => {
   const [items, setItems] = useState<CityModel[]>([]);
   const [loading, setLoading] = useState(false);
@@ -20,19 +19,33 @@ const CitiesList: React.FC = () => {
   const [status, setStatus] = useState("1");
   const [stateId, setStateId] = useState<number>(0);
   const [states, setStates] = useState<any[]>([]);
+
   const loadCities = async () => {
     setLoading(true);
     try {
-      const data = await citiesService.getCitiesList();
-      const list = Array.isArray(data?.list_state) ? data.list_state : [];
-      setItems(list as CityModel[]);
+      const res = await citiesService.getCitiesList();
+      console.log(res);
+  
+      // Map array-of-arrays to CityModel[]
+      const list = Array.isArray(res?.data)
+      ? res.data.map((row: any[]) => ({
+          id: Number(row[3]),
+          state_id: Number(row[1]),      // make sure correct index
+          state_name: row[1] || "",
+          city_name: row[2] || "",
+          status: row[4]?.includes("Active") ? 1 : 0,
+        }))
+      : [];
+    
+  
+      setItems(list);
     } finally {
       setLoading(false);
     }
   };
+  
   const loadStates = async () => {
     try {
-      // Fetch all (use a large pageSize or real pagination)
       const res = await statesService.getStatesAjaxList(0, 1000);
       setStates(res.rows);
     } catch (err) {
@@ -40,11 +53,10 @@ const CitiesList: React.FC = () => {
       toast.error("Failed to load states");
     }
   };
-  
-  
+
   useEffect(() => {
     loadCities();
-    loadStates()
+    loadStates();
   }, []);
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -60,7 +72,7 @@ const CitiesList: React.FC = () => {
         status: Number(status),
       };
       const res = await citiesService.saveCity(payload);
-      if (res.status === CONSTANTS.MESSAGE_TAGS.SUCCESS) {
+      if (res.success) {
         toast.success(res.info);
         setEditing(null);
         setCityName("");
@@ -87,7 +99,7 @@ const CitiesList: React.FC = () => {
     if (!item.id) return;
     try {
       const res = await citiesService.deleteCity(item.id);
-      if (res.status ===  CONSTANTS.MESSAGE_TAGS.SUCCESS) {
+      if (res.success) {
         toast.success(res.info);
         await loadCities();
       } else {
@@ -98,7 +110,6 @@ const CitiesList: React.FC = () => {
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     }
   };
-
   const columns = useMemo(
     () => [
       { field: CityModelLabels.ID, headerName: CITIES_STRINGS.TABLE.HEADER_ID, width: 100 },
@@ -165,27 +176,25 @@ const CitiesList: React.FC = () => {
             </div>
             <div className="card-body">
               <form onSubmit={onSubmit}>
-              
                 {/* State select */}
                 <div className="mb-3">
                   <label className="form-label" style={STYLES.field_label}>
                     State *
                   </label>
                   <select
-  className="form-select"
-  value={stateId}
-  onChange={(e) => setStateId(Number(e.target.value))}
-  required
-  style={{ color: COLORS.darkGray, backgroundColor: COLORS.white }}
->
-  <option value={0}>Select State</option>
-  {states.map((s) => (
-    <option key={s.id} value={s.id}>
-      {s.name}
-    </option>
-  ))}
-</select>
-
+                    className="form-select"
+                    value={stateId}
+                    onChange={(e) => setStateId(Number(e.target.value))}
+                    required
+                    style={{ color: COLORS.darkGray, backgroundColor: COLORS.white }}
+                  >
+                    <option value={0}>Select State</option>
+                    {states.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* City Name */}

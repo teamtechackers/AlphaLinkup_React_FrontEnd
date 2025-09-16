@@ -43,30 +43,34 @@ const statesService = {
     name: string;
     status?: number;
   }) => {
-    const params: any = {
+    const body: any = {
       user_id: VARIABLES.USER_ID,
       token: VARIABLES.TOKEN,
       name: payload.name,
     };
-
     if (payload.country_id && payload.country_id > 0) {
-      params.country_id = payload.country_id;
+      body.country_id = payload.country_id;
     }
 
     if (typeof payload.status !== "undefined") {
-      params.status = payload.status;
+      body.status = payload.status;
     }
 
     if (payload.row_id && payload.row_id > 0) {
-      params.row_id = payload.row_id;
+      body.row_id = payload.row_id;
     }
 
-    console.log("Submitting state:", params);
+    console.log("Submitting state:", body);
 
     const res = await axios.post(
       `${baseUrl}${API_ROUTES.STATE_LIST.SAVE}`,
-      null,
-      { params }
+      body,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${VARIABLES.TOKEN}`, // example if you need auth
+        }}
+      
     );
     return res.data;
   },

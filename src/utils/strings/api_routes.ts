@@ -37,7 +37,7 @@ export const API_ROUTES = {
   },
 
   CITY_LIST: {
-    GET: "/list-city",
+    GET: "/list-cities-ajax",
     SAVE: "/submit-city",
     EDIT: "/edit-city",
     DELETE: "/delete-city",
