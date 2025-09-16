@@ -59,9 +59,7 @@ const statesService = {
     if (payload.row_id && payload.row_id > 0) {
       body.row_id = payload.row_id;
     }
-
     console.log("Submitting state:", body);
-
     const res = await axios.post(
       `${baseUrl}${API_ROUTES.STATE_LIST.SAVE}`,
       body,
