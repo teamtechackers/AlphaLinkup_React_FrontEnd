@@ -1,4 +1,5 @@
 export interface CityModel {
+  row_id: number;
   id: number;
   state_name: string;
   city_name: string;

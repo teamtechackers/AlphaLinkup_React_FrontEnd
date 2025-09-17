@@ -4,4 +4,5 @@ export const VARIABLES = {
     start: 0,
     length: 1000,
     draw:1
+    // key:
 };

@@ -4,52 +4,58 @@ import { DataGrid } from "@mui/x-data-grid";
 import { FiTrash2, FiEdit } from "react-icons/fi";
 import { toast } from "react-toastify";
 import citiesService from "../services/cities_service";
-import statesService from "../services/states_service";   // ✅ new
+import statesService from "../services/states_service";
 import { CITIES_STRINGS } from "../utils/strings/pages/cities_strings";
-import { CityModel, CityModelLabels } from "../models/city_model";
+import { CityModel } from "../models/city_model";
 import { COLORS } from "../utils/theme/colors";
 import { STYLES } from "../utils/typography/styles";
 import { CONSTANTS } from "../utils/strings/constants";
 
 const CitiesList: React.FC = () => {
   const [items, setItems] = useState<CityModel[]>([]);
-  const [states, setStates] = useState<any[]>([]);  // ✅ for state dropdown
+  const [states, setStates] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState<CityModel | null>(null);
   const [cityName, setCityName] = useState("");
   const [status, setStatus] = useState("1");
   const [stateId, setStateId] = useState<number>(0);
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  // ✅ Pagination state
+ (10);
+  const [rowCount, setRowCount] = useState(0);
 
   // ✅ Load Cities
   const loadCities = async () => {
     setLoading(true);
     try {
-      const data = await citiesService.getCitiesList();
+      const data = await citiesService.getCitiesList(page, pageSize);
       const list = Array.isArray(data?.data) ? data.data : [];
-  
+
       const cities = list.map((row: any[]) => ({
-        row_id: row[0], // internal row index
-        state_name: row[1] || "-", // state name (index 1)
-        city_name: row[2], // city name (index 2)
-        id: row[3], // city ID (index 3)
-        status_html: row[4], // raw HTML (Active/Inactive span)
-        actions_html: row[5], // raw HTML (Edit/Delete buttons)
-        status: row[4].includes("Active") ? 1 : 0, // parse HTML into status number
+        row_id: row[0],
+        state_name: row[1] || "-",
+        city_name: row[2],
+        id: row[3],
+        status_html: row[4],
+        status: row[4].includes("Active") ? 1 : 0,
       }));
-  
+
       setItems(cities);
+      setRowCount(data.recordsTotal || cities.length);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load cities");
     } finally {
       setLoading(false);
     }
   };
-  
 
   // ✅ Load States (for dropdown)
-   
   const loadStates = async () => {
     try {
       const res = await statesService.getStatesAjaxList(0, 1000);
-      setStates(res.rows);
+      setStates(res.rows || []);
     } catch (err) {
       console.error(err);
       toast.error("Failed to load states");
@@ -58,8 +64,8 @@ const CitiesList: React.FC = () => {
 
   useEffect(() => {
     loadCities();
-    loadStates(); // ✅ load states separately
-  }, []);
+    loadStates();
+  }, [page, pageSize]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,11 +74,12 @@ const CitiesList: React.FC = () => {
 
     try {
       const payload = {
-        id: editing?.id ?? 0,
+        row_id: editing?.id ?? 0,
         state_id: stateId,
         name: cityName.trim(),
         status: Number(status),
       };
+      console.log("Submitting city:", payload);
       const res = await citiesService.saveCity(payload);
       if (res.status === CONSTANTS.MESSAGE_TAGS.SUCCESS) {
         toast.success(res.info);
@@ -94,7 +101,6 @@ const CitiesList: React.FC = () => {
     setEditing(item);
     setCityName(item.city_name);
     setStatus(String(item.status));
-    // state name is shown, but we need its id → fallback
     const state = states.find((s) => s.name === item.state_name);
     setStateId(state ? state.id : 0);
   };
@@ -115,6 +121,7 @@ const CitiesList: React.FC = () => {
     }
   };
 
+  // ✅ Real action buttons instead of HTML from backend
   const columns = useMemo(
     () => [
       { field: "id", headerName: CITIES_STRINGS.TABLE.HEADER_ID, width: 100 },
@@ -129,17 +136,29 @@ const CitiesList: React.FC = () => {
         ),
       },
       {
-        field: "actions_html",
+        field: "actions",
         headerName: CITIES_STRINGS.TABLE.HEADER_ACTIONS,
-        width: 250,
+        width: 200,
         renderCell: (params: any) => (
-          <div dangerouslySetInnerHTML={{ __html: params.value }} />
+          <div className="d-flex gap-2">
+            <button
+              className="btn btn-sm btn-outline-primary"
+              onClick={() => onEdit(params.row)}
+            >
+              <FiEdit />
+            </button>
+            <button
+              className="btn btn-sm btn-outline-danger"
+              onClick={() => onDelete(params.row)}
+            >
+              <FiTrash2 />
+            </button>
+          </div>
         ),
       },
     ],
-    []
+    [states]
   );
-  
 
   return (
     <div className="container-fluid page-padding-2 vh-100" style={{ backgroundColor: COLORS.lightGray }}>
@@ -152,11 +171,16 @@ const CitiesList: React.FC = () => {
               rows={items}
               columns={columns}
               loading={loading}
-              getRowId={(row) => row.id}
+              // getRowId={(row) => row.row_id ?? row.id}
               disableRowSelectionOnClick
+              paginationMode="server"
+              rowCount={rowCount}
+              paginationModel={{ page, pageSize }}
+              onPaginationModelChange={(model) => {
+                setPage(model.page);
+                setPageSize(model.pageSize);
+              }}
               pageSizeOptions={[5, 10, 20, 50]}
-              paginationModel={{ page: 0, pageSize: 10 }}
-              pagination
             />
           </Box>
         </div>

@@ -26,7 +26,7 @@ const StatesList: React.FC = () => {
   const load = async () => {
     setLoading(true);
     try {
-      const res = await statesService.getStatesAjaxList(page, pageSize);
+      const res = await statesService.getStatesAjaxList(page,pageSize);
       setItems(res.rows as StateModel[]);
       setRowCount(res.total);
     } finally {

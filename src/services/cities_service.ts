@@ -7,7 +7,9 @@ import qs from "qs";
 const baseUrl = process.env.REACT_APP_API_BASE_URL as string;
 
 const citiesService = {
-  getCitiesList: async () => {
+  getCitiesList: async (page: number, pageSize: number) => {
+    const start = page * pageSize;
+    const length = pageSize;
     const res = await axios.post(
       `${baseUrl}${API_ROUTES.CITY_LIST.GET}`,
       {}, // empty body (if backend doesn’t need POST body)
@@ -15,9 +17,9 @@ const citiesService = {
         params: {
           user_id: VARIABLES.USER_ID,
           token: VARIABLES.TOKEN,
-          draw: VARIABLES.draw,
-          start: VARIABLES.start,
-          length: VARIABLES.length,
+          draw: 1,
+          start,
+         length
         },
       }
     );
@@ -26,21 +28,41 @@ const citiesService = {
   },
   
 
-  saveCity: async (payload: { id?: number; state_id: number; name: string; status: number }) => {
-    const body: any = {
+  saveCity: async (payload: {
+    row_id: number;
+    state_id: number;
+    name: string;
+    status: number;
+  }) => {
+    const body = {
       user_id: VARIABLES.USER_ID,
       token: VARIABLES.TOKEN,
-      row_id: payload.id,
-      state_id: payload.state_id,
-      name: payload.name,
-      status: payload.status,
+      ...payload,
     };
-    const res = await axios.post(`${baseUrl}${API_ROUTES.CITY_LIST.SAVE}`, qs.stringify(body),);
+  
+    const res = await axios.post(
+      `${baseUrl}${API_ROUTES.CITY_LIST.SAVE}`, 
+      qs.stringify(body),   // body as form-urlencoded
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        params: {
+          user_id: VARIABLES.USER_ID,
+          token: VARIABLES.TOKEN,
+        }, // keep params too, if backend requires both
+      }
+    );
+  
     return res.data;
   },
+  
+  
 
   deleteCity: async (id: number) => {
-    const res = await axios.post(`${baseUrl}${API_ROUTES.CITY_LIST.DELETE}`, null, {
+    const res = await axios.post(`${baseUrl}${API_ROUTES.CITY_LIST.DELETE}`,   {
+      user_id: VARIABLES.USER_ID,
+      token: VARIABLES.TOKEN,
+      keys: id,
+    }, {
       params: {
         user_id: VARIABLES.USER_ID,
         token: VARIABLES.TOKEN,
