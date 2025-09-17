@@ -5,7 +5,7 @@ import { API_ROUTES } from "../utils/strings/api_routes";
 const baseUrl = process.env.REACT_APP_API_BASE_URL as string;
 
 const citiesService = {
-  getCitiesList: async () => {
+  getCitiesList: async (page: number, pageSize: number) => {
     const res = await axios.get(`${baseUrl}${API_ROUTES.CITY_LIST.GET}`, {
       params: { user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN },
     });
