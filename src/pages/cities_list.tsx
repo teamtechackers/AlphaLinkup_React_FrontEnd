@@ -22,7 +22,7 @@ const CitiesList: React.FC = () => {
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   // ✅ Pagination state
- (10);
+ 
   const [rowCount, setRowCount] = useState(0);
 
   // ✅ Load Cities
@@ -144,7 +144,8 @@ const CitiesList: React.FC = () => {
             <button
               className="btn btn-sm btn-outline-primary"
               onClick={() => onEdit(params.row)}
-            >
+              >
+              {/* Debugging log removed */}
               <FiEdit />
             </button>
             <button

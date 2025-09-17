@@ -84,9 +84,9 @@ const StatesList: React.FC = () => {
 
   const onEdit = (item: StateModel) => {
     setEditing(item);
-    setName(item.name || "");
+    setName(item.name ); // handle both cases
     setStatus(String(item.status ?? "1"));
-    setCountryId(item.country_id);
+    setCountryId(item.country_id ?? 0);
   };
 
   const onDelete = async (item: StateModel) => {
