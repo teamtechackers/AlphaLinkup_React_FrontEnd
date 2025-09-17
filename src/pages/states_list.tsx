@@ -57,6 +57,7 @@ const StatesList: React.FC = () => {
         country_id: countryId > 0 ? countryId : undefined,
         name,
         status: Number(status),
+        // id:editing?.id
       };
       
       if (editing?.id) {

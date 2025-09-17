@@ -48,7 +48,7 @@ const statesService = {
     const body: any = {
       user_id: payload.user_id || VARIABLES.USER_ID,
       token: payload.token || VARIABLES.TOKEN,
-      row_id: payload.row_id,
+      row_id: payload.row_id||0,
       country_id: payload.country_id,
       name: payload.name,
       status: payload.status,
