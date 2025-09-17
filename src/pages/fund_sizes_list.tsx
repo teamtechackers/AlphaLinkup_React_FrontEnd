@@ -207,6 +207,7 @@ const FundSizeList: React.FC = () => {
                         setInvestmentRange("")
                         setStatus("1")
                       }}
+                    //   dwdijwdi
                     >
                       {CONSTANTS.BUTTONS.CANCEL}
                     </button>
