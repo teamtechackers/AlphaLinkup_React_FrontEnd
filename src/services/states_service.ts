@@ -48,20 +48,20 @@ const statesService = {
     const body: any = {
       user_id: payload.user_id || VARIABLES.USER_ID,
       token: payload.token || VARIABLES.TOKEN,
-      row_id: payload.row_id||0,
+      row_id: payload.row_id ?? 0, // ✅ default 0 if not provided
       country_id: payload.country_id,
       name: payload.name,
       status: payload.status,
     };
-    if (payload.row_id && payload.row_id > 0) {
-      body.id = payload.row_id;
-    }
+    
+    // ❌ don’t send `id`, only `row_id`
+    // backend should decide insert (0) vs update (>0)
   
     console.log("Submitting state (form-urlencoded):", body);
   
     const res = await axios.post(
       `${baseUrl}${API_ROUTES.STATE_LIST.SAVE}`,
-      qs.stringify(body), // ✅ encode for x-www-form-urlencoded
+      qs.stringify(body),
       {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -71,42 +71,6 @@ const statesService = {
   
     return res.data;
   },
-
-  
-  
-  // saveOrUpdateState: async (payload: {
-  //   row_id?: number;
-  //   country_id?: number;
-  //   name: string;
-  //   status?: number;
-  // }) => {
-  //   const body: any = {
-  //     user_id: VARIABLES.USER_ID,
-  //     token: VARIABLES.TOKEN,
-  //     name: payload.name,
-  //   };
-
-  //   if (payload.country_id && payload.country_id > 0) {
-  //     body.country_id = payload.country_id;
-  //   }
-
-  //   if (typeof payload.status !== "undefined") {
-  //     body.status = payload.status;
-  //   }
-
-  //   if (payload.row_id && payload.row_id > 0) {
-  //     body.row_id = payload.row_id;
-  //   }
-
-  //   console.log("Submitting state:", body);
-
-  //   const res = await axios.post(
-  //     `${baseUrl}${API_ROUTES.STATE_LIST.SAVE}`,
-  //     body
-  //     // { params }
-  //   );
-  //   return res.data;
-  // },
 
   deleteState: async (id: number) => {
     const res = await axios.post(`${baseUrl}${API_ROUTES.STATE_LIST.DELETE}`, null, {

@@ -71,14 +71,18 @@ const CitiesList: React.FC = () => {
     e.preventDefault();
     if (!stateId) return toast.error("Select a state first");
     if (!cityName.trim()) return toast.error("Enter a city name");
-
     try {
-      const payload = {
-        row_id: editing?.id ?? 0,
-        state_id: stateId,
+      const payload: any = {
+        state_id: Number(stateId),
         name: cityName.trim(),
         status: Number(status),
       };
+      
+      // ✅ Only add row_id if editing
+      if (editing?.id) {
+        payload.row_id = editing.id;
+      }
+      
       console.log("Submitting city:", payload);
       const res = await citiesService.saveCity(payload);
       if (res.status === CONSTANTS.MESSAGE_TAGS.SUCCESS) {

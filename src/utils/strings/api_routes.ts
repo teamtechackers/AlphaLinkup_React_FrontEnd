@@ -38,7 +38,7 @@ export const API_ROUTES = {
 
   CITY_LIST: {
     GET: "/list-cities-ajax",
-    SAVE: "/save-city",
+    SAVE: "/submit-city",
     EDIT: "/edit-city",
     DELETE: "/delete-city",
     CHECK_DUPLICATE: "/check-duplicate-city",
@@ -100,7 +100,7 @@ export const API_ROUTES = {
 
   FUND_SIZE: {
     GET: "/list-fund-size",
-    SAVE: "submit-fund-size",
+    SAVE: "/submit-fund-size",
     EDIT: "/edit-fund-size",
     DELETE: "/delete-fund-size",
     CHECK_DUPLICATE: "/check-duplicate-fund-size",

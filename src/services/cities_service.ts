@@ -40,20 +40,19 @@ const citiesService = {
       ...payload,
     };
   
+    console.log("SaveCity body:", qs.stringify(body)); // Debug log
+  
     const res = await axios.post(
-      `${baseUrl}${API_ROUTES.CITY_LIST.SAVE}`, 
-      qs.stringify(body),   // body as form-urlencoded
+      `${baseUrl}${API_ROUTES.CITY_LIST.SAVE}`,
+      qs.stringify(body),
       {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        params: {
-          user_id: VARIABLES.USER_ID,
-          token: VARIABLES.TOKEN,
-        }, // keep params too, if backend requires both
       }
     );
-  
+  console.log("SaveCity response:", res.data); // Debug log
     return res.data;
   },
+  
   
   
 

@@ -27,6 +27,7 @@ const StatesList: React.FC = () => {
     setLoading(true);
     try {
       const res = await statesService.getStatesAjaxList(page, pageSize);
+      console.log("hello",res.rows)
       setItems(res.rows as StateModel[]);
       setRowCount(res.total);
     } finally {
@@ -59,12 +60,12 @@ const StatesList: React.FC = () => {
         status: Number(status),
       };
       
-      if (editing?.id) {
-        payload.id = editing.id; // ✅ use row_id to match backend
+      if (editing?.row_id) {
+        payload.row_id = Number(editing.row_id); // ✅ send row_id for updates
       }
-
+      
+console.log("payload",payload)
       const res = await statesService.saveOrUpdateState(payload);
-
       if (res.status === CONSTANTS.MESSAGE_TAGS.SUCCESS) {
         toast.success(res.info);
         setEditing(null);
@@ -87,6 +88,7 @@ const StatesList: React.FC = () => {
     setStatus(String(item.status ?? "1"));
     setCountryId(item.country_id);
   };
+  
 
   const onDelete = async (item: StateModel) => {
     if (!item.id) return;
@@ -143,14 +145,13 @@ const StatesList: React.FC = () => {
     <div className="container-fluid page-padding-2 vh-100" style={{ backgroundColor: COLORS.lightGray }}>
       <h4 className="my-4">{STATES_STRINGS.TITLE}</h4>
       <div className="row g-4 w-100">
-        {/* Table */}
         <div className="col-lg-8 p-0">
           <Box sx={{ height: 800, width: '100%' }}>
             <DataGrid
               rows={items}
               columns={columns}
               loading={loading}
-              getRowId={(row) => row.row_id ?? row.id}
+              getRowId={(row) => Number(row.row_id)}
               disableRowSelectionOnClick
               paginationMode="server"
               rowCount={rowCount}

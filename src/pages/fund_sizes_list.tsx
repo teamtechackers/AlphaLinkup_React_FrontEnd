@@ -43,7 +43,7 @@ const FundSizeList: React.FC = () => {
             const payload = { id: editing?.id, investment_range: investmentRange, status: Number(status) };
             const res = await fundSizeService.saveFundSize(payload);
 
-            if (res.status === "Success") {
+            if (res.status === "success") {
                 toast.success(res.info);
                 setEditing(null);
                 setInvestmentRange("");

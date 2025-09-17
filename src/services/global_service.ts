@@ -14,28 +14,40 @@ class GlobalService {
     });
     return res.data?.country_list || [];
   }
-
   static async getStates(countryId: number | string) {
-    const res = await axios.get(`${baseUrl}${API_ROUTES.GLOBAL_API.API_STATE_LIST}`, {
-      params: {
-        user_id: VARIABLES.USER_ID,
-        token: VARIABLES.TOKEN,
-        country_id: countryId,
-      },
-    });
-    return res.data?.state_list || [];
+    try {
+      const res = await axios.get(`${baseUrl}${API_ROUTES.GLOBAL_API.API_STATE_LIST}`, {
+        params: {
+          user_id: VARIABLES.USER_ID,
+          token: VARIABLES.TOKEN,
+          country_id: Number(countryId), // force number
+        },
+      });
+      // console.log("States API raw response:", res.data);
+      return res.data?.state_list || [];
+    } catch (err) {
+      console.error("Error fetching states", err);
+      return [];
+    }
   }
-
+  
   static async getCities(stateId: number | string) {
-    const res = await axios.get(`${baseUrl}${API_ROUTES.GLOBAL_API.API_CITY_LIST}`, {
-      params: {
-        user_id: VARIABLES.USER_ID,
-        token: VARIABLES.TOKEN,
-        state_id: stateId,
-      },
-    });
-    return res.data?.city_list || [];
+    try {
+      const res = await axios.get(`${baseUrl}${API_ROUTES.GLOBAL_API.API_CITY_LIST}`, {
+        params: {
+          user_id: VARIABLES.USER_ID,
+          token: VARIABLES.TOKEN,
+          state_id: Number(stateId), // force number
+        },
+      });  
+      // adjust depending on actual response structure
+      return res.data?.city_list || res.data?.data?.city_list || res.data?.cities || [];
+    } catch (err) {
+      console.error("Error fetching cities", err);
+      return [];
+    }
   }
+  
 
   static async getPayList() {
     const res = await axios.get(`${baseUrl}${API_ROUTES.GLOBAL_API.API_PAY_LIST}`, {
