@@ -113,6 +113,7 @@ const CitiesList: React.FC = () => {
     if (!item.id) return;
     try {
       const res = await citiesService.deleteCity(item.id);
+      console.log(res)
       if (res.status === CONSTANTS.MESSAGE_TAGS.SUCCESS) {
         toast.success(res.info);
         await loadCities();
