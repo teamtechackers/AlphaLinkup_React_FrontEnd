@@ -1,33 +1,68 @@
 import axios from "axios";
 import { VARIABLES } from "../utils/strings/variables";
 import { API_ROUTES } from "../utils/strings/api_routes";
-
+import { start } from "repl";
+import { stringify } from "querystring";
+import qs from "qs";
 const baseUrl = process.env.REACT_APP_API_BASE_URL as string;
 
 const citiesService = {
   getCitiesList: async (page: number, pageSize: number) => {
-    const res = await axios.get(`${baseUrl}${API_ROUTES.CITY_LIST.GET}`, {
-      params: { user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN },
-    });
+    const start = page * pageSize;
+    const length = pageSize;
+    const res = await axios.post(
+      `${baseUrl}${API_ROUTES.CITY_LIST.GET}`,
+      {}, // empty body (if backend doesn’t need POST body)
+      {
+        params: {
+          user_id: VARIABLES.USER_ID,
+          token: VARIABLES.TOKEN,
+          draw: 1,
+          start,
+         length
+        },
+      }
+    );
+    console.log("Cities List Response:", res.data);
     return res.data;
   },
+  
 
-  saveCity: async (payload: { id?: number; state_id: number; name: string; status: number }) => {
-    const res = await axios.post(`${baseUrl}${API_ROUTES.CITY_LIST.SAVE}`, null, {
-      params: {
-        user_id: VARIABLES.USER_ID,
-        token: VARIABLES.TOKEN,
-        state_id: payload.state_id,
-        name: payload.name,
-        status: payload.status,
-        id: payload.id ?? 0,
-      },
-    });
+  saveCity: async (payload: {
+    row_id: number;
+    state_id: number;
+    name: string;
+    status: number;
+  }) => {
+    const body = {
+      user_id: VARIABLES.USER_ID,
+      token: VARIABLES.TOKEN,
+      ...payload,
+    };
+  
+    const res = await axios.post(
+      `${baseUrl}${API_ROUTES.CITY_LIST.SAVE}`, 
+      qs.stringify(body),   // body as form-urlencoded
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        params: {
+          user_id: VARIABLES.USER_ID,
+          token: VARIABLES.TOKEN,
+        }, // keep params too, if backend requires both
+      }
+    );
+  
     return res.data;
   },
+  
+  
 
   deleteCity: async (id: number) => {
-    const res = await axios.post(`${baseUrl}${API_ROUTES.CITY_LIST.DELETE}`, null, {
+    const res = await axios.post(`${baseUrl}${API_ROUTES.CITY_LIST.DELETE}`,   {
+      user_id: VARIABLES.USER_ID,
+      token: VARIABLES.TOKEN,
+      keys: id,
+    }, {
       params: {
         user_id: VARIABLES.USER_ID,
         token: VARIABLES.TOKEN,
