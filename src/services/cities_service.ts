@@ -57,17 +57,12 @@ const citiesService = {
   
 
   deleteCity: async (id: number) => {
-    const res = await axios.post(`${baseUrl}${API_ROUTES.CITY_LIST.DELETE}`,   {
+   const body:any= {
       user_id: VARIABLES.USER_ID,
       token: VARIABLES.TOKEN,
       keys: id,
-    }, {
-      params: {
-        user_id: VARIABLES.USER_ID,
-        token: VARIABLES.TOKEN,
-        keys: id,
-      },
-    });
+    }
+    const res = await axios.post(`${baseUrl}${API_ROUTES.CITY_LIST.DELETE}`,  qs.stringify(body) , );
     return res.data;
   },
 
