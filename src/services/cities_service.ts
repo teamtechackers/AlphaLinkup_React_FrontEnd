@@ -60,7 +60,7 @@ const citiesService = {
    const body:any= {
       user_id: VARIABLES.USER_ID,
       token: VARIABLES.TOKEN,
-      keys: 123,
+      keys: id,
     }
     const res = await axios.post(
       `${baseUrl}${API_ROUTES.CITY_LIST.DELETE}`,

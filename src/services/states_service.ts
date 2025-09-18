@@ -28,8 +28,6 @@ const statesService = {
       return { data: [], recordsTotal: 0 };
     }
   },
-  
-
   saveOrUpdateState: async (payload: {
     user_id?: string;
     token?: string;
