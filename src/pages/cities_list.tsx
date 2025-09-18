@@ -1,127 +1,200 @@
-import React, { useEffect, useState, useMemo } from "react";
-import Box from "@mui/material/Box";
-import { DataGrid } from "@mui/x-data-grid";
-import { FiTrash2, FiEdit } from "react-icons/fi";
-import { toast } from "react-toastify";
-import citiesService from "../services/cities_service";
-import { CITIES_STRINGS } from "../utils/strings/pages/cities_strings";
-import { CityModel, CityModelLabels } from "../models/city_model";
-import { COLORS } from "../utils/theme/colors";
-import { STYLES } from "../utils/typography/styles";
-import { CONSTANTS } from "../utils/strings/constants";
+"use client"
+
+import type React from "react"
+import { useEffect, useState, useMemo } from "react"
+import Box from "@mui/material/Box"
+import { DataGrid } from "@mui/x-data-grid"
+import { FiTrash2, FiEdit } from "react-icons/fi"
+import { toast } from "react-toastify"
+import citiesService from "../services/cities_service"
+import statesService from "../services/states_service"
+import { CITIES_STRINGS } from "../utils/strings/pages/cities_strings"
+import type { CityModel } from "../models/city_model"
+import { COLORS } from "../utils/theme/colors"
+import { STYLES } from "../utils/typography/styles"
+import { CONSTANTS } from "../utils/strings/constants"
 
 const CitiesList: React.FC = () => {
-  const [items, setItems] = useState<CityModel[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [editing, setEditing] = useState<CityModel | null>(null);
-  const [cityName, setCityName] = useState("");
-  const [status, setStatus] = useState("1");
-  const [stateId, setStateId] = useState<number>(0);
+  const [items, setItems] = useState<CityModel[]>([])
+  const [states, setStates] = useState<any[]>([])
+  const [loading, setLoading] = useState(false)
+  const [editing, setEditing] = useState<CityModel | null>(null)
+  const [cityName, setCityName] = useState("")
+  const [status, setStatus] = useState("1")
+  const [stateId, setStateId] = useState<number>(0)
+  const [page, setPage] = useState(0)
+  const [pageSize, setPageSize] = useState(10)
+  const [rowCount, setRowCount] = useState(0)
 
-  const loadCities = async () => {
-    setLoading(true);
+  // ✅ Load Cities
+  const loadCities = async (p = page, ps = pageSize) => {
+    setLoading(true)
     try {
-      const data = await citiesService.getCitiesList();
-      const list = Array.isArray(data?.list_state) ? data.list_state : [];
-      setItems(list as CityModel[]);
+      const data = await citiesService.getCitiesList(p, ps)
+      const list = Array.isArray(data?.data) ? data.data : []
+
+      const cities = list.map((row: any[]) => ({
+        row_id: row[0],
+        state_name: row[1] || "-",
+        city_name: row[2],
+        id: row[3], // ✅ unique id for DataGrid
+        status_html: row[4],
+        status: row[4].includes("Active") ? 1 : 0,
+      }))
+
+      setItems(cities)
+      setRowCount(data.recordsTotal || cities.length)
+    } catch (err) {
+      console.error(err)
+      toast.error("Failed to load cities")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
+
+  // ✅ Load States (for dropdown)
+  const loadStates = async () => {
+    try {
+      const res = await statesService.getStatesAjaxList(0, 1000)
+      setStates(res.rows || [])
+    } catch (err) {
+      console.error(err)
+      toast.error("Failed to load states")
+    }
+  }
 
   useEffect(() => {
-    loadCities();
-  }, []);
+    loadCities()
+    loadStates()
+  }, [page, pageSize])
 
   const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!stateId) return toast.error("Select a state first");
-    if (!cityName.trim()) return toast.error("Enter a city name");
+    e.preventDefault()
+    if (!stateId) return toast.error("Select a state first")
+    if (!cityName.trim()) return toast.error("Enter a city name")
 
+    setLoading(true) // Add loading state during submit
     try {
-      const payload = {
-        id: editing?.id ?? 0,
-        state_id: stateId,
+      const payload: any = {
+        state_id: Number(stateId),
         name: cityName.trim(),
         status: Number(status),
-      };
-      const res = await citiesService.saveCity(payload);
-      if (res.status === CONSTANTS.MESSAGE_TAGS.SUCCESS) {
-        toast.success(res.info);
-        setEditing(null);
-        setCityName("");
-        setStatus("1");
-        setStateId(0);
-        await loadCities();
-      } else {
-        toast.error(res.info);
       }
-    } catch (err) {
-      console.error(err);
-      toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
+
+      if (editing?.id) {
+        payload.row_id = editing.id
+      }
+
+      console.log("Submitting city:", payload)
+      const res = await citiesService.saveCity(payload)
+
+      if (res?.status === CONSTANTS.MESSAGE_TAGS.SUCCESS || res?.success || res?.status === "success") {
+        const successMsg =
+          res.info || res.message || (editing ? "City updated successfully" : "City added successfully")
+        toast.success(successMsg)
+
+        setEditing(null)
+        setCityName("")
+        setStatus("1")
+        setStateId(0)
+
+        await loadCities(page, pageSize)
+      } else {
+        const errorMsg = res?.info || res.message || res?.error || "Failed to save city"
+        toast.error(errorMsg)
+      }
+    } catch (err: any) {
+      console.error(err)
+      const errorMsg = err?.response?.data?.message || err?.message || CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG
+      toast.error(errorMsg)
+    } finally {
+      setLoading(false) // Reset loading state
     }
-  };
+  }
 
   const onEdit = (item: CityModel) => {
-    setEditing(item);
-    setCityName(item.city_name);
-    setStatus(String(item.status));
-    setStateId(item.country_id);
-  };
+    setEditing(item)
+    setCityName(item.city_name)
+    setStatus(String(item.status))
+    const state = states.find((s) => s.name === item.state_name)
+    setStateId(state ? state.id : 0)
+  }
 
   const onDelete = async (item: CityModel) => {
-    if (!item.id) return;
-    try {
-      const res = await citiesService.deleteCity(item.id);
-      if (res.status ===  CONSTANTS.MESSAGE_TAGS.SUCCESS) {
-        toast.success(res.info);
-        await loadCities();
-      } else {
-        toast.error(res.info);
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
+    if (!item.id) return
+
+    if (!window.confirm(`Are you sure you want to delete "${item.city_name}"?`)) {
+      return
     }
-  };
+
+    setLoading(true) // Add loading state during delete
+    try {
+      const res = await citiesService.deleteCity(item.id)
+      console.log(res)
+
+      if (res?.status === CONSTANTS.MESSAGE_TAGS.SUCCESS || res?.success || res?.status === "success") {
+        const successMsg = res.info || res.message || "City deleted successfully"
+        toast.success(successMsg)
+
+        const newTotal = rowCount - 1
+        const maxPage = Math.ceil(newTotal / pageSize) - 1
+        const currentPage = page > maxPage ? Math.max(0, maxPage) : page
+
+        if (currentPage !== page) {
+          setPage(currentPage)
+        }
+        await loadCities(currentPage, pageSize)
+      } else {
+        const errorMsg = res?.info || res.message || res?.error || "Failed to delete city"
+        toast.error(errorMsg)
+      }
+    } catch (err: any) {
+      console.error(err)
+      const errorMsg = err?.response?.data?.message || err?.message || CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG
+      toast.error(errorMsg)
+    } finally {
+      setLoading(false) // Reset loading state
+    }
+  }
 
   const columns = useMemo(
     () => [
-      { field: CityModelLabels.ID, headerName: CITIES_STRINGS.TABLE.HEADER_ID, width: 100 },
-      { field: CityModelLabels.STATE_NAME, headerName: CITIES_STRINGS.TABLE.HEADER_STATE_NAME, flex: 1 },
-      { field: CityModelLabels.CITY_NAME, headerName: CITIES_STRINGS.TABLE.HEADER_CITY_NAME, flex: 1 },
+      { field: "id", headerName: CITIES_STRINGS.TABLE.HEADER_ID, width: 100 },
+      { field: "state_name", headerName: CITIES_STRINGS.TABLE.HEADER_STATE_NAME, flex: 1 },
+      { field: "city_name", headerName: CITIES_STRINGS.TABLE.HEADER_CITY_NAME, flex: 1 },
       {
-        field: CityModelLabels.STATUS,
+        field: "status_html",
         headerName: CITIES_STRINGS.TABLE.HEADER_STATUS,
-        width: 120,
-        renderCell: (params: any) => (
-          <span
-            className="text-center p-1 rounded"
-            style={{
-              backgroundColor: params.value === 1 ? `${COLORS.green}30` : `${COLORS.red}30`,
-              color: params.value === 1 ? COLORS.green : COLORS.red,
-            }}
-          >
-            {params.value === 1 ? CITIES_STRINGS.TABLE.STATUS_ACTIVE : CITIES_STRINGS.TABLE.STATUS_INACTIVE}
-          </span>
-        ),
+        width: 200,
+        renderCell: (params: any) => <div dangerouslySetInnerHTML={{ __html: params.value }} />,
       },
       {
-        field: CityModelLabels.ACTIONS,
+        field: "actions",
         headerName: CITIES_STRINGS.TABLE.HEADER_ACTIONS,
-        width: 120,
-        sortable: false,
-        filterable: false,
+        width: 200,
+        sortable: false, // Disable sorting for actions column
         renderCell: (params: any) => (
-          <div className="d-flex align-items-center gap-3 w-100 h-100">
-            <FiEdit size={18} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
-            <FiTrash2 size={18} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
+          <div className="d-flex gap-2">
+            <button
+              className="btn btn-sm btn-outline-primary"
+              onClick={() => onEdit(params.row)}
+              disabled={loading} // Disable during loading
+            >
+              <FiEdit />
+            </button>
+            <button
+              className="btn btn-sm btn-outline-danger"
+              onClick={() => onDelete(params.row)}
+              disabled={loading} // Disable during loading
+            >
+              <FiTrash2 />
+            </button>
           </div>
         ),
       },
     ],
-    [items]
-  );
+    [loading], // Add loading to dependencies
+  )
 
   return (
     <div className="container-fluid page-padding-2 vh-100" style={{ backgroundColor: COLORS.lightGray }}>
@@ -134,11 +207,17 @@ const CitiesList: React.FC = () => {
               rows={items}
               columns={columns}
               loading={loading}
-              getRowId={(row) => row.id}
+              getRowId={(row) => row.id} // ✅ ensure DataGrid refreshes properly
               disableRowSelectionOnClick
+              paginationMode="server"
+              rowCount={rowCount}
+              paginationModel={{ page, pageSize }}
+              onPaginationModelChange={(model) => {
+                setPage(model.page)
+                setPageSize(model.pageSize)
+              }}
               pageSizeOptions={[5, 10, 20, 50]}
-              paginationModel={{ page: 0, pageSize: 10 }}
-              pagination
+              key={`cities-grid-${items.length}-${page}-${pageSize}`}
             />
           </Box>
         </div>
@@ -151,7 +230,6 @@ const CitiesList: React.FC = () => {
             </div>
             <div className="card-body">
               <form onSubmit={onSubmit}>
-              
                 {/* State select */}
                 <div className="mb-3">
                   <label className="form-label" style={STYLES.field_label}>
@@ -162,14 +240,17 @@ const CitiesList: React.FC = () => {
                     value={stateId}
                     onChange={(e) => setStateId(Number(e.target.value))}
                     required
-                    style={{ color: COLORS.darkGray, backgroundColor: COLORS.white }}
+                    style={{
+                      color: COLORS.darkGray,
+                      backgroundColor: COLORS.white,
+                    }}
                   >
                     <option value={0}>Select State</option>
-                      {items.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {s.state_name}
-                        </option>
-                      ))}
+                    {states.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -192,11 +273,7 @@ const CitiesList: React.FC = () => {
                   <label className="form-label" style={STYLES.field_label}>
                     Status *
                   </label>
-                  <select
-                    className="form-select"
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
-                  >
+                  <select className="form-select" value={status} onChange={(e) => setStatus(e.target.value)}>
                     <option value="1">{CITIES_STRINGS.TABLE.STATUS_ACTIVE}</option>
                     <option value="0">{CITIES_STRINGS.TABLE.STATUS_INACTIVE}</option>
                   </select>
@@ -204,19 +281,31 @@ const CitiesList: React.FC = () => {
 
                 {/* Buttons */}
                 <div className="d-flex gap-2 mt-3">
-                  <button type="submit" className="btn" style={{ backgroundColor: COLORS.purple, color: COLORS.white }}>
-                    {editing ? "Update" : "Save"}
+                  <button
+                    type="submit"
+                    className="btn"
+                    disabled={loading} // Disable during loading
+                    style={{
+                      backgroundColor: COLORS.purple,
+                      color: COLORS.white,
+                    }}
+                  >
+                    {loading ? "Saving..." : editing ? "Update" : "Save"} {/* Show loading state */}
                   </button>
                   {editing && (
                     <button
                       type="button"
                       className="btn"
-                      style={{ backgroundColor: COLORS.red, color: COLORS.white }}
+                      disabled={loading} // Disable during loading
+                      style={{
+                        backgroundColor: COLORS.red,
+                        color: COLORS.white,
+                      }}
                       onClick={() => {
-                        setEditing(null);
-                        setCityName("");
-                        setStatus("1");
-                        setStateId(0);
+                        setEditing(null)
+                        setCityName("")
+                        setStatus("1")
+                        setStateId(0)
                       }}
                     >
                       {CONSTANTS.BUTTONS.CANCEL}
@@ -229,7 +318,7 @@ const CitiesList: React.FC = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default CitiesList;
+export default CitiesList

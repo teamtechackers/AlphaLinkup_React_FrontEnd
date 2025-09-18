@@ -109,6 +109,7 @@ const UsersList: React.FC = () => {
     const fetchStates = async () => {
       try {
         const list = await GlobalService.getStates(countryId);
+        console.log(list)
         setStates(list);
         setCities([]);
         setStateId("");
@@ -158,7 +159,7 @@ const UsersList: React.FC = () => {
       country_id: countryId ? Number(countryId) : undefined,
       state_id: stateId ? Number(stateId) : undefined,
       city_id: cityId ? Number(cityId) : undefined,
-      status: status === "1" ? "Active" : "Inactive",
+      status: status === "1" ?"Active" : "Inactive",
     };
 
       const res = await usersService.saveUser(payload);

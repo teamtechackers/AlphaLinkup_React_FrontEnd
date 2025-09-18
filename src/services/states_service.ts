@@ -2,6 +2,7 @@ import axios from "axios";
 import { VARIABLES } from "../utils/strings/variables";
 import { API_ROUTES } from "../utils/strings/api_routes";
 // import { VARIABLES } from "../utils/strings/variables";
+import qs from "qs";
 const baseUrl = process.env.REACT_APP_API_BASE_URL as string;
 
 const statesService = {
@@ -37,73 +38,39 @@ const statesService = {
   },
 
   saveOrUpdateState: async (payload: {
+    user_id?: string;
+    token?: string;
     row_id?: number;
     country_id?: number;
     name: string;
     status?: number;
   }) => {
     const body: any = {
-      ...payload,
-      user_id: VARIABLES.USER_ID,
-      token: VARIABLES.TOKEN,
+      user_id: payload.user_id || VARIABLES.USER_ID,
+      token: payload.token || VARIABLES.TOKEN,
+      row_id: payload.row_id ?? 0, // ✅ default 0 if not provided
+      country_id: payload.country_id,
+      name: payload.name,
+      status: payload.status,
     };
+    
+    // ❌ don’t send `id`, only `row_id`
+    // backend should decide insert (0) vs update (>0)
   
-    if (body.country_id && body.country_id > 0) {
-      body.country_id = body.country_id;
-    }
-  
-    if (typeof body.status !== "undefined") {
-      body.status = body.status;
-    }
-  
-    if (body.row_id && body.row_id > 0) {
-      body.row_id = body.row_id;
-    }
-  
-    console.log("Submitting state:", body);
+    console.log("Submitting state (form-urlencoded):", body);
   
     const res = await axios.post(
       `${baseUrl}${API_ROUTES.STATE_LIST.SAVE}`,
-      body // ✅ send body (with user_id + token)
+      qs.stringify(body),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
     );
   
     return res.data;
   },
-  
-  
-  // saveOrUpdateState: async (payload: {
-  //   row_id?: number;
-  //   country_id?: number;
-  //   name: string;
-  //   status?: number;
-  // }) => {
-  //   const body: any = {
-  //     user_id: VARIABLES.USER_ID,
-  //     token: VARIABLES.TOKEN,
-  //     name: payload.name,
-  //   };
-
-  //   if (payload.country_id && payload.country_id > 0) {
-  //     body.country_id = payload.country_id;
-  //   }
-
-  //   if (typeof payload.status !== "undefined") {
-  //     body.status = payload.status;
-  //   }
-
-  //   if (payload.row_id && payload.row_id > 0) {
-  //     body.row_id = payload.row_id;
-  //   }
-
-  //   console.log("Submitting state:", body);
-
-  //   const res = await axios.post(
-  //     `${baseUrl}${API_ROUTES.STATE_LIST.SAVE}`,
-  //     body
-  //     // { params }
-  //   );
-  //   return res.data;
-  // },
 
   deleteState: async (id: number) => {
     const res = await axios.post(`${baseUrl}${API_ROUTES.STATE_LIST.DELETE}`, null, {

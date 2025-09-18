@@ -1,7 +1,7 @@
 import axios from "axios";
 import { VARIABLES } from "../utils/strings/variables";
 import { API_ROUTES } from "../utils/strings/api_routes";
-
+import qs from'qs'
 const baseUrl = process.env.REACT_APP_API_BASE_URL as string;
 
 const eventTypesService = {
@@ -52,19 +52,23 @@ const eventTypesService = {
   
     const res = await axios.post(
       `${baseUrl}${API_ROUTES.EVENT_TYPE.SUBMIT}`,
-      body,{params} // 👈 body is here now
+     qs.stringify( body),{
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }, // 👈 body is here now
     );
   
     return res.data;
   },
   
   deleteEventType: async (id: number) => {
-    const res = await axios.post(`${baseUrl}${API_ROUTES.EVENT_TYPE.DELETE}`, null, {
-      params: {
-        user_id: VARIABLES.USER_ID,
-        token: VARIABLES.TOKEN,
-        keys: id,
-      },
+    const  body:any= {
+      user_id: VARIABLES.USER_ID,
+      token: VARIABLES.TOKEN,
+      keys: id,
+    }
+    const res = await axios.post(`${baseUrl}${API_ROUTES.EVENT_TYPE.DELETE}`, qs.stringify(body), {
     });
     return res.data;
   },

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { VARIABLES } from "../utils/strings/variables";
 import { API_ROUTES } from "../utils/strings/api_routes";
-
+import qs from "qs"
 const baseUrl = process.env.REACT_APP_API_BASE_URL as string;
 
 const fundSizeService = {
@@ -14,21 +14,28 @@ const fundSizeService = {
     },
 
     saveFundSize: async (payload: { id?: number; investment_range: string; status: number }) => {
-        const params: any = {
+        const body: any = {
             user_id: VARIABLES.USER_ID,
             token: VARIABLES.TOKEN,
             investment_range: payload.investment_range,
             status: payload.status,
         };
-        if (payload.id) params.id = payload.id;
+        if (payload.id) body.id = payload.id;
 
-        const res = await axios.post(`${baseUrl}${API_ROUTES.FUND_SIZE.SAVE}`, null, { params });
+        const res = await axios.post(`${baseUrl}${API_ROUTES.FUND_SIZE.SAVE}`,qs.stringify(body),
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        });
+        console.log(res)
+
         return res.data;
     },
 
     deleteFundSize: async (keys: number | string) => {
-        const res = await axios.post(`${baseUrl}${API_ROUTES.FUND_SIZE.DELETE}`, null, {
-            params: { user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN, keys },
+        const body :any={ user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN, keys }
+        const res = await axios.post(`${baseUrl}${API_ROUTES.FUND_SIZE.DELETE}`, qs.stringify(body), {
         });
         return res.data;
     },
