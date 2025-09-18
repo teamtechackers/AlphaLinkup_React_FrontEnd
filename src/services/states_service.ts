@@ -7,35 +7,28 @@ const baseUrl = process.env.REACT_APP_API_BASE_URL as string;
 
 const statesService = {
 
-  getStatesAjaxList: async (page: number, pageSize: number) => {
-    const start = page * pageSize;
-    const length = pageSize;
-    const res = await axios.get(`${baseUrl}${API_ROUTES.STATE_LIST.GET_AJAX}`, {
-      params: {
-        user_id: VARIABLES.USER_ID,
-        token: VARIABLES.TOKEN,
-        draw: 1,
-        start,
-        length,
-      },
-    });
-
-    const rows = res.data?.data || [];
-
-    const mapped = rows.map((r: any[]) => ({
-      id: r[0],
-      country_name: r[1],
-      name: r[2],
-      row_id: r[3],
-      status: r[4]?.includes("Active") ? 1 : 0,
-      country_id: extractCountryId(r[5]),
-    }));
-
-    return {
-      rows: mapped,
-      total: res.data?.recordsTotal ?? mapped.length,
-    };
+  getStatesAjaxList: async (draw: number, start: number, length: number) => {
+    try {
+      const res = await axios.get(`${baseUrl}${API_ROUTES.STATE_LIST.GET_AJAX}`, {
+        params: {
+          user_id: VARIABLES.USER_ID,
+          token: VARIABLES.TOKEN,
+          draw,
+          start,
+          length,
+        },
+      });
+  
+      return {
+        data: res.data?.data || [],
+        recordsTotal: res.data?.recordsTotal ?? 0,
+      };
+    } catch (error) {
+      console.error("Error fetching states:", error);
+      return { data: [], recordsTotal: 0 };
+    }
   },
+  
 
   saveOrUpdateState: async (payload: {
     user_id?: string;
@@ -48,7 +41,7 @@ const statesService = {
     const body: any = {
       user_id: payload.user_id || VARIABLES.USER_ID,
       token: payload.token || VARIABLES.TOKEN,
-      row_id: payload.row_id ?? 0, // ✅ default 0 if not provided
+      row_id: payload.row_id , // ✅ default 0 if not provided
       country_id: payload.country_id,
       name: payload.name,
       status: payload.status,

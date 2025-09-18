@@ -41,7 +41,7 @@ const citiesService = {
     };
   
     console.log("SaveCity body:", qs.stringify(body)); // Debug log
-  
+   
     const res = await axios.post(
       `${baseUrl}${API_ROUTES.CITY_LIST.SAVE}`,
       qs.stringify(body),
@@ -62,7 +62,11 @@ const citiesService = {
       token: VARIABLES.TOKEN,
       keys: id,
     }
-    const res = await axios.post(`${baseUrl}${API_ROUTES.CITY_LIST.DELETE}`,  qs.stringify(body) , );
+    const res = await axios.post(
+      `${baseUrl}${API_ROUTES.CITY_LIST.DELETE}`,
+      qs.stringify(body),
+      { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+    )
     return res.data;
   },
 

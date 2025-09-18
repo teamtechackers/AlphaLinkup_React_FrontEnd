@@ -25,7 +25,7 @@ const eventModesService = {
       token: VARIABLES.TOKEN,
       name: payload.name,
       status: payload.status,
-      row_id: payload.id ?? 0,
+      row_id: payload.id ,
     };
 
     const res = await axios.post(

@@ -1,125 +1,131 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useEffect, useState, useMemo } from "react"
-import Box from "@mui/material/Box"
-import { DataGrid } from "@mui/x-data-grid"
-import statesService from "../services/states_service"
-import { STATES_STRINGS } from "../utils/strings/pages/states_strings"
-import { CONSTANTS } from "../utils/strings/constants"
-import { type StateModel, StateModelLabels } from "../models/state_model"
-import { COLORS } from "../utils/theme/colors"
-import { FiTrash2, FiEdit } from "react-icons/fi"
-import { toast } from "react-toastify"
-import { STYLES } from "../utils/typography/styles"
-import GlobalService from "../services/global_service"
-import type { Country } from "../models/global_model"
+import React, { useEffect, useState, useMemo } from "react";
+import Box from "@mui/material/Box";
+import { DataGrid } from "@mui/x-data-grid";
+import { FiTrash2, FiEdit } from "react-icons/fi";
+import { toast } from "react-toastify";
+import statesService from "../services/states_service";
+import GlobalService from "../services/global_service";
+import { STATES_STRINGS } from "../utils/strings/pages/states_strings";
+import { CONSTANTS } from "../utils/strings/constants";
+import { COLORS } from "../utils/theme/colors";
+import { STYLES } from "../utils/typography/styles";
+import { StateModel, StateModelLabels } from "../models/state_model";
+import type { Country } from "../models/global_model";
 
 const StatesList: React.FC = () => {
-  const [items, setItems] = useState<StateModel[]>([])
-  const [loading, setLoading] = useState(false)
-  const [editing, setEditing] = useState<StateModel | null>(null)
-  const [name, setName] = useState("")
-  const [status, setStatus] = useState("1")
-  const [countryId, setCountryId] = useState(0)
-  const [countries, setCountries] = useState<Country[]>([])
-  const [page, setPage] = useState(0)
-  const [pageSize, setPageSize] = useState(10)
-  const [rowCount, setRowCount] = useState(0)
-  const [refreshKey, setRefreshKey] = useState(0)
+  const [items, setItems] = useState<StateModel[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [editing, setEditing] = useState<StateModel | null>(null);
+  const [name, setName] = useState("");
+  const [status, setStatus] = useState("1");
+  const [countryId, setCountryId] = useState(0);
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 10,
+  });
+  const [draw, setDraw] = useState(1);
+  const [rowCount, setRowCount] = useState(0);
 
+  // Load States
   const load = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await statesService.getStatesAjaxList(page, pageSize)
-      console.log("hello", res.rows)
-      setItems(res.rows as StateModel[])
-      setRowCount(res.total)
-      setRefreshKey((prev) => prev + 1)
+      const { page, pageSize } = paginationModel;
+      const start = page * pageSize;
+
+      const data = await statesService.getStatesAjaxList(draw, start, pageSize);
+
+      const list: StateModel[] = Array.isArray(data?.data)
+      ? data.data.map((row: any) => ({
+          id: Number(row[3]),                           // ✅ DataGrid & TS need this
+          row_id: Number(row[3]),                       // ✅ keep row_id for backend
+          country_id: Number(row[0]),                   // ✅ country_id
+          country_name: row[1],                         // ✅ country name
+          name: row[2],                                 // ✅ state name
+          status: row[4]?.includes("Active") ? 1 : 0,   // ✅ status
+        }))
+      : [];
+    
+    
+    
+
+      setItems(list);
+      setRowCount(data.recordsTotal || 0);
+      setDraw((d) => d + 1);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    load()
-  }, [page, pageSize])
+    load();
+  }, [paginationModel]);
 
+  // Load countries only once
   useEffect(() => {
     const loadCountries = async () => {
       try {
-        const res = await GlobalService.getCountries()
-        setCountries(res)
+        const res = await GlobalService.getCountries();
+        setCountries(res);
+        console.log("Countries loaded:", res);
       } catch (err) {
-        console.error("Error loading countries", err)
+        console.error("Error loading countries", err);
       }
-    }
-    loadCountries()
-  }, [])
+    };
+    loadCountries();
+  }, []);
 
   const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
     try {
       const payload: any = {
+        row_id: editing?.row_id,
         country_id: countryId > 0 ? countryId : undefined,
         name,
         status: Number(status),
-      }
+      };
 
-      if (editing?.row_id) {
-        payload.row_id = Number(editing.row_id)
-      }
+      const res = await statesService.saveOrUpdateState(payload);
 
-      console.log("payload", payload)
-      const res = await statesService.saveOrUpdateState(payload)
-      if (res?.status === CONSTANTS.MESSAGE_TAGS.SUCCESS) {
-        toast.success(res.info || (editing ? "State updated successfully!" : "State created successfully!"))
-        setEditing(null)
-        setName("")
-        setStatus("1")
-        setCountryId(0)
-        await load()
+      if (res.status === "Success" || res.status === true) {
+        toast.success(res.info || (editing ? "State updated successfully!" : "State created successfully!"));
+        setEditing(null);
+        setName("");
+        setStatus("1");
+        setCountryId(0);
+        await load();
       } else {
-        toast.error(res?.info || "Failed to save state. Please try again.")
+        toast.error(res.info || "Failed to save state");
       }
-    } catch (err) {
-      console.error(err)
-      toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG)
-    } finally {
-      setLoading(false)
+    } catch {
+      toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     }
-  }
+  };
 
   const onEdit = (item: StateModel) => {
-    setEditing(item)
-    setName(item.name || "")
-    setStatus(String(item.status ?? "1"))
-    setCountryId(item.country_id)
-  }
+    setEditing(item);
+    setName(item.name || "");
+    setStatus(String(item.status ?? "1"));
+    setCountryId(item.country_id ?? 0);
+  };
 
   const onDelete = async (item: StateModel) => {
-    if (!item.id) return
-    if (!window.confirm("Are you sure you want to delete this state?")) {
-      return
-    }
-
-    setLoading(true)
+    if (!item.row_id) return;
     try {
-      const res = await statesService.deleteState(item.id)
-      if (res?.status === "Success") {
-        toast.success(res.info || "State deleted successfully!")
-        await load()
+      const res = await statesService.deleteState(item.row_id);
+      if (res.status === "Success" || res.status === true) {
+        toast.success(res.info || "State deleted successfully!");
+        await load();
       } else {
-        toast.error(res?.info || "Failed to delete state. Please try again.")
+        toast.error(res.info || "Failed to delete state");
       }
-    } catch (err) {
-      console.error(err)
-      toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG)
-    } finally {
-      setLoading(false)
+    } catch {
+      toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     }
-  }
+  };
 
   const columns = useMemo(
     () => [
@@ -150,36 +156,32 @@ const StatesList: React.FC = () => {
         filterable: false,
         renderCell: (params: any) => (
           <div className="d-flex align-items-center gap-3 w-100 h-100">
-            <FiEdit style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
-            <FiTrash2 style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
+            <FiEdit size={18} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
+            <FiTrash2 size={18} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
           </div>
         ),
       },
     ],
-    [items],
-  )
+    [items]
+  );
 
   return (
     <div className="container-fluid page-padding-2 vh-100" style={{ backgroundColor: COLORS.lightGray }}>
       <h4 className="my-4">{STATES_STRINGS.TITLE}</h4>
       <div className="row g-4 w-100">
+        {/* Table */}
         <div className="col-lg-8 p-0">
           <Box sx={{ height: 800, width: "100%" }}>
             <DataGrid
-              key={refreshKey}
               rows={items}
               columns={columns}
               loading={loading}
-              getRowId={(row) => Number(row.row_id)}
+              getRowId={(row) => row.row_id}
               disableRowSelectionOnClick
               paginationMode="server"
               rowCount={rowCount}
-              paginationModel={{ page, pageSize }}
-              onPaginationModelChange={(model) => {
-                setPage(model.page)
-                setPageSize(model.pageSize)
-              }}
-              pageSizeOptions={[5, 10, 20, 50]}
+              paginationModel={paginationModel}
+              onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
             />
           </Box>
         </div>
@@ -188,12 +190,14 @@ const StatesList: React.FC = () => {
         <div className="col-lg-4">
           <div className="card shadow-sm">
             <div className="card-header" style={{ backgroundColor: COLORS.lightGray }}>
-              <h5 className="mb-0">{editing ? STATES_STRINGS.FORM.EDIT_STATE : STATES_STRINGS.FORM.ADD_STATE}</h5>
+              <h5 className="mb-0">
+                {editing ? STATES_STRINGS.FORM.EDIT_STATE : STATES_STRINGS.FORM.ADD_STATE}
+              </h5>
             </div>
             <div className="card-body">
               <form onSubmit={onSubmit}>
                 <div className="row g-3 align-items-end">
-                  {/* Country Name */}
+                  {/* Country */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
                       {STATES_STRINGS.TABLE.HEADER_COUNTRY} *
@@ -203,8 +207,6 @@ const StatesList: React.FC = () => {
                       value={countryId}
                       onChange={(e) => setCountryId(Number(e.target.value))}
                       required
-                      disabled={loading}
-                      style={{ color: COLORS.darkGray, backgroundColor: COLORS.white }}
                     >
                       <option value={0}>Select Country</option>
                       {countries.map((c) => (
@@ -214,6 +216,7 @@ const StatesList: React.FC = () => {
                       ))}
                     </select>
                   </div>
+
                   {/* State Name */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
@@ -225,9 +228,9 @@ const StatesList: React.FC = () => {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       required
-                      disabled={loading}
                     />
                   </div>
+
                   {/* Status */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
@@ -237,7 +240,6 @@ const StatesList: React.FC = () => {
                       className="form-select"
                       value={status}
                       onChange={(e) => setStatus(e.target.value)}
-                      disabled={loading}
                     >
                       <option value="1">{STATES_STRINGS.TABLE.STATUS_ACTIVE}</option>
                       <option value="0">{STATES_STRINGS.TABLE.STATUS_INACTIVE}</option>
@@ -245,15 +247,10 @@ const StatesList: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Buttons row */}
+                {/* Buttons */}
                 <div className="d-flex gap-2 mt-3">
-                  <button
-                    type="submit"
-                    className="btn"
-                    style={{ backgroundColor: COLORS.purple, color: COLORS.white }}
-                    disabled={loading}
-                  >
-                    {loading ? "Processing..." : editing ? CONSTANTS.BUTTONS.UPDATE : CONSTANTS.BUTTONS.SAVE}
+                  <button type="submit" className="btn" style={{ backgroundColor: COLORS.purple, color: COLORS.white }}>
+                    {editing ? CONSTANTS.BUTTONS.UPDATE : CONSTANTS.BUTTONS.SAVE}
                   </button>
                   {editing && (
                     <button
@@ -261,12 +258,11 @@ const StatesList: React.FC = () => {
                       className="btn"
                       style={{ backgroundColor: COLORS.red, color: COLORS.white }}
                       onClick={() => {
-                        setEditing(null)
-                        setName("")
-                        setStatus("1")
-                        setCountryId(0)
+                        setEditing(null);
+                        setName("");
+                        setStatus("1");
+                        setCountryId(0);
                       }}
-                      disabled={loading}
                     >
                       {CONSTANTS.BUTTONS.CANCEL}
                     </button>
@@ -278,7 +274,7 @@ const StatesList: React.FC = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default StatesList
+export default StatesList;

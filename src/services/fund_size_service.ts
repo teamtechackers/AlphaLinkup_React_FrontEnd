@@ -20,7 +20,7 @@ const fundSizeService = {
             investment_range: payload.investment_range,
             status: payload.status,
         };
-        if (payload.id) body.id = payload.id;
+        if (payload.id) body.row_id = payload.id;
 
         const res = await axios.post(`${baseUrl}${API_ROUTES.FUND_SIZE.SAVE}`,qs.stringify(body),
         {
@@ -28,7 +28,7 @@ const fundSizeService = {
             "Content-Type": "application/x-www-form-urlencoded",
           },
         });
-        console.log(res)
+        // console.log(res)
 
         return res.data;
     },

@@ -52,7 +52,7 @@ const EventModesList: React.FC = () => {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const payload = { id: editing?.id ?? 0, name, status: Number(status) };
+      const payload = { id: editing?.id , name, status: Number(status) };
       
       console.log(payload);
 
