@@ -203,6 +203,8 @@ const CitiesList: React.FC = () => {
                   <label className="form-label" style={STYLES.field_label}>
                     State *
                   </label>
+              
+                  
                   <select
                     className="form-select"
                     value={stateId}
@@ -210,11 +212,12 @@ const CitiesList: React.FC = () => {
                     required
                   >
                     <option value={0}>Select State</option>
-                    {states.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.name}
-                      </option>
-                    ))}
+                    {states.map((s, idx) => (
+  <option key={s.id || idx} value={s.id}>
+    {s.name}
+  </option>
+))}
+
                   </select>
                 </div>
 
