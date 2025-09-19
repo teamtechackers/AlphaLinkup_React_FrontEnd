@@ -12,6 +12,7 @@ import { CONSTANTS } from "../utils/strings/constants";
 import { COLORS } from "../utils/theme/colors";
 import { STYLES } from "../utils/typography/styles";
 import type { CityModel } from "../models/city_model";
+import { StateModel } from "../models/state_model";
 
 const CitiesList: React.FC = () => {
   const [items, setItems] = useState<CityModel[]>([]);
@@ -58,20 +59,29 @@ const CitiesList: React.FC = () => {
     }
   };
 
-  // ✅ Load States (all ids & names)
-  const loadStates = async () => {
-    try {
-      const { page, pageSize } = paginationModel;
-      const start = page * pageSize;
-      const res = await statesService.getStatesAjaxList(draw,start,pageSize); 
-      console.log("States response:", res.data); 
-      // must return [{ id, name }]
-      setStates(res.data || []);
-    } catch (err) {
-      console.error("Error loading states", err);
-      toast.error("Failed to load states");
-    }
-  };
+// ✅ Load States (all ids & names)
+const loadStates = async () => {
+  try {
+    const start = 0;
+    const res = await statesService.getStatesAjaxList(draw, start);
+    console.log("States response:", res.data);
+    const list: StateModel[] = Array.isArray(res?.data)
+    ? res.data.map((row: any) => ({
+        id: Number(row[3]),                           // ✅ DataGrid & TS need this
+        row_id: Number(row[3]),                       // ✅ keep row_id for backend
+        country_id: Number(row[0]),                   // ✅ country_id
+        country_name: row[1],                         // ✅ country name
+        name: row[2],                                 // ✅ state name
+        status: row[4]?.includes("Active") ? 1 : 0,   // ✅ status
+      }))
+    : [];
+    setStates(list); // ✅ use mapped list instead of raw response
+  } catch (err) {
+    console.error("Error loading states", err);
+    toast.error("Failed to load states");
+  }
+};
+
 
   useEffect(() => {
     loadCities();
@@ -96,7 +106,7 @@ const CitiesList: React.FC = () => {
 
       const res = await citiesService.saveCity(payload);
 
-      if (res.status === "Success" || res.success === true) {
+      if (res.status === true) {
         toast.success(res.info || (editing ? "City updated!" : "City created!"));
         setEditing(null);
         setCityName("");
@@ -123,7 +133,7 @@ const CitiesList: React.FC = () => {
     if (!item.id) return;
     try {
       const res = await citiesService.deleteCity(item.id);
-      if (res.status === "Success" || res.success === true) {
+      if (res.status === true ) {
         toast.success(res.info || "City deleted successfully!");
         await loadCities();
       } else {

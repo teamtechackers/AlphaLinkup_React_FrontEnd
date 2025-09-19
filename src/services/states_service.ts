@@ -7,7 +7,7 @@ const baseUrl = process.env.REACT_APP_API_BASE_URL as string;
 
 const statesService = {
 
-  getStatesAjaxList: async (draw: number, start: number, length: number) => {
+  getStatesAjaxList: async (draw: number, start: number,) => {
     try {
       const res = await axios.get(`${baseUrl}${API_ROUTES.STATE_LIST.GET_AJAX}`, {
         params: {
@@ -15,7 +15,7 @@ const statesService = {
           token: VARIABLES.TOKEN,
           draw,
           start,
-          length,
+          // length,
         },
       });
   

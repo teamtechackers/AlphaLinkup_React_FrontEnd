@@ -36,7 +36,7 @@ const StatesList: React.FC = () => {
       const { page, pageSize } = paginationModel;
       const start = page * pageSize;
 
-      const data = await statesService.getStatesAjaxList(draw, start, pageSize);
+      const data = await statesService.getStatesAjaxList(draw, start);
 
       const list: StateModel[] = Array.isArray(data?.data)
       ? data.data.map((row: any) => ({
