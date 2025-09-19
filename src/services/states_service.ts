@@ -9,16 +9,16 @@ const statesService = {
 
   getStatesAjaxList: async (draw: number, start: number,) => {
     try {
+     const  length=1000;
       const res = await axios.get(`${baseUrl}${API_ROUTES.STATE_LIST.GET_AJAX}`, {
         params: {
           user_id: VARIABLES.USER_ID,
           token: VARIABLES.TOKEN,
           draw,
           start,
-          // length,
+          length   
         },
       });
-  
       return {
         data: res.data?.data || [],
         recordsTotal: res.data?.recordsTotal ?? 0,
