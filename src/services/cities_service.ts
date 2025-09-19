@@ -47,11 +47,19 @@ const citiesService = {
       qs.stringify(body),
       {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        params: {
+          user_id: VARIABLES.USER_ID,
+          token: VARIABLES.TOKEN,
+          ...payload,
+        },
       }
     );
-  console.log("SaveCity response:", res.data); // Debug log
+    console.log("SaveCity raw response:", res); // Debug log
+  
+    console.log("SaveCity response:", res.data); // Debug log
     return res.data;
   },
+  
   
   
   
@@ -62,7 +70,12 @@ const citiesService = {
       token: VARIABLES.TOKEN,
       keys: id,
     }
-    const res = await axios.post(`${baseUrl}${API_ROUTES.CITY_LIST.DELETE}`,  qs.stringify(body) , );
+    const res = await axios.post(
+      `${baseUrl}${API_ROUTES.CITY_LIST.DELETE}`,
+      qs.stringify(body),
+      { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+    )
+    console.log(res.data)
     return res.data;
   },
 

@@ -44,8 +44,10 @@ const FundSizeList: React.FC = () => {
     try {
       const payload = { id: editing?.id, investment_range: investmentRange, status: Number(status) }
       const res = await fundSizeService.saveFundSize(payload)
-
-      if (res?.status?.toLowerCase() === "success") {
+  
+      const isSuccess = res?.status === true || String(res?.status).toLowerCase() === "success"
+  
+      if (isSuccess) {
         toast.success(res.info || (editing ? "Fund size updated successfully!" : "Fund size added successfully!"))
         setEditing(null)
         setInvestmentRange("")
@@ -59,23 +61,19 @@ const FundSizeList: React.FC = () => {
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG)
     }
   }
-
-  const onEdit = (item: FundSizeModel) => {
-    setEditing(item)
-    setInvestmentRange(item.investment_range || "")
-    setStatus(String(item.status ?? "1"))
-  }
-
+  
   const onDelete = async (item: FundSizeModel) => {
     if (!item.id) return
-
+  
     if (!window.confirm("Are you sure you want to delete this fund size?")) {
       return
     }
-
+  
     try {
       const res = await fundSizeService.deleteFundSize(item.id)
-      if (res?.status?.toLowerCase() === "success") {
+      const isSuccess = res?.status === true || String(res?.status).toLowerCase() === "success"
+  
+      if (isSuccess) {
         toast.success(res.info || "Fund size deleted successfully!")
         await load()
       } else {
@@ -86,6 +84,34 @@ const FundSizeList: React.FC = () => {
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG)
     }
   }
+  
+
+  const onEdit = (item: FundSizeModel) => {
+    setEditing(item)
+    setInvestmentRange(item.investment_range || "")
+    setStatus(String(item.status ?? "1"))
+  }
+
+  // const onDelete = async (item: FundSizeModel) => {
+  //   if (!item.id) return
+
+  //   if (!window.confirm("Are you sure you want to delete this fund size?")) {
+  //     return
+  //   }
+
+  //   try {
+  //     const res = await fundSizeService.deleteFundSize(item.id)
+  //     if (res?.status?.toLowerCase() === "success") {
+  //       toast.success(res.info || "Fund size deleted successfully!")
+  //       await load()
+  //     } else {
+  //       toast.error(res?.info || "Failed to delete fund size")
+  //     }
+  //   } catch (err) {
+  //     console.error(err)
+  //     toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG)
+  //   }
+  // }
 
   const columns = useMemo(
     () => [
