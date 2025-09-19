@@ -63,7 +63,9 @@ const CitiesList: React.FC = () => {
     try {
       const { page, pageSize } = paginationModel;
       const start = page * pageSize;
-      const res = await statesService.getStatesAjaxList(draw,start,pageSize); // must return [{ id, name }]
+      const res = await statesService.getStatesAjaxList(draw,start,pageSize); 
+      console.log("States response:", res.data); 
+      // must return [{ id, name }]
       setStates(res.data || []);
     } catch (err) {
       console.error("Error loading states", err);
