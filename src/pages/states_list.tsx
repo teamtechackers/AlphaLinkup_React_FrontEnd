@@ -80,18 +80,36 @@ const StatesList: React.FC = () => {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+  
     try {
       const payload: any = {
-        row_id: editing?.row_id,
         country_id: countryId > 0 ? countryId : undefined,
         name,
         status: Number(status),
       };
-
+  
+      if (editing?.id) {
+        payload.row_id = editing.id; // include id for edit
+      }
+  
+      console.log("Payload:", payload);
+  
+      // Await the duplicate check
+      const checkDuplicate = await statesService.checkDuplicateState(payload.country_id, payload.name, payload.row_id);
+  
+      console.log(checkDuplicate)
+      if (checkDuplicate.status.is_duplicate === false) {
+        return toast.error("State already exists");
+      }
+  
+      // Save or update state
       const res = await statesService.saveOrUpdateState(payload);
-
+  
       if (res.status === "Success" || res.status === true) {
-        toast.success(res.info || (editing ? "State updated successfully!" : "State created successfully!"));
+        toast.success(
+          res.info ||
+            (editing ? "State updated successfully!" : "State created successfully!")
+        );
         setEditing(null);
         setName("");
         setStatus("1");
@@ -100,10 +118,12 @@ const StatesList: React.FC = () => {
       } else {
         toast.error(res.info || "Failed to save state");
       }
-    } catch {
+    } catch (err) {
+      console.error(err);
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     }
   };
+  
 
   const onEdit = (item: StateModel) => {
     setEditing(item);

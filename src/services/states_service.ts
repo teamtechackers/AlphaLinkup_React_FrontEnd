@@ -39,7 +39,7 @@ const statesService = {
     const body: any = {
       user_id: payload.user_id || VARIABLES.USER_ID,
       token: payload.token || VARIABLES.TOKEN,
-      row_id: payload.row_id , // ✅ default 0 if not provided
+      row_id: payload.row_id||0 , // ✅ default 0 if not provided
       country_id: payload.country_id,
       name: payload.name,
       status: payload.status,
@@ -49,7 +49,7 @@ const statesService = {
     // backend should decide insert (0) vs update (>0)
   
     console.log("Submitting state (form-urlencoded):", body);
-  
+  // const check_duplicate=await 
     const res = await axios.post(
       `${baseUrl}${API_ROUTES.STATE_LIST.SAVE}`,
       qs.stringify(body),
@@ -71,9 +71,14 @@ const statesService = {
   },
 
   checkDuplicateState: async (name: string, country_id: number, id?: number) => {
-    const params: any = { name, cid: country_id, user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN };
-    if (id) params.id = id;
-    const res = await axios.post(`${baseUrl}${API_ROUTES.STATE_LIST.CHECK_DUPLICATE}`, null, { params });
+    const body: any = { name, cid: country_id, user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN };
+    if (id) body.id = id;
+    const res = await axios.post(`${baseUrl}${API_ROUTES.STATE_LIST.CHECK_DUPLICATE}`,  qs.stringify(body),
+    {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    });
     return res.data;
   },
 };

@@ -2,7 +2,7 @@ import axios from "axios";
 import { VARIABLES } from "../utils/strings/variables";
 import { API_ROUTES } from "../utils/strings/api_routes";
 import { EmploymentTypeModel } from "../models/employment_type_model";
-
+import qs from "qs"
 const baseUrl = process.env.REACT_APP_API_BASE_URL as string;
 
 const employmentTypeService = {
@@ -50,11 +50,24 @@ const employmentTypeService = {
   },
 
   checkDuplicate: async (name: string, id?: number) => {
-    const params: any = { name, user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN };
-    if (id) params.id = id;
-    const res = await axios.post(`${baseUrl}${API_ROUTES.EMPLOYMENT_TYPE.CHECK_DUPLICATE}`, null, { params });
-    return res.data;
-  },
+    try {
+      const body: any = { name, user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN };
+      if (id) body.id = id;
+  
+      const res = await axios.post(
+        `${baseUrl}${API_ROUTES.EMPLOYMENT_TYPE.CHECK_DUPLICATE}`,
+        qs.stringify(body),
+        { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+      );
+  
+      return res.data; // e.g. { validate: true } or { validate: false }
+    } catch (err: any) {
+      console.error("checkDuplicate API error:", err.response || err);
+      throw err;
+    }
+  }
+  
+  
 };
 
 export default employmentTypeService;

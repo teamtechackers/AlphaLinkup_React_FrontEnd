@@ -1,7 +1,7 @@
 import axios from "axios";
 import { VARIABLES } from "../utils/strings/variables";
 import { API_ROUTES } from "../utils/strings/api_routes";
-
+import qs from "qs"
 const baseUrl = process.env.REACT_APP_API_BASE_URL as string;
 
 const interestsService = {
@@ -26,6 +26,21 @@ const interestsService = {
         row_id: payload.id > 0 ? payload.id : undefined,
         name: payload.name,
         status: payload.status,
+      },
+    });
+    return res.data;
+  },
+
+  duplicate_Interest: async ( id: number, name: string ) => {
+    const body:any={
+      user_id: VARIABLES.USER_ID,
+      token: VARIABLES.TOKEN,
+      name: name,  
+    }
+    if (id) body.id = id;
+    const res = await axios.post(`${baseUrl}${API_ROUTES.INTERESTS.CHECK_DUPLICATE}`,qs.stringify(body),{
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
       },
     });
     return res.data;

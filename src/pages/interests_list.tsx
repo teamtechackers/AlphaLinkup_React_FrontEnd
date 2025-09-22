@@ -56,8 +56,11 @@ const InterestsList: React.FC = () => {
     e.preventDefault();
     try {
       const payload = { id: editing?.id ?? 0, name, status: Number(status) };
+      const check_duplicate=await interestsService.duplicate_Interest(payload.id,payload.name)
+      if(check_duplicate.validate===true){
+        return toast.error("Job already exists");
+      }
       const res = await interestsService.saveInterest(payload);
-
       if (res.status === true || res.status === "Success") {
         toast.success(res.message || res.info || "Saved successfully");
         setEditing(null);

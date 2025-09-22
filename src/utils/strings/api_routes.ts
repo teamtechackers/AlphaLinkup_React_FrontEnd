@@ -41,7 +41,7 @@ export const API_ROUTES = {
     SAVE: "/submit-city",
     EDIT: "/edit-city",
     DELETE: "/delete-city",
-    CHECK_DUPLICATE: "/check-duplicate-city",
+    CHECK_DUPLICATE: "/check-duplicate-cities",
   },
 
   EMPLOYMENT_TYPE: {
@@ -59,7 +59,7 @@ export const API_ROUTES = {
     SAVE: "/submit-interest",
     EDIT: "/edit-interests",
     DELETE: "/delete-interest",
-    CHECK_DUPLICATE: "/check-duplicate-interests",
+    CHECK_DUPLICATE: "/check-duplicate-interest",
   },
 
   JOB_TYPE: {

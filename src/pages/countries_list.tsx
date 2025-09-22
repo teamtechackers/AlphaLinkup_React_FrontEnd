@@ -60,7 +60,6 @@ const CountriesList: React.FC = () => {
     try {
       const payload = { id: editing?.id ?? 0, name, status: Number(status) };
       const res = await countriesService.saveCountry(payload);
-
       if (res.status) {
         toast.success(res.message);
         setEditing(null);
