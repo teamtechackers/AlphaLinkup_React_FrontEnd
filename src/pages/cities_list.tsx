@@ -136,10 +136,6 @@ const loadStates = async () => {
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     }
   };
-  
-  
-  
-
   const onEdit = (item: CityModel) => {
     setEditing(item);
     setCityName(item.city_name);

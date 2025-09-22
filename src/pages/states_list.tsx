@@ -95,12 +95,16 @@ const StatesList: React.FC = () => {
       console.log("Payload:", payload);
   
       // Await the duplicate check
-      const checkDuplicate = await statesService.checkDuplicateState(payload.country_id, payload.name, payload.row_id);
-  
-      console.log(checkDuplicate)
-      if (checkDuplicate.status.is_duplicate === false) {
+      const checkDuplicate = await statesService.checkDuplicateState(
+        payload.name,
+        payload.country_id!,
+        payload.row_id
+      );
+      
+      if (checkDuplicate.is_duplicate) {
         return toast.error("State already exists");
       }
+      
   
       // Save or update state
       const res = await statesService.saveOrUpdateState(payload);
