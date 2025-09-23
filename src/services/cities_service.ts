@@ -54,7 +54,7 @@ const citiesService = {
         },
       }
     );
-    console.log("SaveCity raw response:", res); // Debug log
+    // console.log("SaveCity raw response:", res); // Debug log
   
     console.log("SaveCity response:", res.data); // Debug log
     return res.data;
@@ -81,8 +81,13 @@ const citiesService = {
 
   checkDuplicateCity: async (name: string, state_id: number, id?: number) => {
     const params: any = { name, sid: state_id, user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN };
+    const body: any = { name, sid: state_id, user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN };
     if (id) params.id = id;
-    const res = await axios.post(`${baseUrl}${API_ROUTES.CITY_LIST.CHECK_DUPLICATE}`, null, { params });
+    const res = await axios.post(`${baseUrl}${API_ROUTES.CITY_LIST.CHECK_DUPLICATE}`, qs.stringify(body),
+    { headers: { "Content-Type": "application/x-www-form-urlencoded" } , 
+     params }
+  
+  );
     return res.data;
   },
 };

@@ -54,10 +54,13 @@ const PayList: React.FC = () => {
     e.preventDefault();
     try {
       const payload = { id: editing?.id ?? 0, name, status: Number(status) };
+      const checkduplicate= await payService.checkDuplicatePay(payload.name,payload.id)
+      if (checkduplicate.validate === true) {
+        return toast.error("Pay already exists");
+      }
       const res = await payService.savePay(payload);
-
       if (res.status === "Success" || res.status === true) {
-        toast.success(res.info || "Saved successfully");
+        toast.success(res.info || "Saved succssfully");
         setEditing(null);
         setName("");
         setStatus("1");

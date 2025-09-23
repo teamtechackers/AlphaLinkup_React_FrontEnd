@@ -49,7 +49,7 @@ const countriesService = {
   checkDuplicateCountry: async (name: string, id?: number) => {
     const params: any = { name, user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN };
     if (id) params.id = id;
-    const res = await axios.get(`${baseUrl}${API_ROUTES.COUNTRY_LIST.CHECK_DUPLICATE}`, { params });
+    const res = await axios.get(`${baseUrl}${API_ROUTES.COUNTRY_LIST.CHECK_DUPLICATE}`,{ params });
     return res.data;
   },
 };

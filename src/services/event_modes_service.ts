@@ -60,8 +60,15 @@ const eventModesService = {
 
   checkDuplicateEventMode: async (name: string, id?: number) => {
     const params: any = { name, user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN };
+    const body: any = { name, user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN };
     if (id) params.id = id;
-    const res = await axios.post(`${baseUrl}${API_ROUTES.EVENT_MODES.CHECK_DUPLICATE}`, null, { params });
+    const res = await axios.post(`${baseUrl}${API_ROUTES.EVENT_MODES.CHECK_DUPLICATE}`,qs.stringify(body),
+    {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+         params 
+      },
+    },);
     return res.data;
   },
 };

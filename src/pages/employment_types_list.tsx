@@ -40,14 +40,15 @@ const EmploymentTypeList: React.FC = () => {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const payload = {
-        id: editing?.id,
-        name,
-        status: Number(status),
-      };
-
+      const payload = { id: editing?.id, name, status: Number(status) };
+      // 1️⃣ Check duplicate first
+      const checkDuplicateemployment = await employmentTypeService.checkDuplicate(payload.name, payload.id);
+      console.log("Duplicate check response:", checkDuplicateemployment);
+      if (checkDuplicateemployment.validate === true) {
+        return toast.error("Job already exists");
+      }
+      // 2️⃣ Only save if not duplicate
       const res = await employmentTypeService.saveOrUpdate(payload);
-
       if (res.status === "Success") {
         toast.success(res.info);
         setEditing(null);
@@ -62,6 +63,7 @@ const EmploymentTypeList: React.FC = () => {
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     }
   };
+  
 
   const onEdit = (item: EmploymentTypeModel) => {
     setEditing(item);

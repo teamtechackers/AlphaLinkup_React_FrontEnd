@@ -95,7 +95,7 @@ const loadStates = async () => {
     e.preventDefault();
     if (!stateId) return toast.error("Select a state first");
     if (!cityName.trim()) return toast.error("Enter a city name");
-
+  
     try {
       const payload: any = {
         row_id: editing?.id,
@@ -103,9 +103,24 @@ const loadStates = async () => {
         name: cityName.trim(),
         status: Number(status),
       };
-
+  
+      console.log("Payload to check/save:", payload);
+  
+      const duplicateRes = await citiesService.checkDuplicateCity(
+        payload.name,
+        payload.state_id,
+        payload.row_id
+      );
+  
+      console.log("Duplicate check response:", duplicateRes);
+  
+      if (duplicateRes.validate === false) {
+        return toast.error("City already exists");
+      }
+  
       const res = await citiesService.saveCity(payload);
-
+      console.log("Save response:", res);
+  
       if (res.status === true) {
         toast.success(res.info || (editing ? "City updated!" : "City created!"));
         setEditing(null);
@@ -116,11 +131,11 @@ const loadStates = async () => {
       } else {
         toast.error(res.info || "Failed to save city");
       }
-    } catch {
+    } catch (err) {
+      console.error("Error in onSubmit:", err);
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     }
   };
-
   const onEdit = (item: CityModel) => {
     setEditing(item);
     setCityName(item.city_name);

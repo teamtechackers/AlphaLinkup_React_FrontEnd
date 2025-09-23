@@ -38,12 +38,23 @@ const IndustryTypeList: React.FC = () => {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Prepare payload
       const payload: any = { name, status: Number(status) };
       if (editing?.id) {
-        payload.id = editing.id; // only set id if editing
+        payload.id = editing.id; // Include id only if editing
       }
   
+      // Check for duplicate industry type
+      const duplicateIndustry = await industryTypeService.checkDuplicateIndustryType(payload.name, payload.id);
+      console.log("Duplicate check result:", duplicateIndustry);
+  
+      if (duplicateIndustry.validate === true) {
+        return toast.error("Industry type already exists");
+      }
+  
+      // Save industry type
       const res = await industryTypeService.saveIndustryType(payload);
+  
       if (res.status === "Success") {
         toast.success(res.info || "Saved successfully");
         setEditing(null);
@@ -58,6 +69,7 @@ const IndustryTypeList: React.FC = () => {
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     }
   };
+  
   
 
   const onEdit = (item: IndustryTypeModel) => {
