@@ -37,17 +37,18 @@ const StatesList: React.FC = () => {
       const start = page * pageSize;
 
       const data = await statesService.getStatesAjaxList(draw, start);
+const list: StateModel[] = Array.isArray(data?.data)
+  ? data.data.map((row: any) => ({
+      id: Number(row[3]),
+      row_id: Number(row[3]),
+      country_id: Number(row[0]),
+      country_name: row[1],
+      name: row[2],
+      status: row[4]?.includes("Active") ? 1 : 0,
+      
+    }))
+  : [];
 
-      const list: StateModel[] = Array.isArray(data?.data)
-      ? data.data.map((row: any) => ({
-          id: Number(row[3]),                           // ✅ DataGrid & TS need this
-          row_id: Number(row[3]),                       // ✅ keep row_id for backend
-          country_id: Number(row[0]),                   // ✅ country_id
-          country_name: row[1],                         // ✅ country name
-          name: row[2],                                 // ✅ state name
-          status: row[4]?.includes("Active") ? 1 : 0,   // ✅ status
-        }))
-      : [];
     
     
     
@@ -133,10 +134,20 @@ const StatesList: React.FC = () => {
     setEditing(item);
     setName(item.name || "");
     setStatus(String(item.status ?? "1"));
-    setCountryId(item.country_id ?? 0);
-  };
 
-  const onDelete = async (item: StateModel) => {
+    // Ensure countries is defined and safely find the country
+    const country = countries?.find(
+      (c) => c.country_name === item.country_name
+    );
+
+    // Set country ID or fallback to null
+    setCountryId(Number(country?.country_id) || 0);
+};
+  
+  
+  
+
+  async function onDelete(item: StateModel) {
     if (!item.row_id) return;
     try {
       const res = await statesService.deleteState(item.row_id);
@@ -149,7 +160,7 @@ const StatesList: React.FC = () => {
     } catch {
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     }
-  };
+  }
 
   const columns = useMemo(
     () => [
