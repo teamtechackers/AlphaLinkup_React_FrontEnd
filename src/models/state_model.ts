@@ -1,7 +1,7 @@
 export interface StateModel {
   id: number;
   row_id: number;
-  country_id: number;
+  // country_id: number;
   country_name?: string;
   name: string;
   status: number;

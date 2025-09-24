@@ -42,8 +42,8 @@ const StatesList: React.FC = () => {
       ? data.data.map((row: any) => ({
           id: Number(row[3]),                           // ✅ DataGrid & TS need this
           row_id: Number(row[3]),                       // ✅ keep row_id for backend
-          country_id: Number(row[0]),                   // ✅ country_id
-          country_name: row[1],                         // ✅ country name
+          // country_id: Number(row[0]),                   // ✅ country_id
+          country_name: row[0],                         // ✅ country name
           name: row[2],                                 // ✅ state name
           status: row[4]?.includes("Active") ? 1 : 0,   // ✅ status
         }))
@@ -133,7 +133,7 @@ const StatesList: React.FC = () => {
     setEditing(item);
     setName(item.name || "");
     setStatus(String(item.status ?? "1"));
-    setCountryId(item.country_id ?? 0);
+    // setCountryId(item.country_id ?? 0);
   };
 
   const onDelete = async (item: StateModel) => {
