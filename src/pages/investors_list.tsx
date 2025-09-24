@@ -225,13 +225,27 @@ const InvestorsList: React.FC = () => {
     }
   };
 
-  const onEdit = (item: InvestorModel) => {
+  const onEdit = async (item: InvestorModel) => {
     setEditing(item);
 
     setUserId(item.user_id ?? "");
-    setCountryId(item.country_id ?? "");
-    setStateId(item.state_id ?? "");
-    setCityId(item.city_id ?? "");
+
+    if (item.country_id) {
+      setCountryId(Number(item.country_id));
+      const stateList = await GlobalService.getStates(item.country_id);
+      setStates(stateList);
+
+      if (item.state_id) {
+        setStateId(Number(item.state_id));
+        const cityList = await GlobalService.getCities(item.state_id);
+        setCities(cityList);
+
+        if (item.city_id) {
+          setCityId(Number(item.city_id));
+        }
+      }
+    }
+
     setFundSizeId(item.fund_size_id ?? "");
     setName(item.name ?? "");
     setLinkedinUrl(item.linkedin_url ?? "");
@@ -458,19 +472,19 @@ const InvestorsList: React.FC = () => {
                   </div>
 
                   {/* Profile Image */}
-                    <div className="col-md-12">
-                      <label className="form-label" style={STYLES.field_label}>Profile Image *</label>
-                      <input
-                        type="file"
-                        className="form-control"
-                        accept="image/*"
-                        onChange={(e) => {
-                          if (e.target.files && e.target.files[0]) {
-                            setUploadedImage(e.target.files[0]);
-                          }
-                        }}
-                      />
-                    </div>
+                  <div className="col-md-12">
+                    <label className="form-label" style={STYLES.field_label}>Profile Image *</label>
+                    <input
+                      type="file"
+                      className="form-control"
+                      accept="image/*"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          setUploadedImage(e.target.files[0]);
+                        }
+                      }}
+                    />
+                  </div>
 
                   {/* Availability Status */}
                   <div className="col-md-12">

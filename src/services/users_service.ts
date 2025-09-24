@@ -18,49 +18,18 @@ const usersService = {
     return res.data;
   },
 
-  saveUser: async (payload: UserModel) => {
-    const body: any = {
-      user_id: VARIABLES.USER_ID,
-      token: VARIABLES.TOKEN,
-      full_name: payload.user_name,
-      mobile: payload.phone_number,
-      email: payload.email_address,
-      address: payload.address,
-      country_id: payload.country_id,
-      state_id: payload.state_id,
-      city_id: payload.city_id,
-      status: payload.status || payload.status ? 1 : 0,
-    }
-    console.log("submitting",body)
-    const params: any = {
-      user_id: VARIABLES.USER_ID,
-      token: VARIABLES.TOKEN,
-      full_name: payload.user_name,
-      mobile: payload.phone_number,
-      email: payload.email_address,
-      address: payload.address,
-      country_id: payload.country_id,
-      state_id: payload.state_id,
-      city_id: payload.city_id,
-      status: payload.status === "Active" || payload.status ? 1 : 0,
-    };
-  
-    if (payload.user_id) {
-      params.row_id = payload.user_id;
-    }
-  
+  saveUser: async (payload: FormData) => {
     const res = await axios.post(
       `${baseUrl}${API_ROUTES.USERS.SUBMIT}`,
-      qs.stringify(body),
+      payload,
       {
-        params,
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
+          "Content-Type": "multipart/form-data",
           Accept: "application/json",
         },
       }
     );
-  
+
     return res.data;
   },
 

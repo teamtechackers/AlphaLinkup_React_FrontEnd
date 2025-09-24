@@ -190,14 +190,28 @@ const ServiceProvidersList: React.FC = () => {
     }
   };
 
-  const onEdit = (item: ServiceProviderModel) => {
+  const onEdit = async (item: ServiceProviderModel) => {
     setEditing(item);
     setSpUserId(item.user_id ? String(item.user_id) : "");
     setFullName(item.user_name ?? "");
     setDescription(item.description ?? "");
-    setCountryId(item.country_id ?? "");
-    setStateId(item.state_id ?? "");
-    setCityId(item.city_id ?? "");
+    
+    if (item.country_id) {
+      setCountryId(String(item.country_id));
+      const stateList = await GlobalService.getStates(item.country_id);
+      setStates(stateList);
+
+      if (item.state_id) {
+        setStateId(String(item.state_id));
+        const cityList = await GlobalService.getCities(item.state_id);
+        setCities(cityList);
+
+        if (item.city_id) {
+          setCityId(String(item.city_id));
+        }
+      }
+    }
+
     setAvgSpRating(item.sp_rating ?? "");
     setApprovalStatus(approvalStatusStringToNumber[item.approval_status] ?? 1);
     setStatus(statusStringToNumber[item.status] ?? 1);

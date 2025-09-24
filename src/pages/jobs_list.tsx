@@ -262,26 +262,18 @@ const JobsList: React.FC = () => {
     setPayId(item.pay_id ? Number(item.pay_id) : "");
 
     if (item.country_id) {
-      const countryId = Number(item.country_id);
-      setCountryId(countryId);
+      setCountryId(Number(item.country_id));
+      const stateList = await GlobalService.getStates(item.country_id);
+      setStates(stateList);
 
-      try {
-        const statesList = await GlobalService.getStates(countryId);
-        setStates(statesList);
+      if (item.state_id) {
+        setStateId(Number(item.state_id));
+        const cityList = await GlobalService.getCities(item.state_id);
+        setCities(cityList);
 
-        if (item.state_id) {
-          const stateId = Number(item.state_id);
-          setStateId(stateId);
-
-          const citiesList = await GlobalService.getCities(stateId);
-          setCities(citiesList);
-
-          if (item.city_id) {
-            setCityId(Number(item.city_id));
-          }
+        if (item.city_id) {
+          setCityId(Number(item.city_id));
         }
-      } catch (err) {
-        console.error("Error loading states/cities for edit", err);
       }
     }
   };

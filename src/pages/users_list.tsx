@@ -11,6 +11,7 @@ import { UserModel, UserModelLabels } from "../models/user_model";
 import { COLORS } from "../utils/theme/colors";
 import { STYLES } from "../utils/typography/styles";
 import GlobalService from "../services/global_service";
+import { VARIABLES } from "../utils/strings/variables";
 
 const UsersList: React.FC = () => {
   const [items, setItems] = useState<UserModel[]>([]);
@@ -26,6 +27,9 @@ const UsersList: React.FC = () => {
   const [stateId, setStateId] = useState<string>("");
   const [cityId, setCityId] = useState<string>("");
   const [status, setStatus] = useState("1");
+
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [previewImage, setPreviewImage] = useState<string>("");
 
   const [countries, setCountries] = useState<any[]>([]);
   const [states, setStates] = useState<any[]>([]);
@@ -86,6 +90,8 @@ const UsersList: React.FC = () => {
     setStateId("");
     setCityId("");
     setStatus("1");
+    setPreviewImage("");
+    setUploadedImage(null);
   };
 
   useEffect(() => {
@@ -149,20 +155,29 @@ const UsersList: React.FC = () => {
         return;
       }
 
-      const payload: UserModel = {
-      user_id: editing?.user_id ?? 0,
-      user_name: fullName,
-      phone_number: mobile,
-      email_address: email,
-      profile_photo: profilePhoto ? profilePhoto.name : "",
-      address,
-      country_id: countryId ? Number(countryId) : undefined,
-      state_id: stateId ? Number(stateId) : undefined,
-      city_id: cityId ? Number(cityId) : undefined,
-      status: status === "1" ?"Active" : "Inactive",
-    };
+      const formData = new FormData();
 
-      const res = await usersService.saveUser(payload);
+      formData.append("user_id", VARIABLES.USER_ID);
+      formData.append("token", VARIABLES.TOKEN);
+
+      if (editing) {
+        formData.append("row_id", String(editing.user_id));
+      }
+
+      formData.append("full_name", fullName);
+      formData.append("mobile", mobile);
+      formData.append("email", email);
+      formData.append("address", address);
+      formData.append("country_id", countryId);
+      formData.append("state_id", stateId);
+      formData.append("city_id", cityId);
+      formData.append("status", status);
+
+      if (uploadedImage) {
+        formData.append("profile_photo", uploadedImage);
+      }
+
+      const res = await usersService.saveUser(formData);
 
       const success =
         res &&
@@ -184,17 +199,32 @@ const UsersList: React.FC = () => {
     }
   };
 
-  const onEdit = (item: UserModel) => {
+  const onEdit = async (item: UserModel) => {
     setEditing(item);
     setFullName(item.user_name ?? "");
     setMobile(item.phone_number ?? "");
     setEmail(item.email_address ?? "");
-    setProfilePhoto(null);
     setAddress(item.address ?? "");
-    setCountryId(item.country_id ? String(item.country_id) : "");
-    setStateId(item.state_id ? String(item.state_id) : "");
-    setCityId(item.city_id ? String(item.city_id) : "");
     setStatus(item.status === "Active" ? "1" : "0");
+
+    setPreviewImage(item.profile_photo ?? "");
+    setUploadedImage(null);
+
+    if (item.country_id) {
+      setCountryId(String(item.country_id));
+      const stateList = await GlobalService.getStates(item.country_id);
+      setStates(stateList);
+
+      if (item.state_id) {
+        setStateId(String(item.state_id));
+        const cityList = await GlobalService.getCities(item.state_id);
+        setCities(cityList);
+
+        if (item.city_id) {
+          setCityId(String(item.city_id));
+        }
+      }
+    }
   };
 
   const onDelete = async (item: UserModel) => {
@@ -361,7 +391,8 @@ const UsersList: React.FC = () => {
                       type="file"
                       className="form-control"
                       accept="image/*"
-                      onChange={(e) => setProfilePhoto(e.target.files?.[0] || null)}
+                      onChange={(e) => setUploadedImage(e.target.files?.[0] ?? null)}
+                      // required={!editing}
                     />
                   </div>
 

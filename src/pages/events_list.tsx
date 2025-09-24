@@ -21,9 +21,9 @@ const EventsList: React.FC = () => {
   const [fullName, setFullName] = useState("");
   const [eventName, setEventName] = useState("");
   const [industryType, setIndustryType] = useState<number | "">("");
-  const [country, setCountry] = useState<number | "">("");
-  const [state, setState] = useState<number | "">("");
-  const [city, setCity] = useState<number | "">("");
+  const [countryId, setCountryId] = useState<number | "">("");
+  const [stateId, setStateId] = useState<number | "">("");
+  const [cityId, setCityId] = useState<number | "">("");
   const [eventVenue, setEventVenue] = useState("");
   const [eventLink, setEventLink] = useState("");
   const [latitude, setLatitude] = useState("");
@@ -47,6 +47,9 @@ const EventsList: React.FC = () => {
   const [industryTypes, setIndustryTypes] = useState<any[]>([]);
 
   const [editing, setEditing] = useState<EventModel | null>(null);
+
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [previewBanner, setPreviewBanner] = useState<string>("");
 
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const [rowCount, setRowCount] = useState(0);
@@ -113,22 +116,22 @@ const EventsList: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (country) {
-      GlobalService.getStates(country).then(setStates).catch(console.error);
+    if (countryId) {
+      GlobalService.getStates(countryId).then(setStates).catch(console.error);
     } else {
       setStates([]);
-      setState("");
+      setStateId("");
     }
-  }, [country]);
+  }, [countryId]);
 
   useEffect(() => {
-    if (state) {
-      GlobalService.getCities(state).then(setCities).catch(console.error);
+    if (stateId) {
+      GlobalService.getCities(stateId).then(setCities).catch(console.error);
     } else {
       setCities([]);
-      setCity("");
+      setCityId("");
     }
-  }, [state]);
+  }, [stateId]);
 
   useEffect(() => {
   const fetchUsers = async () => {
@@ -145,34 +148,34 @@ const EventsList: React.FC = () => {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const payload = {
-      user_id: userId,
-      event_name: eventName,
-      industry_type: industryType,
-      country_id: country,
-      state_id: state,
-      city_id: city,
-      event_venue: eventVenue,
-      event_link: eventLink,
-      event_lat: latitude,
-      event_lng: longitude,
-      event_geo_address: geoAddress,
-      event_date: eventDate,
-      event_start_time: startTime,
-      event_end_time: endTime,
-      event_mode_id: eventMode,
-      event_type_id: eventType,
-      event_details: eventDetails,
-      status: status === "Active" ? 1 : 0,
-      ...(editing ? { row_id: Number(editing.event_id) } : {}),
-    };
+    const formData = new FormData();
+    if (editing) formData.append("row_id", String(editing.event_id));
 
-    console.log("Submitting event payload:", payload, "Row ID:", editing?.event_id);
+    formData.append("user_id", String(userId));
+    formData.append("event_name", eventName);
+    formData.append("industry_type", String(industryType));
+    formData.append("country_id", String(countryId));
+    formData.append("state_id", String(stateId));
+    formData.append("city_id", String(cityId));
+    formData.append("event_venue", eventVenue);
+    formData.append("event_link", eventLink);
+    formData.append("event_lat", latitude);
+    formData.append("event_lng", longitude);
+    formData.append("event_geo_address", geoAddress);
+    formData.append("event_date", eventDate);
+    formData.append("event_start_time", startTime);
+    formData.append("event_end_time", endTime);
+    formData.append("event_mode_id", String(eventMode));
+    formData.append("event_type_id", String(eventType));
+    formData.append("event_details", eventDetails);
+    formData.append("status", status === "Active" ? "1" : "0");
+
+    if (eventBanner) {
+      formData.append("event_banner", eventBanner);
+    }
 
     try {
-      const res = await eventsService.save(payload, editing ? Number(editing.event_id) : undefined);
-      console.log("Save response:", res);
-
+      const res = await eventsService.save(formData, editing ? Number(editing.event_id) : undefined);
       if (res.status === "Success" || res.status === true) {
         toast.success(res.info || res.message);
         resetForm();
@@ -191,9 +194,9 @@ const EventsList: React.FC = () => {
     setFullName("");
     setEventName("");
     setIndustryType("");
-    setCountry("");
-    setState("");
-    setCity("");
+    setCountryId("");
+    setStateId("");
+    setCityId("");
     setEventVenue("");
     setEventLink("");
     setLatitude("");
@@ -205,18 +208,33 @@ const EventsList: React.FC = () => {
     setEventMode("");
     setEventType("");
     setEventDetails("");
+    setPreviewBanner("");
     setEventBanner(null);
     setStatus("Active");
   };
 
-  const onEdit = (item: EventModel) => {
+  const onEdit = async (item: EventModel) => {
     setEditing(item);
     setUserId(item.user_id ? Number(item.user_id) : "");
     setEventName(item.event_name ?? "");
     setIndustryType(item.industry_id ? Number(item.industry_id) : "");
-    setCountry(item.country_id ? Number(item.country_id) : "");
-    setState(item.state_id ? Number(item.state_id) : "");
-    setCity(item.city_id ? Number(item.city_id) : "");
+    
+    if (item.country_id) {
+      setCountryId(Number(item.country_id));
+      const stateList = await GlobalService.getStates(item.country_id);
+      setStates(stateList);
+
+      if (item.state_id) {
+        setStateId(Number(item.state_id));
+        const cityList = await GlobalService.getCities(item.state_id);
+        setCities(cityList);
+
+        if (item.city_id) {
+          setCityId(Number(item.city_id));
+        }
+      }
+    }
+
     setEventVenue(item.event_venue ?? "");
     setEventLink(item.event_link ?? "");
     setLatitude(item.latitude ?? "");
@@ -378,7 +396,7 @@ const EventsList: React.FC = () => {
                       {EVENTS_STRINGS.FORM.FIELD_LABELS.COUNTRY}
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
-                    <select className="form-select" value={country} onChange={(e) => setCountry(Number(e.target.value))} required>
+                    <select className="form-select" value={countryId} onChange={(e) => setCountryId(Number(e.target.value))} required>
                       <option value="">Select Country</option>
                       {countries.map((c) => (
                         <option key={c.country_id} value={c.country_id}>{c.country_name}</option>
@@ -391,7 +409,7 @@ const EventsList: React.FC = () => {
                       {EVENTS_STRINGS.FORM.FIELD_LABELS.STATE}
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
-                    <select className="form-select" value={state} onChange={(e) => setState(Number(e.target.value))} required>
+                    <select className="form-select" value={stateId} onChange={(e) => setStateId(Number(e.target.value))} required>
                       <option value="">Select State</option>
                       {states.map((s) => (
                         <option key={s.state_id} value={s.state_id}>{s.state_name}</option>
@@ -406,8 +424,8 @@ const EventsList: React.FC = () => {
                     </label>
                     <select
                       className="form-select"
-                      value={city}
-                      onChange={(e) => setCity(Number(e.target.value))}>
+                      value={cityId}
+                      onChange={(e) => setCityId(Number(e.target.value))}>
                       <option value="">Select City</option>
                       {cities.map((c) => (
                         <option key={c.city_id} value={c.city_id}>
@@ -520,7 +538,22 @@ const EventsList: React.FC = () => {
                       {EVENTS_STRINGS.FORM.FIELD_LABELS.BANNER}
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
-                    <input type="file" className="form-control" onChange={(e) => setEventBanner(e.target.files?.[0] ?? null)} required/>
+                    <input
+                      type="file"
+                      className="form-control"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] ?? null;
+                        setEventBanner(file);
+                        setPreviewBanner(file ? URL.createObjectURL(file) : "");
+                      }}
+                      required={!editing}
+                    />
+                    {previewBanner && (
+                      <div className="mt-2">
+                        <img src={previewBanner} alt="Preview" width={150} className="rounded shadow-sm" />
+                      </div>
+                    )}
                   </div>
 
                   <div className="col-md-12">

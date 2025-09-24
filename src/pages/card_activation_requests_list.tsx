@@ -208,7 +208,7 @@ const CardActivationRequestsList: React.FC = () => {
     }
   };
 
-  const onEdit = (item: CardActivationRequestModel) => {
+  const onEdit = async (item: CardActivationRequestModel) => {
     setEditing(item);
 
     setSpUserId(item.sp_user_id !== null && item.sp_user_id !== undefined ? Number(item.sp_user_id) : "");
@@ -217,9 +217,23 @@ const CardActivationRequestsList: React.FC = () => {
     setName(item.user_name ?? "");
     setBusinessName(item.business_name ?? "");
     setBusinessLocation(item.business_location ?? "");
-    setCountryId(item.country_id ? Number(item.country_id) : "");
-    setStateId(item.state_id ? Number(item.state_id) : "");
-    setCityId(item.city_id ? Number(item.city_id) : "");
+    
+    if (item.country_id) {
+      setCountryId(Number(item.country_id));
+      const stateList = await GlobalService.getStates(item.country_id);
+      setStates(stateList);
+
+      if (item.state_id) {
+        setStateId(Number(item.state_id));
+        const cityList = await GlobalService.getCities(item.state_id);
+        setCities(cityList);
+
+        if (item.city_id) {
+          setCityId(Number(item.city_id));
+        }
+      }
+    }
+
     setDescription(item.description ?? "");
     setCardNumber(item.card_number ?? "");
     setRequestStatus(parseCardStatus(item.card_status));
