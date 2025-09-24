@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import Box from "@mui/material/Box";
 import { DataGrid } from "@mui/x-data-grid";
-import { FiTrash2, FiEdit } from "react-icons/fi";
+import { FiTrash2, FiEdit, FiEye } from "react-icons/fi";
 import { toast } from "react-toastify";
 
 import serviceProvidersService from "../services/service_providers_service";
@@ -11,6 +11,7 @@ import { ServiceProviderModel, ServiceProviderModelLabels } from "../models/serv
 import { COLORS } from "../utils/theme/colors";
 import { STYLES } from "../utils/typography/styles";
 import GlobalService from "../services/global_service";
+import DetailsDialog from "../components/DetailsDialog";
 
 const ServiceProvidersList: React.FC = () => {
   const [items, setItems] = useState<ServiceProviderModel[]>([]);
@@ -34,6 +35,14 @@ const ServiceProvidersList: React.FC = () => {
   const [states, setStates] = useState<any[]>([]);
   const [cities, setCities] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
+
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<ServiceProviderModel | null>(null);
+
+  const handleViewClick = (row: ServiceProviderModel) => {
+    setSelectedRow(row);
+    setOpenDialog(true);
+  };
 
   const approvalStatusStringToNumber: Record<string, number> = {
     Pending: 1,
@@ -330,6 +339,12 @@ const ServiceProvidersList: React.FC = () => {
           return (
             <div className="d-flex align-items-center gap-3 w-100 h-100">
               <FiEdit size={18} style={{ cursor: "pointer" }} onClick={() => onEdit(row)} />
+              <FiEye
+                size={18}
+                style={{ cursor: "pointer" }}
+                onClick={() => handleViewClick(params.row)}
+                title="View Details"
+              />
               <FiTrash2 size={18} style={{ cursor: "pointer" }} onClick={() => onDelete(row)} />
             </div>
           );
@@ -508,6 +523,26 @@ const ServiceProvidersList: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {selectedRow && (
+        <DetailsDialog
+          open={openDialog}
+          onClose={() => setOpenDialog(false)}
+          title="Service Provider Details"
+          fields={[
+            { label: "SP ID", value: selectedRow.sp_id },
+            { label: "User Name", value: selectedRow.user_name },
+            { label: "Country", value: selectedRow.country_name },
+            { label: "State", value: selectedRow.state_name },
+            { label: "City", value: selectedRow.city_name },
+            { label: "Description", value: selectedRow.description },
+            { label: "Average Rating", value: selectedRow.sp_rating },
+            { label: "Approval Status", value: selectedRow.approval_status },
+            { label: "Status", value: selectedRow.status === "1" ? "Active" : "Inactive" },
+          ]}
+        />
+      )}
+
     </div>
   );
 };

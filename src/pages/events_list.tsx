@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import Box from "@mui/material/Box";
 import { DataGrid } from "@mui/x-data-grid";
-import { FiTrash2, FiEdit } from "react-icons/fi";
+import { FiTrash2, FiEdit, FiEye } from "react-icons/fi";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -12,6 +12,7 @@ import { EventModel, EventLabels } from "../models/event_model";
 import { COLORS } from "../utils/theme/colors";
 import { STYLES } from "../utils/typography/styles";
 import GlobalService from "../services/global_service";
+import DetailsDialog from "../components/DetailsDialog";
 
 const EventsList: React.FC = () => {
   const [items, setItems] = useState<EventModel[]>([]);
@@ -53,6 +54,14 @@ const EventsList: React.FC = () => {
 
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const [rowCount, setRowCount] = useState(0);
+
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<EventModel | null>(null);
+
+  const handleViewClick = (row: EventModel) => {
+    setSelectedRow(row);
+    setOpenDialog(true);
+  };
 
   const load = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
     setLoading(true);
@@ -305,6 +314,12 @@ const EventsList: React.FC = () => {
         renderCell: (params: any) => (
           <div className="d-flex align-items-center gap-3 w-100 h-100">
             <FiEdit size={18} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
+            <FiEye
+              size={18}
+              style={{ cursor: "pointer" }}
+              onClick={() => handleViewClick(params.row)}
+              title="View Details"
+            />
             <FiTrash2 size={18} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
           </div>
         ),
@@ -581,6 +596,37 @@ const EventsList: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {selectedRow && (
+        <DetailsDialog
+          open={openDialog}
+          onClose={() => setOpenDialog(false)}
+          title="Event Details"
+          fields={[
+            { label: "Event ID", value: selectedRow.event_id },
+            { label: "Event Name", value: selectedRow.event_name },
+            { label: "User Name", value: selectedRow.user_name },
+            { label: "Industry Type", value: selectedRow.industry_id },
+            { label: "Country", value: selectedRow.country_id },
+            { label: "State", value: selectedRow.state_id },
+            { label: "City", value: selectedRow.city_id },
+            { label: "Event Venue", value: selectedRow.event_venue },
+            { label: "Event Link", value: selectedRow.event_link },
+            { label: "Latitude", value: selectedRow.latitude },
+            { label: "Longitude", value: selectedRow.longitude },
+            { label: "Geo Address", value: selectedRow.event_geo_address },
+            { label: "Date", value: selectedRow.date },
+            { label: "Start Time", value: selectedRow.start_time },
+            { label: "End Time", value: selectedRow.end_time },
+            { label: "Event Mode", value: selectedRow.event_mode_id },
+            { label: "Event Type", value: selectedRow.event_type_id },
+            { label: "Event Details", value: selectedRow.event_details },
+            { label: "Status", value: selectedRow.status },
+            { label: "Event Banner", value: selectedRow.event_banner },
+          ]}
+        />
+      )}
+
     </div>
   );
 };

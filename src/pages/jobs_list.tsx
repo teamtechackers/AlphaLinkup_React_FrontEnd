@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import Box from "@mui/material/Box";
 import { DataGrid } from "@mui/x-data-grid";
-import { FiTrash2, FiEdit } from "react-icons/fi";
+import { FiTrash2, FiEdit, FiEye  } from "react-icons/fi";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import GlobalService from "../services/global_service";
@@ -11,6 +11,7 @@ import { CONSTANTS } from "../utils/strings/constants";
 import { JobModel, JobLabels } from "../models/job_model";
 import { COLORS } from "../utils/theme/colors";
 import { STYLES } from "../utils/typography/styles";
+import DetailsDialog from "../components/DetailsDialog";
 
 const JobsList: React.FC = () => {
   const [items, setItems] = useState<JobModel[]>([]);
@@ -40,6 +41,14 @@ const JobsList: React.FC = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [jobTypes, setJobTypes] = useState<any[]>([]);
   const [pays, setPays] = useState<any[]>([]);
+
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<JobModel | null>(null);
+
+  const handleViewClick = (row: JobModel) => {
+    setSelectedRow(row);
+    setOpenDialog(true);
+  };
 
   const load = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
     setLoading(true);
@@ -337,6 +346,12 @@ const JobsList: React.FC = () => {
         renderCell: (params: any) => (
           <div className="d-flex align-items-center gap-3 w-100 h-100">
             <FiEdit size={18} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
+            <FiEye
+              size={18}
+              style={{ cursor: "pointer" }}
+              onClick={() => handleViewClick(params.row)}
+              title="View Details"
+            />
             <FiTrash2
               size={18}
               style={{ cursor: "pointer" }}
@@ -579,6 +594,31 @@ const JobsList: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {selectedRow && (
+        <DetailsDialog
+          open={openDialog}
+          onClose={() => setOpenDialog(false)}
+          title="Job Details"
+          fields={[
+            { label: "Job ID", value: selectedRow.job_id },
+            { label: "Job Title", value: selectedRow.job_title },
+            { label: "User Name", value: selectedRow.user_name },
+            { label: "Company Name", value: selectedRow.company_name },
+            { label: "Country", value: selectedRow.country_name },
+            { label: "State", value: selectedRow.state_name },
+            { label: "City", value: selectedRow.city_name },
+            { label: "Address", value: selectedRow.address },
+            { label: "Latitude", value: selectedRow.latitude },
+            { label: "Longitude", value: selectedRow.longitude },
+            { label: "Job Type", value: selectedRow.job_type_name },
+            { label: "Pay", value: selectedRow.pay_name },
+            { label: "Job Description", value: selectedRow.job_description },
+            { label: "Status", value: selectedRow.status },
+          ]}
+        />
+      )}
+
     </div>
   );
 };

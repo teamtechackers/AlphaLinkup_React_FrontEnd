@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import Box from "@mui/material/Box";
 import { DataGrid } from "@mui/x-data-grid";
-import { FiTrash2, FiEdit } from "react-icons/fi";
+import { FiTrash2, FiEdit, FiEye } from "react-icons/fi";
 import { toast } from "react-toastify";
 
 import investorsService from "../services/investors_service";
@@ -11,6 +11,7 @@ import { COLORS } from "../utils/theme/colors";
 import { STYLES } from "../utils/typography/styles";
 import GlobalService from "../services/global_service";
 import { CONSTANTS } from "../utils/strings/constants";
+import DetailsDialog from "../components/DetailsDialog";
 
 const InvestorsList: React.FC = () => {
   const [items, setItems] = useState<InvestorModel[]>([]);
@@ -44,6 +45,14 @@ const InvestorsList: React.FC = () => {
   const [availability, setAvailability] = useState<string>("");
   const [approvalStatus, setApprovalStatus] = useState<string>("");
   const [status, setStatus] = useState<string>("");
+
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedRow, setSelectedRow] = useState<InvestorModel | null>(null);
+
+  const handleViewClick = (row: InvestorModel) => {
+    setSelectedRow(row);
+    setOpenDialog(true);
+  };
 
   const load = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
     setLoading(true);
@@ -325,6 +334,12 @@ const InvestorsList: React.FC = () => {
         renderCell: (params: any) => (
           <div className="d-flex align-items-center gap-3 w-100 h-100">
             <FiEdit className="icon-hover" size={18} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
+            <FiEye
+              size={18}
+              style={{ cursor: "pointer" }}
+              onClick={() => handleViewClick(params.row)}
+              title="View Details"
+            />
             <FiTrash2 className="icon-hover" size={18} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
           </div>
         ),
@@ -626,6 +641,58 @@ const InvestorsList: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {selectedRow && (
+          <DetailsDialog
+            open={openDialog}
+            onClose={() => setOpenDialog(false)}
+            title="Investor Details"
+            fields={[
+              { label: "Investor ID", value: selectedRow.investor_id },
+              { label: "User Name", value: selectedRow.user_name },
+              { label: "Name", value: selectedRow.name },
+              { label: "Country", value: selectedRow.country_id },
+              { label: "State", value: selectedRow.state_id },
+              { label: "City", value: selectedRow.city_id },
+              { label: "Fund Size", value: (() => {
+                  switch (selectedRow.fund_size_id) {
+                    case 1: return "Small";
+                    case 2: return "Medium";
+                    case 3: return "Large";
+                    default: return "N/A";
+                  }
+                })()
+              },
+              { label: "LinkedIn URL", value: selectedRow.linkedin_url },
+              { label: "Bio", value: selectedRow.bio },
+              { label: "Profile", value: selectedRow.profile },
+              { label: "Investment Stage", value: selectedRow.investment_stage },
+              { label: "Availability", value: (() => {
+                  switch (selectedRow.availability) {
+                    case "1": return "In-Person";
+                    case "2": return "Virtual";
+                    case "3": return "Both";
+                    default: return "N/A";
+                  }
+                })()
+              },
+              { label: "Meeting City", value: selectedRow.meeting_city },
+              { label: "Countries to Invest", value: selectedRow.countries_to_invest },
+              { label: "Investment Industry", value: selectedRow.investment_industry },
+              { label: "Language", value: selectedRow.language },
+              { label: "Approval Status", value: (() => {
+                  switch (selectedRow.approval_status) {
+                    case "1": return "Pending";
+                    case "2": return "Approved";
+                    case "3": return "Rejected";
+                    default: return "N/A";
+                  }
+                })()
+              },
+              { label: "Status", value: selectedRow.status === "1" ? "Active" : "Inactive" },
+            ]}
+          />
+        )}
 
       </div>
     </div>
