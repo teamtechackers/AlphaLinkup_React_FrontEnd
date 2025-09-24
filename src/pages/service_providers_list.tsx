@@ -12,6 +12,8 @@ import { COLORS } from "../utils/theme/colors";
 import { STYLES } from "../utils/typography/styles";
 import GlobalService from "../services/global_service";
 import DetailsDialog from "../components/DetailsDialog";
+import Dialog from "@mui/material/Dialog";
+import ServicesListPage from "./services_details_list";
 
 const ServiceProvidersList: React.FC = () => {
   const [items, setItems] = useState<ServiceProviderModel[]>([]);
@@ -38,6 +40,14 @@ const ServiceProvidersList: React.FC = () => {
 
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedRow, setSelectedRow] = useState<ServiceProviderModel | null>(null);
+
+  const [openServicesDialog, setOpenServicesDialog] = useState(false);
+  const [selectedSPId, setSelectedSPId] = useState("");
+
+  const handleServicesClick = (spId: string) => {
+    setSelectedSPId(spId);
+    setOpenServicesDialog(true);
+  };
 
   const handleViewClick = (row: ServiceProviderModel) => {
     setSelectedRow(row);
@@ -323,7 +333,7 @@ const ServiceProvidersList: React.FC = () => {
       {
         field: ServiceProviderModelLabels.ACTIONS,
         headerName: SERVICE_PROVIDERS_STRINGS.TABLE.HEADER_ACTIONS,
-        width: 120,
+        width: 150,
         sortable: false,
         filterable: false,
         renderCell: (params: any) => {
@@ -344,6 +354,12 @@ const ServiceProvidersList: React.FC = () => {
                 style={{ cursor: "pointer" }}
                 onClick={() => handleViewClick(params.row)}
                 title="View Details"
+              />
+              <FiEye
+                size={18}
+                style={{ cursor: "pointer" }}
+                onClick={() => handleServicesClick(row.sp_id)}
+                title="View Services"
               />
               <FiTrash2 size={18} style={{ cursor: "pointer" }} onClick={() => onDelete(row)} />
             </div>
@@ -542,6 +558,16 @@ const ServiceProvidersList: React.FC = () => {
           ]}
         />
       )}
+
+      {/* Services Dialog */}
+      <Dialog 
+        open={openServicesDialog} 
+        onClose={() => setOpenServicesDialog(false)} 
+        maxWidth="lg" 
+        fullWidth
+      >
+        <ServicesListPage serviceId={selectedSPId} />
+      </Dialog>
 
     </div>
   );
