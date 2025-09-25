@@ -16,7 +16,6 @@ import GlobalService from "../services/global_service";
 const CardActivationRequestsList: React.FC = () => {
   const [items, setItems] = useState<CardActivationRequestModel[]>([]);
   const [loading, setLoading] = useState(false);
-
   const [editing, setEditing] = useState<CardActivationRequestModel | null>(null);
   const [spUserId, setSpUserId] = useState<number | "">("");
   const [userId, setUserId] = useState<number | "">("");
@@ -29,18 +28,14 @@ const CardActivationRequestsList: React.FC = () => {
   const [cityId, setCityId] = useState<number | "">("");
   const [description, setDescription] = useState("");
   const [cardNumber, setCardNumber] = useState("");
-
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const [rowCount, setRowCount] = useState(0);
-
   const [requestStatus, setRequestStatus] = useState<number | "">(1);
   const [overallStatus, setOverallStatus] = useState<number | "">(1);
-
   const [countries, setCountries] = useState<any[]>([]);
   const [states, setStates] = useState<any[]>([]);
   const [cities, setCities] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
-
   const parseCardStatus = (raw: any): number => {
     if (raw == null) return 1;
     if (typeof raw === "number") return raw;
@@ -167,6 +162,17 @@ const CardActivationRequestsList: React.FC = () => {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (name.length > CONSTANTS.MAX_LENGTHS.name) 
+      return toast.error(`Job Title cannot exceed ${CONSTANTS.MAX_LENGTHS.jobTitle} characters`);
+    
+    if (businessName.length > CONSTANTS.MAX_LENGTHS.companyName) 
+      return toast.error(`Company Name cannot exceed ${CONSTANTS.MAX_LENGTHS.companyName} characters`);
+    
+    if (description.length > CONSTANTS.MAX_LENGTHS.description) 
+      return toast.error(`Description cannot exceed ${CONSTANTS.MAX_LENGTHS.description} characters`);
+    
+    if (businessLocation.length > CONSTANTS.MAX_LENGTHS.address) 
+      return toast.error(`Address cannot exceed ${CONSTANTS.MAX_LENGTHS.address} characters`);
     try {
       const payload: Partial<CardActivationRequestModel> = {
         ...(editing ? { row_id: editing.ubc_id } : {}),
@@ -432,7 +438,9 @@ const CardActivationRequestsList: React.FC = () => {
                       {CARD_ACTIVATION_REQUESTS_STRINGS.FORM.FIELD_LABELS.NAME}
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
-                    <input type="text" className="form-control" value={name} onChange={(e) => setName(e.target.value)} required />
+                    <input type="text" className="form-control" value={name}
+                     maxLength={CONSTANTS.MAX_LENGTHS.name}
+                    onChange={(e) => setName(e.target.value)} required />
                   </div>
 
                   {/* Business Name */}
@@ -441,7 +449,9 @@ const CardActivationRequestsList: React.FC = () => {
                       {CARD_ACTIVATION_REQUESTS_STRINGS.FORM.FIELD_LABELS.BUSINESS_NAME}
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
-                    <input type="text" className="form-control" value={businessName} onChange={(e) => setBusinessName(e.target.value)} required />
+                    <input type="text" className="form-control" value={businessName} 
+                    maxLength={CONSTANTS.MAX_LENGTHS.companyName}
+                    onChange={(e) => setBusinessName(e.target.value)} required />
                   </div>
 
                   {/* Business Location */}
@@ -450,7 +460,9 @@ const CardActivationRequestsList: React.FC = () => {
                       {CARD_ACTIVATION_REQUESTS_STRINGS.FORM.FIELD_LABELS.BUSINESS_LOCATION}
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
-                    <input type="text" className="form-control" value={businessLocation} onChange={(e) => setBusinessLocation(e.target.value)} required />
+                    <input type="text" className="form-control" value={businessLocation} 
+                    maxLength={CONSTANTS.MAX_LENGTHS.address}
+                    onChange={(e) => setBusinessLocation(e.target.value)} required />
                   </div>
 
                   {/* Country */}
@@ -524,7 +536,9 @@ const CardActivationRequestsList: React.FC = () => {
                       {CARD_ACTIVATION_REQUESTS_STRINGS.FORM.FIELD_LABELS.DESCRIPTION}
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
-                    <textarea className="form-control" value={description} onChange={(e) => setDescription(e.target.value)} required />
+                    <textarea className="form-control" value={description} 
+                    maxLength={CONSTANTS.MAX_LENGTHS.description}
+                    onChange={(e) => setDescription(e.target.value)} required />
                   </div>
 
                   {/* Card Number */}
@@ -533,7 +547,19 @@ const CardActivationRequestsList: React.FC = () => {
                       {CARD_ACTIVATION_REQUESTS_STRINGS.FORM.FIELD_LABELS.CARD_NUMBER}
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
-                    <input type="text" className="form-control" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} required />
+                    <input
+  type="number"
+  className="form-control"
+  value={cardNumber}
+   onChange={(e) => {
+    const val = e.target.value;
+    if (/^\d*$/.test(val)) {   // only digits allowed
+      setCardNumber(val);
+    }
+  }}
+  required
+  onWheel={(e) => e.currentTarget.blur()} // prevent mouse wheel changing value
+/>
                   </div>
 
                   {/* Request Status (numbers!) */}

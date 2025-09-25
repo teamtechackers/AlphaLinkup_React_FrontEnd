@@ -42,6 +42,14 @@ export const CONSTANTS = {
     SOMETHING_WENT_WRONG: "Something went wrong. Please try again later.",
     DUPLICATE_FOUND: "Duplicate mobile/email found",
   },
+   MAX_LENGTHS:{
+    jobTitle: 100,
+    companyName: 100,
+    description: 500,
+    address: 200,
+    name:50,
+  },
+  
   VARIABLES: {
     HEADER: {
       WELCOME: 'Welcome !',

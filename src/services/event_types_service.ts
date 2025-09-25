@@ -74,9 +74,13 @@ const eventTypesService = {
   },
 
   checkDuplicateEventType: async (name: string, id?: number) => {
-    const params: any = { name, user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN };
-    if (id) params.id = id;
-    const res = await axios.post(`${baseUrl}${API_ROUTES.EVENT_TYPE.CHECK_DUPLICATE}`, null, { params });
+    const body: any = { name, user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN };
+    if (id) body.id = id;
+    const res = await axios.post(`${baseUrl}${API_ROUTES.EVENT_TYPE.CHECK_DUPLICATE}`, qs.stringify(body), {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      }
+     });
     return res.data;
   },
 };

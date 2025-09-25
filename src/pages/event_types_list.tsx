@@ -51,6 +51,11 @@ const EventTypesList: React.FC = () => {
     e.preventDefault();
     try {
       const payload = { id: editing?.id, name, status: Number(status) };
+      const check_duplicate=await eventTypesService.checkDuplicateEventType(payload.name,payload.id)
+if(check_duplicate.status===true)
+{
+  return toast.error("event already exists"); 
+}
       const res = await eventTypesService.saveEventType(payload);
 
       if (res.status === "Success" || res.status === true) {
