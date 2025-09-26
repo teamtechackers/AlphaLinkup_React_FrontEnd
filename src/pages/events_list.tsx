@@ -13,7 +13,7 @@ import { COLORS } from "../utils/theme/colors";
 import { STYLES } from "../utils/typography/styles";
 import GlobalService from "../services/global_service";
 import DetailsDialog from "../components/DetailsDialog";
-
+// import { CONSTANTS } from "../utils/strings/constants";
 const EventsList: React.FC = () => {
   const [items, setItems] = useState<EventModel[]>([]);
   const [loading, setLoading] = useState(false);
@@ -383,7 +383,9 @@ const EventsList: React.FC = () => {
                     <label className="form-label" style={STYLES.field_label}>
                       {EVENTS_STRINGS.FORM.FIELD_LABELS.NAME}
                       <span style={{ color: COLORS.red}}> *</span></label>
-                    <input type="text" className="form-control" value={eventName} onChange={(e) => setEventName(e.target.value)} required />
+                    <input type="text" className="form-control" value={eventName} onChange={(e) => setEventName(e.target.value)} required
+                    maxLength={CONSTANTS.MAX_LENGTHS.name}  
+                    />
                   </div>
 
                   <div className="col-md-12">
@@ -455,7 +457,9 @@ const EventsList: React.FC = () => {
                       {EVENTS_STRINGS.FORM.FIELD_LABELS.VENUE}
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
-                    <input type="text" className="form-control" value={eventVenue} onChange={(e) => setEventVenue(e.target.value)} required />
+                    <input type="text" className="form-control" value={eventVenue} onChange={(e) => setEventVenue(e.target.value)} required 
+                    maxLength={CONSTANTS.MAX_LENGTHS.address}
+                    />
                   </div>
 
                   <div className="col-md-12">
@@ -463,7 +467,9 @@ const EventsList: React.FC = () => {
                       {EVENTS_STRINGS.FORM.FIELD_LABELS.LINK}
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
-                    <input type="text" className="form-control" value={eventLink} onChange={(e) => setEventLink(e.target.value)} required/>
+                    <input type="text" className="form-control" value={eventLink} onChange={(e) => setEventLink(e.target.value)} required
+                    maxLength={CONSTANTS.MAX_LENGTHS.url}
+                    />
                   </div>
 
                   <div className="col-md-12">
@@ -471,7 +477,14 @@ const EventsList: React.FC = () => {
                       {EVENTS_STRINGS.FORM.FIELD_LABELS.LAT}
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
-                    <input type="text" className="form-control" value={latitude} onChange={(e) => setLatitude(e.target.value)} required />
+                    <input type="number" className="form-control" value={latitude}  required
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (/^\d*$/.test(val)) {   // only digits allowed
+                        setLatitude(val);
+                      }
+                    }}
+                    />
                   </div>
 
                   <div className="col-md-12">
@@ -479,7 +492,14 @@ const EventsList: React.FC = () => {
                       {EVENTS_STRINGS.FORM.FIELD_LABELS.LNG}
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
-                    <input type="text" className="form-control" value={longitude} onChange={(e) => setLongitude(e.target.value)} required />
+                    <input type="number" className="form-control" value={longitude}  required
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (/^\d*$/.test(val)) {   // only digits allowed
+                        setLongitude(val);
+                      }
+                    }}
+                    />
                   </div>
 
                   <div className="col-md-12">
@@ -487,13 +507,14 @@ const EventsList: React.FC = () => {
                       {EVENTS_STRINGS.FORM.FIELD_LABELS.GEO_ADDRESS}
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
-                    <input type="text" className="form-control" value={geoAddress} onChange={(e) => setGeoAddress(e.target.value)} required />
+                    <input type="text" className="form-control" value={geoAddress} onChange={(e) => setGeoAddress(e.target.value)} required 
+                    maxLength={CONSTANTS.MAX_LENGTHS.address}/>
                   </div>
 
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
                       {EVENTS_STRINGS.FORM.FIELD_LABELS.DATE}
-                      <span style={{ color: COLORS.red}}> *</span>
+                      <span style={{ color: COLORS.red}}> *</span>  
                     </label>
                     <input type="date" className="form-control" value={eventDate} onChange={(e) => setEventDate(e.target.value)} required />
                   </div>
@@ -545,7 +566,9 @@ const EventsList: React.FC = () => {
                       {EVENTS_STRINGS.FORM.FIELD_LABELS.DETAILS}
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
-                    <textarea className="form-control" value={eventDetails} onChange={(e) => setEventDetails(e.target.value)} required />
+                    <textarea className="form-control" value={eventDetails} onChange={(e) => setEventDetails(e.target.value)} required 
+                      maxLength={CONSTANTS.MAX_LENGTHS.description}
+                      />
                   </div>
 
                   <div className="col-md-12">

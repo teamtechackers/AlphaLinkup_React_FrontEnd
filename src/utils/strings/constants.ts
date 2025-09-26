@@ -1,3 +1,5 @@
+import { url } from "inspector";
+
 export const CONSTANTS = {
   APP: {
     TITLE: "Alpha Linkup",
@@ -48,6 +50,7 @@ export const CONSTANTS = {
     description: 500,
     address: 200,
     name:30,
+    url:100,
   },
   
   VARIABLES: {

@@ -213,17 +213,6 @@ const JobsList: React.FC = () => {
     if (!payId) return toast.error("Pay is required");
     if (!jobDescription) return toast.error("Description is required");
     if (!status) return toast.error("Status is required");
-    if (jobTitle.length > CONSTANTS.MAX_LENGTHS.jobTitle) 
-      return toast.error(`Job Title cannot exceed ${CONSTANTS.MAX_LENGTHS.jobTitle} characters`);
-    
-    if (companyName.length > CONSTANTS.MAX_LENGTHS.companyName) 
-      return toast.error(`Company Name cannot exceed ${CONSTANTS.MAX_LENGTHS.companyName} characters`);
-    
-    if (jobDescription.length > CONSTANTS.MAX_LENGTHS.description) 
-      return toast.error(`Description cannot exceed ${CONSTANTS.MAX_LENGTHS.description} characters`);
-    
-    if (address.length > CONSTANTS.MAX_LENGTHS.address) 
-      return toast.error(`Address cannot exceed ${CONSTANTS.MAX_LENGTHS.address} characters`);
     
     try {
       const payload: any = {
