@@ -40,7 +40,6 @@ const UsersList: React.FC = () => {
     pageSize: 10,
   });
   const [rowCount, setRowCount] = useState(0);
-
   const load = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
     setLoading(true);
     try {
@@ -359,12 +358,20 @@ const UsersList: React.FC = () => {
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <input
-                      type="text"
-                      className="form-control"
-                      value={mobile}
-                      onChange={(e) => setMobile(e.target.value)}
-                      required
-                    />
+  type="number"
+  className="form-control"
+  value={mobile}
+   onChange={(e) => {
+    const val = e.target.value;
+    if (/^\d*$/.test(val)) {   // only digits allowed
+      setMobile(val);
+    }
+  }}
+  required
+  onWheel={(e) => e.currentTarget.blur()} // prevent mouse wheel changing value
+/>
+
+
                   </div>
 
                   {/* Email */}

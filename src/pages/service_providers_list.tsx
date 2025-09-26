@@ -19,7 +19,6 @@ const ServiceProvidersList: React.FC = () => {
   const [items, setItems] = useState<ServiceProviderModel[]>([]);
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState<ServiceProviderModel | null>(null);
-
   const [spUserId, setSpUserId] = useState("");
   const [fullName, setFullName] = useState("");
   const [countryId, setCountryId] = useState("");
@@ -29,7 +28,6 @@ const ServiceProvidersList: React.FC = () => {
   const [avgSpRating, setAvgSpRating] = useState("");
   const [approvalStatus, setApprovalStatus] = useState<number>(1);
   const [status, setStatus] = useState<number>(1);
-
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const [rowCount, setRowCount] = useState(0);
 
@@ -181,7 +179,11 @@ const ServiceProvidersList: React.FC = () => {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+   
+    
     try {
+      if (description.length > CONSTANTS.MAX_LENGTHS.description) 
+        return toast.error(`Description cannot exceed ${CONSTANTS.MAX_LENGTHS.description} characters`);
       const payload = {
         sp_id: editing?.sp_id ? Number(editing.sp_id) : undefined,
         sp_user_id: Number(spUserId),
@@ -489,7 +491,9 @@ const ServiceProvidersList: React.FC = () => {
                       {SERVICE_PROVIDERS_STRINGS.FORM.FIELD_LABELS.DESCRIPTION}
                       <span style={{ color: COLORS.red }}> *</span>
                     </label>
-                    <textarea className="form-control" value={description} onChange={(e) => setDescription(e.target.value)} />
+                    <textarea className="form-control" 
+                    maxLength={CONSTANTS.MAX_LENGTHS.description}
+                    value={description} onChange={(e) => setDescription(e.target.value)} />
                   </div>
 
                   <div className="col-md-12">
