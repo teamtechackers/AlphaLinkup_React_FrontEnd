@@ -56,11 +56,12 @@ const EventModesList: React.FC = () => {
       
       console.log(payload);
 const check_duplicate=await eventModesService.checkDuplicateEventMode(payload.name,payload.id)
-if(check_duplicate.status===false)
+if(check_duplicate.status===true)
 {
   return toast.error("event already exists"); 
 }
-      const res = await eventModesService.saveEventMode(payload);
+      
+const res = await eventModesService.saveEventMode(payload);
 
       if (res.status === "Success" || res.status === true) {
         toast.success(res.info || res.message);

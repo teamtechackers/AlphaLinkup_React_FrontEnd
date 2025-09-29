@@ -19,15 +19,19 @@ const eventModesService = {
     return res.data;
   },
 
-  saveEventMode: async (payload: { id?: number; name: string; status: number }) => {
-    const data = {
+   saveEventMode :async (payload: { id?: number; name: string; status: number }) => {
+    const data: any = {
       user_id: VARIABLES.USER_ID,
       token: VARIABLES.TOKEN,
       name: payload.name,
       status: payload.status,
-      row_id: payload.id ,
+      row_id: payload.id,
     };
-
+  
+    if (payload.id && payload.id > 0) {
+      data.id = payload.id; // only send id if updating
+    }
+  
     const res = await axios.post(
       `${baseUrl}${API_ROUTES.EVENT_MODES.SUBMIT}`,
       qs.stringify(data),
@@ -37,7 +41,7 @@ const eventModesService = {
         },
       }
     );
-
+  
     return res.data;
   },
 
@@ -59,14 +63,13 @@ const eventModesService = {
   },
 
   checkDuplicateEventMode: async (name: string, id?: number) => {
-    const params: any = { name, user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN };
+    // const params: any = { name, user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN };
     const body: any = { name, user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN };
-    if (id) params.id = id;
+    if (id) body.id = id;
     const res = await axios.post(`${baseUrl}${API_ROUTES.EVENT_MODES.CHECK_DUPLICATE}`,qs.stringify(body),
     {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
-         params 
       },
     },);
     return res.data;
