@@ -472,6 +472,7 @@ const InvestorsList: React.FC = () => {
                       className="form-control"
                       value={linkedinUrl}
                       onChange={(e) => setLinkedinUrl(e.target.value)}
+                      maxLength={CONSTANTS.MAX_LENGTHS.url}
                       required
                     />
                   </div>
@@ -538,6 +539,7 @@ const InvestorsList: React.FC = () => {
                       type="text"
                       className="form-control"
                       value={investmentStage}
+                      maxLength={CONSTANTS.MAX_LENGTHS.stage}
                       onChange={(e) => setInvestmentStage(e.target.value)}
                       required
                     />
@@ -551,6 +553,7 @@ const InvestorsList: React.FC = () => {
                       className="form-control"
                       value={meetingCity}
                       onChange={(e) => setMeetingCity(e.target.value)}
+                      maxLength={CONSTANTS.MAX_LENGTHS.name}
                       required
                     />
                   </div>
@@ -563,6 +566,7 @@ const InvestorsList: React.FC = () => {
                       className="form-control"
                       value={countriesToInvest}
                       onChange={(e) => setCountriesToInvest(e.target.value)}
+                      maxLength={CONSTANTS.MAX_LENGTHS.name}
                       required
                     />
                   </div>
@@ -575,6 +579,7 @@ const InvestorsList: React.FC = () => {
                       className="form-control"
                       value={investmentIndustry}
                       onChange={(e) => setInvestmentIndustry(e.target.value)}
+                      maxLength={CONSTANTS.MAX_LENGTHS.name}
                       required
                     />
                   </div>
@@ -587,6 +592,7 @@ const InvestorsList: React.FC = () => {
                       className="form-control"
                       value={language}
                       onChange={(e) => setLanguage(e.target.value)}
+                      maxLength={CONSTANTS.MAX_LENGTHS.name}
                       required
                     />
                   </div>

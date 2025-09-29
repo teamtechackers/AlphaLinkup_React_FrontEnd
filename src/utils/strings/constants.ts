@@ -51,6 +51,7 @@ export const CONSTANTS = {
     address: 200,
     name:30,
     url:100,
+    stage:100
   },
   
   VARIABLES: {
