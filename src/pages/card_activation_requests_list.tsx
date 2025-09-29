@@ -161,18 +161,6 @@ const CardActivationRequestsList: React.FC = () => {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (name.length > CONSTANTS.MAX_LENGTHS.name) 
-      return toast.error(`Job Title cannot exceed ${CONSTANTS.MAX_LENGTHS.jobTitle} characters`);
-    
-    if (businessName.length > CONSTANTS.MAX_LENGTHS.companyName) 
-      return toast.error(`Company Name cannot exceed ${CONSTANTS.MAX_LENGTHS.companyName} characters`);
-    
-    if (description.length > CONSTANTS.MAX_LENGTHS.description) 
-      return toast.error(`Description cannot exceed ${CONSTANTS.MAX_LENGTHS.description} characters`);
-    
-    if (businessLocation.length > CONSTANTS.MAX_LENGTHS.address) 
-      return toast.error(`Address cannot exceed ${CONSTANTS.MAX_LENGTHS.address} characters`);
     try {
       const payload: Partial<CardActivationRequestModel> = {
         ...(editing ? { row_id: editing.ubc_id } : {}),

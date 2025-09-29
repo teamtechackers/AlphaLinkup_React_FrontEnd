@@ -187,17 +187,6 @@ const InvestorsList: React.FC = () => {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    if (name.length > CONSTANTS.MAX_LENGTHS.name) 
-      return toast.error(`Job Title cannot exceed ${CONSTANTS.MAX_LENGTHS.jobTitle} characters`);
-    
-    // if (businessName.length > CONSTANTS.MAX_LENGTHS.companyName) 
-    //   return toast.error(`Company Name cannot exceed ${CONSTANTS.MAX_LENGTHS.companyName} characters`);
-    
-    if (bio.length > CONSTANTS.MAX_LENGTHS.description) 
-      return toast.error(`Description cannot exceed ${CONSTANTS.MAX_LENGTHS.description} characters`);
-    
-    // if (businessLocation.length > CONSTANTS.MAX_LENGTHS.address) 
-    //   return toast.error(`Address cannot exceed ${CONSTANTS.MAX_LENGTHS.address} characters`);
     try {
       const formData = new FormData();
       formData.append("user_id", "MQ");
@@ -396,9 +385,7 @@ const InvestorsList: React.FC = () => {
                       className="form-select"
                       value={userId}
                       onChange={(e) => setUserId(e.target.value ? Number(e.target.value) : "")}
-                      // maxLength={CONSTANTS.MAX_LENGTHS.name}
                       required
-// max
 >
                       <option value="">Select User</option>
                       {users.map((u) => (

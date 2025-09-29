@@ -14,7 +14,6 @@ import GlobalService from "../services/global_service";
 import DetailsDialog from "../components/DetailsDialog";
 import Dialog from "@mui/material/Dialog";
 import ServicesListPage from "./services_details_list";
-
 const ServiceProvidersList: React.FC = () => {
   const [items, setItems] = useState<ServiceProviderModel[]>([]);
   const [loading, setLoading] = useState(false);
@@ -182,8 +181,6 @@ const ServiceProvidersList: React.FC = () => {
    
     
     try {
-      if (description.length > CONSTANTS.MAX_LENGTHS.description) 
-        return toast.error(`Description cannot exceed ${CONSTANTS.MAX_LENGTHS.description} characters`);
       const payload = {
         sp_id: editing?.sp_id ? Number(editing.sp_id) : undefined,
         sp_user_id: Number(spUserId),
@@ -493,7 +490,8 @@ const ServiceProvidersList: React.FC = () => {
                     </label>
                     <textarea className="form-control" 
                     maxLength={CONSTANTS.MAX_LENGTHS.description}
-                    value={description} onChange={(e) => setDescription(e.target.value)} />
+                    value={description} onChange={(e) => setDescription(e.target.value)} 
+                  />
                   </div>
 
                   <div className="col-md-12">
