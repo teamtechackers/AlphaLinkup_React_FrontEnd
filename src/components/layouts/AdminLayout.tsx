@@ -6,11 +6,22 @@ import Sidebar from './Sidebar';
 import Footer from './Footer';
 import { COLORS } from '../../utils/theme/colors';
 import { APP_ROUTES } from '../../utils/strings/app_routes';
+import { useEffect, useState } from 'react';
 
 const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState(authService.getUser());
 
-  const user = authService.getUser();
+  useEffect(() => {
+    const valid = authService.checkSession();
+
+    if (!valid) {
+      navigate(APP_ROUTES.LOGIN);
+    } else {
+      const u = authService.getUser();
+      setUser(u);
+    }
+  }, [navigate]);
 
   const handleLogout = () => {
     authService.logout();
@@ -29,24 +40,46 @@ return (
       minHeight: "100vh",
     }}
   >
-    {/* Header */}
+
+  {/* Header */}
+  <div
+    style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 1000,
+    }}
+  >
     <Header user={user} onLogout={handleLogout} />
+  </div>
 
-    {/* Sidebar */}
-    <Sidebar />
+  {/* Navbar */}
+  <div
+    style={{
+      position: "fixed",
+      top: "60px", // height of header
+      left: 0,
+      right: 0,
+      zIndex: 999,
+    }}
+  >
+    <Sidebar /> {/* actually your top navbar */}
+  </div>
 
-    {/* Main Content */}
-    <div
-      className="content-page"
-      style={{
-        backgroundColor: COLORS.lightGray,
-        flex: "1",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      <Outlet />
-    </div>
+  {/* Main Content */}
+  <div
+    className="content-page page-padding-1"
+    style={{
+      marginTop: "130px",
+      flex: 1,
+      overflowY: "auto",
+      height: "calc(100vh - 120px)",
+      backgroundColor: COLORS.lightGray,
+    }}
+  >
+    <Outlet />
+  </div>
 
     {/* Footer outside content-page */}
     <Footer />

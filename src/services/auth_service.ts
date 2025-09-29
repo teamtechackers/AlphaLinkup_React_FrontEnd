@@ -2,20 +2,21 @@ import { loginService } from "./login_service";
 import { UserModel } from "../models/user_model";
 
 const token = "your_hardcoded_token";
-const sessionDuration = 60 * 60 * 1000; // 1 hour
+const sessionDuration = 60 * 60 * 1000;
 
 const authService = {
   currentUser: {} as UserModel,
 
-  createSession: async  (userId: string, userName: string) => {
+  createSession: async (userId: string, userName: string) => {
+
     const sessionId = `${userId}_${Date.now()}`;
     const sessionStart = Date.now();
 
-    localStorage.setItem("session_id", sessionId);
-    localStorage.setItem("session_start", sessionStart.toString());
+    localStorage.setItem("sessionId", sessionId);
+    localStorage.setItem("sessionStart", sessionStart.toString());
     localStorage.setItem("token", token);
-    localStorage.setItem("user_id", userId);
-    localStorage.setItem("user_name", userName);
+    localStorage.setItem("userId", userId);
+    localStorage.setItem("userName", userName);
 
     authService.currentUser = {
       user_id: Number(userId),
@@ -24,11 +25,13 @@ const authService = {
       email_address: null,
       status: "Active",
     };
+
+    console.log("👤 currentUser set to:", authService.currentUser);
   },
 
   checkSession: (): boolean => {
-    const sessionId = localStorage.getItem("session_id");
-    const sessionStartStr = localStorage.getItem("session_start");
+    const sessionId = localStorage.getItem("sessionId");
+    const sessionStartStr = localStorage.getItem("sessionStart");
     const tokenValue = localStorage.getItem("token");
 
     if (!sessionId || !sessionStartStr || tokenValue !== token) {
@@ -43,8 +46,8 @@ const authService = {
       return false;
     }
 
-    const userIdStr = localStorage.getItem("user_id");
-    const userName = localStorage.getItem("user_name") ?? "";
+    const userIdStr = localStorage.getItem("userId");
+    const userName = localStorage.getItem("userName") ?? "";
 
     authService.currentUser = {
       user_id: userIdStr ? Number(userIdStr) : 0,
@@ -58,19 +61,21 @@ const authService = {
   },
 
   destroySession: () => {
-    localStorage.removeItem("session_id");
-    localStorage.removeItem("session_start");
+    localStorage.removeItem("sessionId");
+    localStorage.removeItem("sessionStart");
     localStorage.removeItem("token");
-    localStorage.removeItem("user_id");
-    localStorage.removeItem("user_name");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userName");
     authService.currentUser = {} as UserModel;
   },
 
   login: async (username: string, password: string) => {
     const response = await loginService.adminLogin(username, password);
+
     if (response && response.status === true) {
       const userId = response.user_id;
-      const userName = response.user_name;
+      const userName = response.username;
+
       authService.createSession(userId, userName);
       return true;
     }

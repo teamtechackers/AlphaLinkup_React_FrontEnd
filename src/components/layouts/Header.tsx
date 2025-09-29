@@ -18,7 +18,6 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
-  // Detect resize for mobile/desktop switch
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);

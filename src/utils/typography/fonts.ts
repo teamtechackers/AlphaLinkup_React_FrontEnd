@@ -35,6 +35,13 @@ export const FONTS = {
       lineHeight: '24px',
     },
 
+    inter_500_18_24: {
+      fontFamily: '"Inter", sans-serif',
+      fontSize: '18px',
+      fontWeight: 600,
+      lineHeight: '24px',
+    },
+
     inter_400_12_22: {
       fontFamily: '"Inter", sans-serif',
       fontSize: '12px',

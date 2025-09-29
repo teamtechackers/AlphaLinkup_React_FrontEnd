@@ -30,6 +30,11 @@ const Sidebar: React.FC = () => {
     e.currentTarget.style.color = COLORS.darkGray;
   };
 
+  const handleMenuClick = () => {
+    setOpenDropdown(null);
+    setOpenSubDropdown(null);
+  };
+
   return (
     <nav className="navbar navbar-expand-lg page-padding-1" style={{ backgroundColor: COLORS.white }}>
       <div className="container-fluid">
@@ -107,11 +112,11 @@ const Sidebar: React.FC = () => {
                     className={`dropdown-menu position-absolute top-0 start-100 ${openSubDropdown === "general" ? "show" : ""}`}
                     style={{ minWidth: "200px" }}
                   >
-                    <li><Link className="dropdown-item" to={APP_ROUTES.COUNTRIES} style={STYLES.nav_item}>Country</Link></li>
-                    <li><Link className="dropdown-item" to={APP_ROUTES.STATES} style={STYLES.nav_item}>State</Link></li>
-                    <li><Link className="dropdown-item" to={APP_ROUTES.CITIES} style={STYLES.nav_item}>City</Link></li>
-                    <li><Link className="dropdown-item" to={APP_ROUTES.EMPLOYMENT_TYPES} style={STYLES.nav_item}>Employment Type</Link></li>
-                    <li><Link className="dropdown-item" to={APP_ROUTES.INTERESTS} style={STYLES.nav_item}>Interests</Link></li>
+                    <li><Link className="dropdown-item" onClick={handleMenuClick} to={APP_ROUTES.COUNTRIES} style={STYLES.nav_item}>Country</Link></li>
+                    <li><Link className="dropdown-item" onClick={handleMenuClick} to={APP_ROUTES.STATES} style={STYLES.nav_item}>State</Link></li>
+                    <li><Link className="dropdown-item" onClick={handleMenuClick} to={APP_ROUTES.CITIES} style={STYLES.nav_item}>City</Link></li>
+                    <li><Link className="dropdown-item" onClick={handleMenuClick} to={APP_ROUTES.EMPLOYMENT_TYPES} style={STYLES.nav_item}>Employment Type</Link></li>
+                    <li><Link className="dropdown-item" onClick={handleMenuClick} to={APP_ROUTES.INTERESTS} style={STYLES.nav_item}>Interests</Link></li>
                   </ul>
                 </li>
 
@@ -141,8 +146,8 @@ const Sidebar: React.FC = () => {
                     className={`dropdown-menu position-absolute top-0 start-100 ${openSubDropdown === "jobs" ? "show" : ""}`}
                     style={{ minWidth: "200px" }}
                   >
-                    <li><Link className="dropdown-item" to={APP_ROUTES.JOB_TYPES} style={STYLES.nav_item}>Job Type</Link></li>
-                    <li><Link className="dropdown-item" to={APP_ROUTES.PAY} style={STYLES.nav_item}>Pay</Link></li>
+                    <li><Link className="dropdown-item" onClick={handleMenuClick} to={APP_ROUTES.JOB_TYPES} style={STYLES.nav_item}>Job Type</Link></li>
+                    <li><Link className="dropdown-item" onClick={handleMenuClick} to={APP_ROUTES.PAY} style={STYLES.nav_item}>Pay</Link></li>
                   </ul>
                 </li>
 
@@ -172,8 +177,8 @@ const Sidebar: React.FC = () => {
                     className={`dropdown-menu position-absolute top-0 start-100 ${openSubDropdown === "events" ? "show" : ""}`}
                     style={{ minWidth: "200px" }}
                   >
-                    <li><Link className="dropdown-item" to={APP_ROUTES.EVENT_MODES} style={STYLES.nav_item}>Event Mode</Link></li>
-                    <li><Link className="dropdown-item" to={APP_ROUTES.EVENT_TYPES} style={STYLES.nav_item}>Event Type</Link></li>
+                    <li><Link className="dropdown-item" onClick={handleMenuClick} to={APP_ROUTES.EVENT_MODES} style={STYLES.nav_item}>Event Mode</Link></li>
+                    <li><Link className="dropdown-item" onClick={handleMenuClick} to={APP_ROUTES.EVENT_TYPES} style={STYLES.nav_item}>Event Type</Link></li>
                   </ul>
                 </li>
 
@@ -201,8 +206,8 @@ const Sidebar: React.FC = () => {
                     className={`dropdown-menu position-absolute top-0 start-100 ${openSubDropdown === "investors" ? "show" : ""}`}
                     style={{ minWidth: "200px" }}
                   >
-                    <li><Link className="dropdown-item" to={APP_ROUTES.INDUSTRY_TYPES} style={STYLES.nav_item}>Industry Type</Link></li>
-                    <li><Link className="dropdown-item" to={APP_ROUTES.FUND_SIZES} style={STYLES.nav_item}>Fund Size</Link></li>
+                    <li><Link className="dropdown-item" onClick={handleMenuClick} to={APP_ROUTES.INDUSTRY_TYPES} style={STYLES.nav_item}>Industry Type</Link></li>
+                    <li><Link className="dropdown-item" onClick={handleMenuClick} to={APP_ROUTES.FUND_SIZES} style={STYLES.nav_item}>Fund Size</Link></li>
                   </ul>
                 </li>
 
@@ -211,6 +216,7 @@ const Sidebar: React.FC = () => {
                   <Link
                     className="dropdown-item"
                     to={APP_ROUTES.FOLDERS}
+                    onClick={handleMenuClick}
                     style={{ 
                       ...STYLES.nav_item, 
                       display: "flex", 
