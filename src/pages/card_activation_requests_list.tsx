@@ -30,8 +30,8 @@ const CardActivationRequestsList: React.FC = () => {
   const [cardNumber, setCardNumber] = useState("");
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const [rowCount, setRowCount] = useState(0);
-  const [requestStatus, setRequestStatus] = useState<number | "">(1);
-  const [overallStatus, setOverallStatus] = useState<number | "">(1);
+  const [cardStatus, setCardtStatus] = useState<number | "">(0);
+  const [status, setStatus] = useState<number | "">(3);
   const [countries, setCountries] = useState<any[]>([]);
   const [states, setStates] = useState<any[]>([]);
   const [cities, setCities] = useState<any[]>([]);
@@ -174,8 +174,8 @@ const CardActivationRequestsList: React.FC = () => {
         city_id: cityId !== "" ? cityId : editing?.city_id ?? "",
         description: description || editing?.description || "",
         card_number: cardNumber || editing?.card_number || "",
-        card_status: String(requestStatus !== "" ? requestStatus : parseCardStatus(editing?.card_status)),
-        status: String(overallStatus !== "" ? overallStatus : parseOverallStatus(editing?.status)),
+        card_status: String(cardStatus !== "" ? cardStatus : parseCardStatus(editing?.card_status)),
+        status: String(status !== "" ? status : parseOverallStatus(editing?.status)),
       };
 
       console.log("Submit payload: ", payload);
@@ -230,8 +230,8 @@ const CardActivationRequestsList: React.FC = () => {
 
     setDescription(item.description ?? "");
     setCardNumber(item.card_number ?? "");
-    setRequestStatus(parseCardStatus(item.card_status));
-    setOverallStatus(parseOverallStatus(item.status));
+    setCardtStatus(parseCardStatus(item.card_status));
+    setStatus(parseOverallStatus(item.status));
   };
 
   const resetForm = () => {
@@ -248,8 +248,8 @@ const CardActivationRequestsList: React.FC = () => {
     setCityId("");
     setDescription("");
     setCardNumber("");
-     setRequestStatus(1);
-    setOverallStatus(1);
+     setCardtStatus(1);
+    setStatus(1);
   };
 
   const onDelete = async (item: CardActivationRequestModel) => {
@@ -394,8 +394,8 @@ const CardActivationRequestsList: React.FC = () => {
             <div className="card-body">
               <form onSubmit={onSubmit}>
                 <div className="row g-3 align-items-end">
-                  {/* Full Name */}
 
+                  {/* Full Name */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
                       {CARD_ACTIVATION_REQUESTS_STRINGS.FORM.FIELD_LABELS.FULL_NAME}
@@ -427,8 +427,8 @@ const CardActivationRequestsList: React.FC = () => {
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <input type="text" className="form-control" value={name}
-                     maxLength={CONSTANTS.MAX_LENGTHS.name}
-                    onChange={(e) => setName(e.target.value)} required />
+                     maxLength={CONSTANTS.MAX_LENGTHS.FIELD_100}
+                      onChange={(e) => setName(e.target.value)} required />
                   </div>
 
                   {/* Business Name */}
@@ -438,7 +438,7 @@ const CardActivationRequestsList: React.FC = () => {
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <input type="text" className="form-control" value={businessName} 
-                    maxLength={CONSTANTS.MAX_LENGTHS.companyName}
+                    maxLength={CONSTANTS.MAX_LENGTHS.FIELD_150}
                     onChange={(e) => setBusinessName(e.target.value)} required />
                   </div>
 
@@ -449,7 +449,7 @@ const CardActivationRequestsList: React.FC = () => {
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <input type="text" className="form-control" value={businessLocation} 
-                    maxLength={CONSTANTS.MAX_LENGTHS.address}
+                    maxLength={CONSTANTS.MAX_LENGTHS.FIELD_150}
                     onChange={(e) => setBusinessLocation(e.target.value)} required />
                   </div>
 
@@ -506,7 +506,7 @@ const CardActivationRequestsList: React.FC = () => {
                       className="form-select"
                       value={cityId}
                       onChange={(e) => setCityId(Number(e.target.value))}
-                      
+                      required
                       disabled={!stateId}
                     >
                       <option value="">Select City</option>
@@ -525,7 +525,7 @@ const CardActivationRequestsList: React.FC = () => {
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <textarea className="form-control" value={description} 
-                    maxLength={CONSTANTS.MAX_LENGTHS.description}
+                    maxLength={CONSTANTS.MAX_LENGTHS.FIELD_200}
                     onChange={(e) => setDescription(e.target.value)} required />
                   </div>
 
@@ -536,21 +536,22 @@ const CardActivationRequestsList: React.FC = () => {
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <input
-  type="number"
-  className="form-control"
-  value={cardNumber}
-   onChange={(e) => {
-    const val = e.target.value;
-    if (/^\d*$/.test(val)) {   // only digits allowed
-      setCardNumber(val);
-    }
-  }}
-  required
-  onWheel={(e) => e.currentTarget.blur()} // prevent mouse wheel changing value
-/>
+                      type="number"
+                      className="form-control"
+                      value={cardNumber}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (/^\d*$/.test(val)) {
+                          setCardNumber(val);
+                        }
+                      }}
+                      required
+                       maxLength={CONSTANTS.MAX_LENGTHS.FIELD_100}
+                      onWheel={(e) => e.currentTarget.blur()}
+                    />
                   </div>
 
-                  {/* Request Status (numbers!) */}
+                  {/* Request Status */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
                       {CARD_ACTIVATION_REQUESTS_STRINGS.FORM.FIELD_LABELS.CARD_STATUS}
@@ -558,23 +559,25 @@ const CardActivationRequestsList: React.FC = () => {
                     </label>
                     <select
                       className="form-select"
-                      value={requestStatus === "" ? 1 : requestStatus}
-                      onChange={(e) => setRequestStatus(e.target.value === "" ? "" : Number(e.target.value))}
+                      value={cardStatus === "" ? 1 : cardStatus}
+                      onChange={(e) => setCardtStatus(e.target.value === "" ? "" : Number(e.target.value))}
                       required
                     >
+                      <option value="" >Select Card Status</option>
                       <option value={1}>Pending</option>
                       <option value={2}>Approved</option>
                       <option value={3}>Rejected</option>
                     </select>
                   </div>
 
-                  {/* Overall Status (numbers!) */}
+                  {/* Overall Status */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
                       {CARD_ACTIVATION_REQUESTS_STRINGS.FORM.FIELD_LABELS.STATE}
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
-                    <select className="form-select" value={overallStatus === "" ? 1 : overallStatus} onChange={(e) => setOverallStatus(e.target.value === "" ? "" : Number(e.target.value))} required>
+                    <select className="form-select" value={status === "" ? 1 : status} onChange={(e) => setStatus(e.target.value === "" ? "" : Number(e.target.value))} required>
+                      <option value="" >Select Status</option>
                       <option value={1}>Active</option>
                       <option value={0}>Inactive</option>
                     </select>

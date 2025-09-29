@@ -343,11 +343,12 @@ const UsersList: React.FC = () => {
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <input
-                      type="text"
                       className="form-control"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       required
+                      type="text"
+                      maxLength={CONSTANTS.MAX_LENGTHS.FIELD_100}
                     />
                   </div>
 
@@ -358,20 +359,19 @@ const UsersList: React.FC = () => {
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <input
-  type="number"
-  className="form-control"
-  value={mobile}
-   onChange={(e) => {
-    const val = e.target.value;
-    if (/^\d*$/.test(val)) {   // only digits allowed
-      setMobile(val);
-    }
-  }}
-  required
-  onWheel={(e) => e.currentTarget.blur()} // prevent mouse wheel changing value
-/>
-
-
+                      className="form-control"
+                      value={mobile}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (/^\d*$/.test(val)) {
+                          setMobile(val);
+                        }
+                      }}
+                      required
+                      type="number"
+                      maxLength={CONSTANTS.MAX_LENGTHS.FIELD_100}
+                      onWheel={(e) => e.currentTarget.blur()}
+                    />
                   </div>
 
                   {/* Email */}
@@ -386,6 +386,7 @@ const UsersList: React.FC = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
+                      maxLength={CONSTANTS.MAX_LENGTHS.FIELD_150}
                     />
                   </div>
 
@@ -399,7 +400,7 @@ const UsersList: React.FC = () => {
                       className="form-control"
                       accept="image/*"
                       onChange={(e) => setUploadedImage(e.target.files?.[0] ?? null)}
-                      // required={!editing}
+                      required={!editing}
                     />
                   </div>
 
@@ -415,6 +416,7 @@ const UsersList: React.FC = () => {
                       value={address}
                       onChange={(e) => setAddress(e.target.value)}
                       required
+                      maxLength={CONSTANTS.MAX_LENGTHS.FIELD_150}
                     />
                   </div>
 

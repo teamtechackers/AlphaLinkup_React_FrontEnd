@@ -13,7 +13,8 @@ import { COLORS } from "../utils/theme/colors";
 import { STYLES } from "../utils/typography/styles";
 import GlobalService from "../services/global_service";
 import DetailsDialog from "../components/DetailsDialog";
-// import { CONSTANTS } from "../utils/strings/constants";
+import { VARIABLES } from "../utils/strings/variables";
+
 const EventsList: React.FC = () => {
   const [items, setItems] = useState<EventModel[]>([]);
   const [loading, setLoading] = useState(false);
@@ -165,7 +166,7 @@ const EventsList: React.FC = () => {
     formData.append("industry_type", String(industryType));
     formData.append("country_id", String(countryId));
     formData.append("state_id", String(stateId));
-    formData.append("city_id", String(cityId));
+    formData.append("city_id", String(1));
     formData.append("event_venue", eventVenue);
     formData.append("event_link", eventLink);
     formData.append("event_lat", latitude);
@@ -180,11 +181,17 @@ const EventsList: React.FC = () => {
     formData.append("status", status === "Active" ? "1" : "0");
 
     if (eventBanner) {
-      formData.append("event_banner", eventBanner);
+      formData.append("event_banner_file", eventBanner);
     }
 
+    console.group("Submitting Event FormData");
+    Array.from(formData.entries()).forEach(([key, value]) => {
+    console.log(`${key}:`, value);
+    });
+    console.groupEnd();
+
     try {
-      const res = await eventsService.save(formData, editing ? Number(editing.event_id) : undefined);
+      const res = await eventsService.save(formData, VARIABLES.USER_ID, VARIABLES.TOKEN);
       if (res.status === "Success" || res.status === true) {
         toast.success(res.info || res.message);
         resetForm();
@@ -224,6 +231,12 @@ const EventsList: React.FC = () => {
 
   const onEdit = async (item: EventModel) => {
     setEditing(item);
+
+    console.group("Editing Event");
+      console.log("Raw item:", item);
+      console.table(item);
+      console.groupEnd();
+
     setUserId(item.user_id ? Number(item.user_id) : "");
     setEventName(item.event_name ?? "");
     setIndustryType(item.industry_id ? Number(item.industry_id) : "");
@@ -384,7 +397,7 @@ const EventsList: React.FC = () => {
                       {EVENTS_STRINGS.FORM.FIELD_LABELS.NAME}
                       <span style={{ color: COLORS.red}}> *</span></label>
                     <input type="text" className="form-control" value={eventName} onChange={(e) => setEventName(e.target.value)} required
-                    maxLength={CONSTANTS.MAX_LENGTHS.name}  
+                    maxLength={CONSTANTS.MAX_LENGTHS.FIELD_100}  
                     />
                   </div>
 
@@ -458,7 +471,7 @@ const EventsList: React.FC = () => {
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <input type="text" className="form-control" value={eventVenue} onChange={(e) => setEventVenue(e.target.value)} required 
-                    maxLength={CONSTANTS.MAX_LENGTHS.address}
+                    maxLength={CONSTANTS.MAX_LENGTHS.FIELD_100}
                     />
                   </div>
 
@@ -468,7 +481,7 @@ const EventsList: React.FC = () => {
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <input type="text" className="form-control" value={eventLink} onChange={(e) => setEventLink(e.target.value)} required
-                    maxLength={CONSTANTS.MAX_LENGTHS.url}
+                    maxLength={CONSTANTS.MAX_LENGTHS.FIELD_200}
                     />
                   </div>
 
@@ -480,7 +493,7 @@ const EventsList: React.FC = () => {
                     <input type="number" className="form-control" value={latitude}  required
                     onChange={(e) => {
                       const val = e.target.value;
-                      if (/^\d*$/.test(val)) {   // only digits allowed
+                      if (/^\d*$/.test(val)) {
                         setLatitude(val);
                       }
                     }}
@@ -495,7 +508,7 @@ const EventsList: React.FC = () => {
                     <input type="number" className="form-control" value={longitude}  required
                     onChange={(e) => {
                       const val = e.target.value;
-                      if (/^\d*$/.test(val)) {   // only digits allowed
+                      if (/^\d*$/.test(val)) {
                         setLongitude(val);
                       }
                     }}
@@ -508,7 +521,7 @@ const EventsList: React.FC = () => {
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <input type="text" className="form-control" value={geoAddress} onChange={(e) => setGeoAddress(e.target.value)} required 
-                    maxLength={CONSTANTS.MAX_LENGTHS.address}/>
+                    maxLength={CONSTANTS.MAX_LENGTHS.FIELD_200}/>
                   </div>
 
                   <div className="col-md-12">
@@ -567,7 +580,7 @@ const EventsList: React.FC = () => {
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <textarea className="form-control" value={eventDetails} onChange={(e) => setEventDetails(e.target.value)} required 
-                      maxLength={CONSTANTS.MAX_LENGTHS.description}
+                      maxLength={CONSTANTS.MAX_LENGTHS.FIELD_200}
                       />
                   </div>
 

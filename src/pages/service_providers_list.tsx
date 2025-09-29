@@ -25,8 +25,8 @@ const ServiceProvidersList: React.FC = () => {
   const [cityId, setCityId] = useState("");
   const [description, setDescription] = useState("");
   const [avgSpRating, setAvgSpRating] = useState("");
-  const [approvalStatus, setApprovalStatus] = useState<number>(1);
-  const [status, setStatus] = useState<number>(1);
+  const [approvalStatus, setApprovalStatus] = useState<number>(0);
+  const [status, setStatus] = useState<number>(3);
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const [rowCount, setRowCount] = useState(0);
 
@@ -431,6 +431,7 @@ const ServiceProvidersList: React.FC = () => {
                       className="form-select"
                       value={countryId}
                       onChange={(e) => setCountryId(e.target.value)}
+                      required
                     >
                       <option value="">Select Country</option>
                       {countries.map((c) => (
@@ -451,6 +452,7 @@ const ServiceProvidersList: React.FC = () => {
                       className="form-select"
                       value={stateId}
                       onChange={(e) => setStateId(e.target.value)}
+                      required
                       disabled={!countryId}
                     >
                       <option value="">Select State</option>
@@ -472,6 +474,7 @@ const ServiceProvidersList: React.FC = () => {
                       className="form-select"
                       value={cityId}
                       onChange={(e) => setCityId(e.target.value)}
+                      required
                       disabled={!stateId}
                     >
                       <option value="">Select City</option>
@@ -489,8 +492,9 @@ const ServiceProvidersList: React.FC = () => {
                       <span style={{ color: COLORS.red }}> *</span>
                     </label>
                     <textarea className="form-control" 
-                    maxLength={CONSTANTS.MAX_LENGTHS.description}
-                    value={description} onChange={(e) => setDescription(e.target.value)} 
+                    maxLength={CONSTANTS.MAX_LENGTHS.FIELD_200}
+                    value={description} onChange={(e) => setDescription(e.target.value)}
+                    required
                   />
                   </div>
 
@@ -499,7 +503,7 @@ const ServiceProvidersList: React.FC = () => {
                       {SERVICE_PROVIDERS_STRINGS.FORM.FIELD_LABELS.SP_RATING}
                       <span style={{ color: COLORS.red }}> *</span>
                     </label>
-                    <input type="number" step="0.1" className="form-control" value={avgSpRating} onChange={(e) => setAvgSpRating(e.target.value)} />
+                    <input type="number" step="0.1" className="form-control" value={avgSpRating} onChange={(e) => setAvgSpRating(e.target.value)} required/>
                   </div>
 
                   <div className="col-md-12">
@@ -507,7 +511,8 @@ const ServiceProvidersList: React.FC = () => {
                       {SERVICE_PROVIDERS_STRINGS.FORM.FIELD_LABELS.APPROVAL_STATUS}
                       <span style={{ color: COLORS.red }}> *</span>
                     </label>
-                    <select className="form-select" value={approvalStatus} onChange={(e) => setApprovalStatus(Number(e.target.value))}>
+                    <select className="form-select" value={approvalStatus} onChange={(e) => setApprovalStatus(Number(e.target.value))} required>
+                      <option value="">Select Approval Status</option>
                       <option value="1">Pending</option>
                       <option value="2">Approved</option>
                       <option value="3">Rejected</option>
@@ -519,7 +524,8 @@ const ServiceProvidersList: React.FC = () => {
                       {SERVICE_PROVIDERS_STRINGS.FORM.FIELD_LABELS.STATUS}
                       <span style={{ color: COLORS.red }}> *</span>
                     </label>
-                    <select className="form-select" value={status} onChange={(e) => setStatus(Number(e.target.value))}>
+                    <select className="form-select" value={status} onChange={(e) => setStatus(Number(e.target.value))} required>
+                      <option value="">Select Status</option>
                       <option value="1">Active</option>
                       <option value="0">Inactive</option>
                     </select>

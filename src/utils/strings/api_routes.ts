@@ -17,6 +17,7 @@ export const API_ROUTES = {
     API_USER_LIST: "/Api-User-List",
     API_INDUSTRY_TYPE_LIST: "/Api-Industry-Type-List",
     API_ALL_SERVICES_LIST: "/Api-All-Services-List",
+    API_FUND_SIZE_LIST: "/Api-Fund-Size-List",
   },
 
   COUNTRY_LIST: {

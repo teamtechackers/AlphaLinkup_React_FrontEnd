@@ -1,5 +1,4 @@
 import axios from "axios";
-import qs from "qs";
 import { VARIABLES } from "../utils/strings/variables";
 import { API_ROUTES } from "../utils/strings/api_routes";
 
@@ -20,16 +19,18 @@ const eventsService = {
     return res.data;
   },
 
-  save: async (payload: any, rowId?: number) => {
-    if (rowId) payload.row_id = rowId;
+  save: async (payload: FormData, userId: string, token: string) => {
     const res = await axios.post(
-      `${baseUrl}${API_ROUTES.EVENTS.SUBMIT}`,
-      qs.stringify(payload),
+       `${baseUrl}${API_ROUTES.EVENTS.SUBMIT}?user_id=${userId}&token=${token}`,
+      payload,
       {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        params: { user_id: VARIABLES.USER_ID, token: VARIABLES.TOKEN },
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Accept: "application/json",
+        },
       }
     );
+
     return res.data;
   },
 

@@ -13,7 +13,7 @@ export const INVESTORS_STRINGS = {
   FORM: {
     ADD: "Add Investor",
     EDIT: "Edit Investor",
-    LABELS: {
+    FIELD_LABELS: {
       FULL_NAME: "Full Name",
       USER: "Select Users",
       NAME: "Name",
@@ -23,7 +23,7 @@ export const INVESTORS_STRINGS = {
       FUND_SIZE: "Fund Size",
       LINKEDIN_URL: "Linkedin URL",
       BIO: "Bio",
-      IMAGE: "Profile Image",
+      PROFILE_IMAGE: "Profile Image",
       AVAILABILITY: "Availability Status",
       PROFILE: "Profile",
       INVESTMENT_STAGE: "Investment Stage",

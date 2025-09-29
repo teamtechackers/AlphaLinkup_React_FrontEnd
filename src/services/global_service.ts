@@ -123,6 +123,21 @@ class GlobalService {
     return res.data?.industry_type_list || [];
   }
 
+  static async getFundSizes() {
+    try {
+      const res = await axios.get(`${baseUrl}${API_ROUTES.GLOBAL_API.API_FUND_SIZE_LIST}`, {
+        params: {
+          user_id: VARIABLES.USER_ID,
+          token: VARIABLES.TOKEN,
+        },
+      });
+      return res.data?.fund_size_list || [];
+    } catch (err) {
+      console.error("Error fetching fund sizes", err);
+      return [];
+    }
+  }
+
 }
 
 export default GlobalService;

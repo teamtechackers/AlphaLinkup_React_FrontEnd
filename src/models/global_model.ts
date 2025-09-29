@@ -58,3 +58,8 @@ export interface IndustryType {
   industry_type_name: string;
 }
 
+// FundSize model
+export interface FundSize {
+  fund_size_id: string;
+  investment_range: string;
+}

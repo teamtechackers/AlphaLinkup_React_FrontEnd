@@ -1,15 +1,16 @@
-import { url } from "inspector";
-
 export const CONSTANTS = {
+
   APP: {
     TITLE: "Alpha Linkup",
   },
+
   BUTTONS: {
     SAVE: "Save",
     UPDATE: "Update",
     DELETE: "Delete",
     CANCEL: "Cancel",
   },
+
   MESSAGE_TAGS: {
     SUCCESS: "success",
     ERROR: "error",
@@ -17,6 +18,7 @@ export const CONSTANTS = {
     INFO: "info",
     INVALID: "invalid",
   } as const,
+
   MESSAGES: {
     SAVE_SUCCESS: "Data saved successfully!",
     UPDATE_SUCCESS: "Data updated successfully!",
@@ -44,13 +46,12 @@ export const CONSTANTS = {
     SOMETHING_WENT_WRONG: "Something went wrong. Please try again later.",
     DUPLICATE_FOUND: "Duplicate mobile/email found",
   },
+
    MAX_LENGTHS:{
-    jobTitle: 100,
-    companyName: 100,
-    description: 500,
-    address: 200,
-    name:30,
-    url:100,
+    FIELD_50: 50,
+    FIELD_100: 100,
+    FIELD_150: 150,
+    FIELD_200: 200,
   },
   
   VARIABLES: {

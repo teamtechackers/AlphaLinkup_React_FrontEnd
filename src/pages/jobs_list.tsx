@@ -194,26 +194,12 @@ const JobsList: React.FC = () => {
     setJobTypeId("");
     setPayId("");
     setJobDescription("");
-    setStatus("Active");
+    setStatus("");
   };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!userName) return toast.error("Full Name is required");
-    if (!jobTitle) return toast.error("Job Title is required");
-    if (!companyName) return toast.error("Company Name is required");
-    if (!countryId) return toast.error("Country is required");
-    if (!stateId) return toast.error("State is required");
-    // if (!cityId) return toast.error("City is required");
-    if (!address) return toast.error("Address is required");
-    if (!jobLat) return toast.error("Latitude is required");
-    if (!jobLng) return toast.error("Longitude is required");
-    if (!jobTypeId) return toast.error("Job Type is required");
-    if (!payId) return toast.error("Pay is required");
-    if (!jobDescription) return toast.error("Description is required");
-    if (!status) return toast.error("Status is required");
-    
+     
     try {
       const payload: any = {
         user_id: userName,
@@ -395,7 +381,8 @@ const JobsList: React.FC = () => {
             <div className="card-body">
               <form onSubmit={onSubmit} encType="multipart/form-data">
                 <div className="row g-3">
-                  {/* Full Name / Select User */}
+
+                  {/* Full Name */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
                       {JOBS_STRINGS.FORM.FIELD_LABELS.FULL_NAME}
@@ -421,29 +408,29 @@ const JobsList: React.FC = () => {
                       {JOBS_STRINGS.FORM.FIELD_LABELS.JOB_TITLE}
                       <span style={{ color: COLORS.red}}> *</span></label>
                       <input
-  type="text"
-  className="form-control"
-  value={jobTitle}
-  maxLength={CONSTANTS.MAX_LENGTHS.jobTitle}
-  onChange={(e) => setJobTitle(e.target.value)}
-  required
-/>
+                        type="text"
+                        className="form-control"
+                        value={jobTitle}
+                        maxLength={CONSTANTS.MAX_LENGTHS.FIELD_100}
+                        onChange={(e) => setJobTitle(e.target.value)}
+                        required
+                      />
                   </div>
 
                   {/* Company Name */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
                       {JOBS_STRINGS.FORM.FIELD_LABELS.COMPANY_NAME} 
-                      <span style={{ color: COLORS.red}}> *</span></label>
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                       <input
-  type="text"
-  className="form-control"
-  value={companyName}
-  maxLength={CONSTANTS.MAX_LENGTHS.companyName}
-  onChange={(e) => setCompanyName(e.target.value)}
-  required
-/>
-
+                      type="text"
+                      className="form-control"
+                      value={companyName}
+                      maxLength={CONSTANTS.MAX_LENGTHS.FIELD_100}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      required
+                    />
                   </div>
 
                   {/* Country */}
@@ -516,14 +503,13 @@ const JobsList: React.FC = () => {
                      {JOBS_STRINGS.FORM.FIELD_LABELS.ADDRESS}
                       <span style={{ color: COLORS.red}}> *</span></label>
                       <input
-  type="text"
-  className="form-control"
-  value={address}
-  maxLength={CONSTANTS.MAX_LENGTHS.address}
-  onChange={(e) => setAddress(e.target.value)}
-  required
-/>
-
+                      type="text"
+                      className="form-control"
+                      value={address}
+                      maxLength={CONSTANTS.MAX_LENGTHS.FIELD_150}
+                      onChange={(e) => setAddress(e.target.value)}
+                      required
+                    />
                   </div>
 
                   {/* Latitude */}
@@ -531,7 +517,17 @@ const JobsList: React.FC = () => {
                     <label className="form-label" style={STYLES.field_label}>
                       {JOBS_STRINGS.FORM.FIELD_LABELS.LAT} 
                       <span style={{ color: COLORS.red}}> *</span></label>
-                    <input type="text" className="form-control" value={jobLat} onChange={(e) => setJobLat(Number(e.target.value))} required />
+                    <input 
+                      type="number" 
+                      className="form-control" 
+                      value={jobLat} 
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (/^\d*$/.test(val)) {
+                          setJobLat(Number(val));
+                        }
+                      }}
+                      required />
                   </div>
 
                   {/* Longitude */}
@@ -539,7 +535,17 @@ const JobsList: React.FC = () => {
                     <label className="form-label" style={STYLES.field_label}>
                       {JOBS_STRINGS.FORM.FIELD_LABELS.LNG}
                       <span style={{ color: COLORS.red}}> *</span></label>
-                    <input type="text" className="form-control" value={jobLng} onChange={(e) => setJobLng(Number(e.target.value))} required />
+                    <input 
+                      type="number" 
+                      className="form-control" 
+                      value={jobLat} 
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (/^\d*$/.test(val)) {
+                          setJobLng(Number(val));
+                        }
+                      }}
+                      required />
                   </div>
 
                   {/* Job Type */}
@@ -588,13 +594,12 @@ const JobsList: React.FC = () => {
                       {JOBS_STRINGS.FORM.FIELD_LABELS.DESCRIPTION} 
                       <span style={{ color: COLORS.red}}> *</span></label>
                       <textarea
-  className="form-control"
-  value={jobDescription}
-  maxLength={CONSTANTS.MAX_LENGTHS.description}
-  onChange={(e) => setJobDescription(e.target.value)}
-  required
-/>
-
+                    className="form-control"
+                    value={jobDescription}
+                    maxLength={CONSTANTS.MAX_LENGTHS.FIELD_200}
+                    onChange={(e) => setJobDescription(e.target.value)}
+                    required
+                  />
                   </div>
 
                   {/* Status */}

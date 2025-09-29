@@ -41,6 +41,7 @@ const InvestorsList: React.FC = () => {
   const [states, setStates] = useState<any[]>([]);
   const [cities, setCities] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
+  const [fundSizes, setFundSizes] = useState<any[]>([]);
 
   const [availability, setAvailability] = useState<string>("");
   const [approvalStatus, setApprovalStatus] = useState<string>("");
@@ -161,6 +162,14 @@ const InvestorsList: React.FC = () => {
       }
     };
     fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    const loadFundSizes = async () => {
+      const data = await GlobalService.getFundSizes();
+      setFundSizes(data);
+    };
+    loadFundSizes();
   }, []);
 
   const resetForm = () => {
@@ -380,13 +389,16 @@ const InvestorsList: React.FC = () => {
                 <div className="row g-3 align-items-start">
                   {/* Full Name */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Full Name *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {INVESTORS_STRINGS.FORM.FIELD_LABELS.FULL_NAME} 
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <select
                       className="form-select"
                       value={userId}
                       onChange={(e) => setUserId(e.target.value ? Number(e.target.value) : "")}
                       required
->
+                      >
                       <option value="">Select User</option>
                       {users.map((u) => (
                         <option key={u.user_id} value={u.user_id}>
@@ -398,21 +410,26 @@ const InvestorsList: React.FC = () => {
 
                   {/* Name */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Name *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {INVESTORS_STRINGS.FORM.FIELD_LABELS.NAME} 
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <input type="text" className="form-control" value={name} onChange={(e) => setName(e.target.value)} 
-                    maxLength={CONSTANTS.MAX_LENGTHS.name}
+                    maxLength={CONSTANTS.MAX_LENGTHS.FIELD_100}
                     required />
                   </div>
 
                   {/* Country */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      Country *
+                      {INVESTORS_STRINGS.FORM.FIELD_LABELS.COUNTRY} 
+                      <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <select
                       className="form-select"
                       value={countryId}
                       onChange={(e) => setCountryId(e.target.value ? Number(e.target.value) : "")}
+                      required
                     >
                       <option value="">Select Country</option>
                       {countries.map((c) => (
@@ -426,13 +443,15 @@ const InvestorsList: React.FC = () => {
                   {/* State */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      State *
+                      {INVESTORS_STRINGS.FORM.FIELD_LABELS.STATE} 
+                      <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <select
                       className="form-select"
                       value={stateId}
                       onChange={(e) => setStateId(e.target.value ? Number(e.target.value) : "")}
                       disabled={!countryId}
+                      required
                     >
                       <option value="">Select State</option>
                       {states.map((s) => (
@@ -446,12 +465,14 @@ const InvestorsList: React.FC = () => {
                   {/* City */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      City *
+                      {INVESTORS_STRINGS.FORM.FIELD_LABELS.CITY} 
+                      <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <select
                       className="form-select"
                       value={cityId}
                       onChange={(e) => setCityId(e.target.value ? Number(e.target.value) : "")}
+                      required
                       disabled={!stateId}
                     >
                       <option value="">Select City</option>
@@ -466,23 +487,30 @@ const InvestorsList: React.FC = () => {
 
                   {/* Linkedin URL */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Linkedin URL *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {INVESTORS_STRINGS.FORM.FIELD_LABELS.LINKEDIN_URL} 
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <input
                       type="text"
                       className="form-control"
                       value={linkedinUrl}
                       onChange={(e) => setLinkedinUrl(e.target.value)}
                       required
+                      maxLength={CONSTANTS.MAX_LENGTHS.FIELD_200}
                     />
                   </div>
 
                   {/* Bio */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Bio *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {INVESTORS_STRINGS.FORM.FIELD_LABELS.BIO} 
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <textarea
                       className="form-control"
                       value={bio}
-                      maxLength={CONSTANTS.MAX_LENGTHS.description}
+                      maxLength={CONSTANTS.MAX_LENGTHS.FIELD_200}
                       onChange={(e) => setBio(e.target.value)}
                       required
                     />
@@ -490,7 +518,10 @@ const InvestorsList: React.FC = () => {
 
                   {/* Profile Image */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Profile Image *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                     {INVESTORS_STRINGS.FORM.FIELD_LABELS.PROFILE_IMAGE} 
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <input
                       type="file"
                       className="form-control"
@@ -505,7 +536,10 @@ const InvestorsList: React.FC = () => {
 
                   {/* Availability Status */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Availability Status *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {INVESTORS_STRINGS.FORM.FIELD_LABELS.AVAILABILITY} 
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <select
                       className="form-select"
                       value={availability}
@@ -521,97 +555,129 @@ const InvestorsList: React.FC = () => {
 
                   {/* Profile */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Profile *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                     {INVESTORS_STRINGS.FORM.FIELD_LABELS.PROFILE} 
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <input
                       type="text"
                       className="form-control"
                       value={profile}
                       onChange={(e) => setProfile(e.target.value)}
                       required
+                      maxLength={CONSTANTS.MAX_LENGTHS.FIELD_200}
                     />
                   </div>
 
                   {/* Investment Stage */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Investment Stage *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {INVESTORS_STRINGS.FORM.FIELD_LABELS.INVESTMENT_STAGE} 
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <input
                       type="text"
                       className="form-control"
                       value={investmentStage}
                       onChange={(e) => setInvestmentStage(e.target.value)}
                       required
+                      maxLength={CONSTANTS.MAX_LENGTHS.FIELD_200}
                     />
                   </div>
 
                   {/* Meeting City */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Meeting City *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {INVESTORS_STRINGS.FORM.FIELD_LABELS.MEETING_CITY} 
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <input
                       type="text"
                       className="form-control"
                       value={meetingCity}
                       onChange={(e) => setMeetingCity(e.target.value)}
                       required
+                      maxLength={CONSTANTS.MAX_LENGTHS.FIELD_200}
                     />
                   </div>
 
                   {/* Countries to Invest */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Countries to Invest *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {INVESTORS_STRINGS.FORM.FIELD_LABELS.COUNTRIES_TO_INVEST} 
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <input
                       type="text"
                       className="form-control"
                       value={countriesToInvest}
                       onChange={(e) => setCountriesToInvest(e.target.value)}
                       required
+                      maxLength={CONSTANTS.MAX_LENGTHS.FIELD_200}
                     />
                   </div>
 
                   {/* Investment Industry */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Investment Industry *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {INVESTORS_STRINGS.FORM.FIELD_LABELS.INVESTMENT_INDUSTRY} 
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <input
                       type="text"
                       className="form-control"
                       value={investmentIndustry}
                       onChange={(e) => setInvestmentIndustry(e.target.value)}
                       required
+                      maxLength={CONSTANTS.MAX_LENGTHS.FIELD_200}
                     />
                   </div>
 
                   {/* Language */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Language *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {INVESTORS_STRINGS.FORM.FIELD_LABELS.LANGUAGE} 
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <input
                       type="text"
                       className="form-control"
                       value={language}
                       onChange={(e) => setLanguage(e.target.value)}
                       required
+                      maxLength={CONSTANTS.MAX_LENGTHS.FIELD_200}
                     />
                   </div>
 
-                  {/* Example */}
+                  {/* Fund Size */}
                   <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>Fund Size *</label>
+                    <label className="form-label" style={STYLES.field_label}>
+                      {INVESTORS_STRINGS.FORM.FIELD_LABELS.FUND_SIZE} 
+                      <span style={{ color: COLORS.red}}> *</span>
+                    </label>
                     <select className="form-select" value={fundSizeId} onChange={(e) => setFundSizeId(Number(e.target.value))} required>
                       <option value="">Select Fund Size</option>
-                      <option value={1}>Small</option>
-                      <option value={2}>Medium</option>
-                      <option value={3}>Large</option>
+                      {fundSizes.map(fs => (
+                        <option key={fs.fund_size_id} value={fs.fund_size_id}>
+                          {fs.investment_range}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
                   {/* Approval Status */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      Approval Status <span style={{ color: COLORS.red }}> *</span>
+                      {INVESTORS_STRINGS.FORM.FIELD_LABELS.APPROVAL_STATUS} 
+                      <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <select
                       className="form-select"
                       value={approvalStatus}
                       onChange={(e) => setApprovalStatus(e.target.value)}
+                      required
                     >
+                      <option value="">Select Approval Status</option>
                       <option value="1">Pending</option>
                       <option value="2">Approved</option>
                       <option value="3">Rejected</option>
@@ -621,13 +687,16 @@ const InvestorsList: React.FC = () => {
                   {/* Status */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      Status <span style={{ color: COLORS.red }}> *</span>
+                      {INVESTORS_STRINGS.FORM.FIELD_LABELS.STATUS} 
+                      <span style={{ color: COLORS.red}}> *</span>
                     </label>
                     <select
                       className="form-select"
                       value={status}
                       onChange={(e) => setStatus(e.target.value)}
+                      required
                     >
+                      <option value="">Select Status</option>
                       <option value="1">Active</option>
                       <option value="0">Inactive</option>
                     </select>
