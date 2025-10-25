@@ -341,14 +341,14 @@ const InvestorsList: React.FC = () => {
         filterable: false,
         renderCell: (params: any) => (
           <div className="d-flex align-items-center gap-3 w-100 h-100">
-            <FiEdit className="icon-hover" size={18} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
+            <FiEdit className="icon-hover" size={14} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
             <FiEye
-              size={18}
+              size={14}
               style={{ cursor: "pointer" }}
               onClick={() => handleViewClick(params.row)}
               title="View Details"
             />
-            <FiTrash2 className="icon-hover" size={18} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
+            <FiTrash2 className="icon-hover" size={14} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
           </div>
         ),
       },
@@ -481,7 +481,7 @@ const InvestorsList: React.FC = () => {
                       className="form-select"
                       value={cityId}
                       onChange={(e) => setCityId(e.target.value ? Number(e.target.value) : "")}
-                      required
+                      //required
                       disabled={!stateId}
                     >
                       <option value="">Select City</option>

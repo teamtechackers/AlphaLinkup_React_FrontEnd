@@ -41,13 +41,13 @@ const EmploymentTypeList: React.FC = () => {
     e.preventDefault();
     try {
       const payload = { id: editing?.id, name, status: Number(status) };
-      // 1️⃣ Check duplicate first
+
       const checkDuplicateemployment = await employmentTypeService.checkDuplicate(payload.name, payload.id);
-      console.log("Duplicate check response:", checkDuplicateemployment);
-      if (checkDuplicateemployment.validate === true) {
+
+      if (checkDuplicateemployment.validate === false) {
         return toast.error("Job already exists");
       }
-      // 2️⃣ Only save if not duplicate
+
       const res = await employmentTypeService.saveOrUpdate(payload);
       if (res.status === "Success") {
         toast.success(res.info);
@@ -117,8 +117,8 @@ const EmploymentTypeList: React.FC = () => {
         filterable: false,
         renderCell: (params: any) => (
           <div className="d-flex align-items-center gap-3 w-100 h-100">
-            <FiEdit size={18} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
-            <FiTrash2 size={18} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
+            <FiEdit size={14} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
+            <FiTrash2 size={14} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
           </div>
         ),
       },

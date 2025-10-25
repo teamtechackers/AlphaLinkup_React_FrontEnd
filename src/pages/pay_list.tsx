@@ -55,7 +55,7 @@ const PayList: React.FC = () => {
     try {
       const payload = { id: editing?.id ?? 0, name, status: Number(status) };
       const checkduplicate= await payService.checkDuplicatePay(payload.name,payload.id)
-      if (checkduplicate.validate === true) {
+      if (checkduplicate.validate === false) {
         return toast.error("Pay already exists");
       }
       const res = await payService.savePay(payload);
@@ -121,8 +121,8 @@ const PayList: React.FC = () => {
         width: 120,
         renderCell: (params: any) => (
           <div className="d-flex align-items-center gap-3 w-100 h-100">
-            <FiEdit style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
-            <FiTrash2 style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
+            <FiEdit size={14} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
+            <FiTrash2 size={14} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
           </div>
         ),
       },

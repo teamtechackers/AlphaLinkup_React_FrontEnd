@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import Box from "@mui/material/Box";
 import { DataGrid } from "@mui/x-data-grid";
-import { FiTrash2, FiEdit, FiEye } from "react-icons/fi";
+import { FiTrash2, FiEdit, FiEye, FiTrello  } from "react-icons/fi";
 import { toast } from "react-toastify";
 
 import serviceProvidersService from "../services/service_providers_service";
@@ -347,20 +347,20 @@ const ServiceProvidersList: React.FC = () => {
           };
           return (
             <div className="d-flex align-items-center gap-3 w-100 h-100">
-              <FiEdit size={18} style={{ cursor: "pointer" }} onClick={() => onEdit(row)} />
+              <FiEdit size={14} style={{ cursor: "pointer" }} onClick={() => onEdit(row)} />
               <FiEye
-                size={18}
+                size={14}
                 style={{ cursor: "pointer" }}
                 onClick={() => handleViewClick(params.row)}
                 title="View Details"
               />
-              <FiEye
-                size={18}
+              <FiTrello 
+                size={14}
                 style={{ cursor: "pointer" }}
                 onClick={() => handleServicesClick(row.sp_id)}
                 title="View Services"
               />
-              <FiTrash2 size={18} style={{ cursor: "pointer" }} onClick={() => onDelete(row)} />
+              <FiTrash2 size={14} style={{ cursor: "pointer" }} onClick={() => onDelete(row)} />
             </div>
           );
         },

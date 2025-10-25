@@ -238,14 +238,14 @@ const MeetingsSchedulesPage: React.FC = () => {
         renderCell: (params: any) => (
           <div className="d-flex align-items-center gap-3 w-100 h-100">
             <FiMonitor
-              size={18}
+              size={14}
               style={{ cursor: "pointer" }}
               title="View Investor Meetings"
               onClick={() => handleOpenInvestorMeetings(params.row.investor_id)}
             />
             <FiEdit
               className="icon-hover"
-              size={18}
+              size={14}
               style={{ cursor: "pointer" }}
               onClick={() => onEdit(params.row)}
             />

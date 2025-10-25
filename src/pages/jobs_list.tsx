@@ -331,15 +331,15 @@ const JobsList: React.FC = () => {
         filterable: false,
         renderCell: (params: any) => (
           <div className="d-flex align-items-center gap-3 w-100 h-100">
-            <FiEdit size={18} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
+            <FiEdit size={14} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
             <FiEye
-              size={18}
+              size={14}
               style={{ cursor: "pointer" }}
               onClick={() => handleViewClick(params.row)}
               title="View Details"
             />
             <FiTrash2
-              size={18}
+              size={14}
               style={{ cursor: "pointer" }}
               onClick={() => onDelete(params.row.job_id)}
             />
@@ -524,38 +524,41 @@ const JobsList: React.FC = () => {
                   {/* Latitude */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
-                      {JOBS_STRINGS.FORM.FIELD_LABELS.LAT} 
-                      <span style={{ color: COLORS.red}}> *</span></label>
-                    <input 
-                      type="number" 
-                      className="form-control" 
-                      value={jobLat} 
+                      {JOBS_STRINGS.FORM.FIELD_LABELS.LAT}
+                      <span style={{ color: COLORS.red }}> *</span>
+                    </label>
+                    <input
+                      type="number"
+                      step="any" // allows decimals
+                      className="form-control"
+                      value={jobLat}
                       onChange={(e) => {
                         const val = e.target.value;
-                        if (/^\d*$/.test(val)) {
-                          setJobLat(Number(val));
-                        }
+                        setJobLat(val === "" ? "" : Number(val)); // ✅ handles empty + decimal
                       }}
-                      required />
+                      required
+                    />
                   </div>
 
                   {/* Longitude */}
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
                       {JOBS_STRINGS.FORM.FIELD_LABELS.LNG}
-                      <span style={{ color: COLORS.red}}> *</span></label>
-                    <input 
-                      type="number" 
-                      className="form-control" 
-                      value={jobLat} 
+                      <span style={{ color: COLORS.red }}> *</span>
+                    </label>
+                    <input
+                      type="number"
+                      step="any" // allows decimals
+                      className="form-control"
+                      value={jobLng}
                       onChange={(e) => {
                         const val = e.target.value;
-                        if (/^\d*$/.test(val)) {
-                          setJobLng(Number(val));
-                        }
+                        setJobLng(val === "" ? "" : Number(val)); // ✅ handles empty + decimal
                       }}
-                      required />
+                      required
+                    />
                   </div>
+
 
                   {/* Job Type */}
                   <div className="col-md-12">

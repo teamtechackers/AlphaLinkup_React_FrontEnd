@@ -52,10 +52,11 @@ const EventTypesList: React.FC = () => {
     try {
       const payload = { id: editing?.id, name, status: Number(status) };
       const check_duplicate=await eventTypesService.checkDuplicateEventType(payload.name,payload.id)
-if(check_duplicate.status===true)
-{
-  return toast.error("event already exists"); 
-}
+      
+      if(check_duplicate.is_duplicate === true)
+      {
+        return toast.error("event already exists"); 
+      }
       const res = await eventTypesService.saveEventType(payload);
 
       if (res.status === "Success" || res.status === true) {
@@ -123,8 +124,8 @@ if(check_duplicate.status===true)
         filterable: false,
         renderCell: (params: any) => (
           <div className="d-flex align-items-center gap-3 w-100 h-100">
-            <FiEdit size={18} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
-            <FiTrash2 size={18} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
+            <FiEdit size={14} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
+            <FiTrash2 size={14} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
           </div>
         ),
       },

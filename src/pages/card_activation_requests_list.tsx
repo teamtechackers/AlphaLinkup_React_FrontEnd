@@ -354,8 +354,8 @@ const CardActivationRequestsList: React.FC = () => {
         filterable: false,
         renderCell: (params: any) => (
           <div className="d-flex align-items-center gap-3 w-100 h-100">
-            <FiEdit className="icon-hover" size={18} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
-            <FiTrash2 className="icon-hover" size={18} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
+            <FiEdit className="icon-hover" size={14} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
+            <FiTrash2 className="icon-hover" size={14} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
           </div>
         ),
       },

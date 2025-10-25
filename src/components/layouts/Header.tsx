@@ -68,7 +68,7 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
               role="button"
               onClick={toggleDropdown}
               aria-expanded={isDropdownOpen}
-              style={STYLES.label_3}
+              style={{ ...STYLES.label_3,color: COLORS.white }}
             >
               {user.user_name}
               <FiChevronDown size={16} style={{ marginLeft: 4 }} />

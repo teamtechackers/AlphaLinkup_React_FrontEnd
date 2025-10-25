@@ -227,6 +227,9 @@ const EventsList: React.FC = () => {
     setPreviewBanner("");
     setEventBanner(null);
     setStatus("Active");
+    setUserId("");
+    setEventBanner(null);
+    setPreviewBanner("");
   };
 
   const onEdit = async (item: EventModel) => {
@@ -326,14 +329,14 @@ const EventsList: React.FC = () => {
         filterable: false,
         renderCell: (params: any) => (
           <div className="d-flex align-items-center gap-3 w-100 h-100">
-            <FiEdit size={18} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
+            <FiEdit size={14} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
             <FiEye
-              size={18}
+              size={14}
               style={{ cursor: "pointer" }}
               onClick={() => handleViewClick(params.row)}
               title="View Details"
             />
-            <FiTrash2 size={18} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
+            <FiTrash2 size={14} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
           </div>
         ),
       },

@@ -29,7 +29,6 @@ const CitiesList: React.FC = () => {
   const [rowCount, setRowCount] = useState(0);
   const [draw, setDraw] = useState(1);
 
-  // ✅ Load Cities
   const loadCities = async () => {
     setLoading(true);
     try {
@@ -40,10 +39,10 @@ const CitiesList: React.FC = () => {
 
       const list: CityModel[] = Array.isArray(data?.data)
         ? data.data.map((row: any) => ({
-            row_id: Number(row[0]), // ✅ backend row id
+            row_id: Number(row[0]),
             state_name: row[1] || "-",
             city_name: row[2],
-            id: Number(row[3]), // ✅ required for DataGrid
+            id: Number(row[3]),
             status: row[4]?.includes("Active") ? 1 : 0,
           }))
         : [];
@@ -75,7 +74,7 @@ const loadStates = async () => {
         status: row[4]?.includes("Active") ? 1 : 0,   // ✅ status
       }))
     : [];
-    setStates(list); // ✅ use mapped list instead of raw response
+    setStates(list.sort((a, b) => a.name.localeCompare(b.name))); // ✅ use mapped list instead of raw response
   } catch (err) {
     console.error("Error loading states", err);
     toast.error("Failed to load states");
@@ -187,8 +186,8 @@ const loadStates = async () => {
         sortable: false,
         renderCell: (params: any) => (
           <div className="d-flex align-items-center gap-3 w-100 h-100">
-            <FiEdit size={18} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
-            <FiTrash2 size={18} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
+            <FiEdit size={14} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
+            <FiTrash2 size={14} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
           </div>
         ),
       },
