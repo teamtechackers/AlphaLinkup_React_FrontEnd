@@ -1,0 +1,33 @@
+export const JOBS_STRINGS = {
+  TITLE: "Jobs",
+  TABLE: {
+    TABLE_TITLE: "Jobs List",
+    HEADER_ROW_ID: "ID",
+    HEADER_FULL_NAME: "Full Name",
+    HEADER_JOB_TITLE: "Job Title",
+    HEADER_COMPANY_NAME: "Company Name",
+    HEADER_STATUS: "Status",
+    HEADER_ACTIONS: "Actions",
+    STATUS_ACTIVE: "Active",
+    STATUS_INACTIVE: "Inactive",
+  },
+  FORM: {
+    ADD: "Add Job",
+    EDIT: "Edit Job",
+    FIELD_LABELS: {
+      FULL_NAME: "Full Name",
+      JOB_TITLE: "Job Title",
+      COMPANY_NAME: "Company Name",
+      COUNTRY: "Country",
+      STATE: "State",
+      CITY: "City",
+      ADDRESS: "Address",
+      LAT: "Latitude",
+      LNG: "Longitude",
+      TYPE: "Job Type",
+      PAY: "Pay",
+      DESCRIPTION: "Description",
+      STATUS: "Status",
+    },
+  },
+};
