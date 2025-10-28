@@ -65,7 +65,7 @@ const JobTypesList: React.FC = () => {
       const check_duplicate = await jobTypesService.checkDuplicateJobType(payload.name, payload.row_id);
       console.log("Duplicate check response:", check_duplicate);
   
-      if (check_duplicate.validate === true) {
+      if (check_duplicate.validate === false) {
         return toast.error("Job already exists");
       }
 

@@ -20,10 +20,9 @@ class GlobalService {
         params: {
           user_id: VARIABLES.USER_ID,
           token: VARIABLES.TOKEN,
-          country_id: Number(countryId), // force number
+          country_id: Number(countryId),
         },
       });
-      // console.log("States API raw response:", res.data);
       return res.data?.state_list || [];
     } catch (err) {
       console.error("Error fetching states", err);
@@ -37,10 +36,9 @@ class GlobalService {
         params: {
           user_id: VARIABLES.USER_ID,
           token: VARIABLES.TOKEN,
-          state_id: Number(stateId), // force number
+          state_id: Number(stateId),
         },
       });  
-      // adjust depending on actual response structure
       return res.data?.city_list || res.data?.data?.city_list || res.data?.cities || [];
     } catch (err) {
       console.error("Error fetching cities", err);
