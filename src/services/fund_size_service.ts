@@ -24,12 +24,10 @@ const fundSizeService = {
 
         const res = await axios.post(`${baseUrl}${API_ROUTES.FUND_SIZE.SAVE}`,qs.stringify(body),
         {
-          headers: {
+            headers: {
             "Content-Type": "application/x-www-form-urlencoded",
-          },
+            },
         });
-        // console.log(res)
-
         return res.data;
     },
 
@@ -39,6 +37,27 @@ const fundSizeService = {
         });
         return res.data;
     },
+
+  checkDuplicateFundSize: async (name: string, id: number = 0) => {
+    const body: any = {
+      user_id: VARIABLES.USER_ID,
+      token: VARIABLES.TOKEN,
+      name,
+      id,
+    };
+
+    const res = await axios.post(
+      `${baseUrl}${API_ROUTES.FUND_SIZE.CHECK_DUPLICATE}`,
+      qs.stringify(body),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+
+    return res.data;
+  },
 };
 
 export default fundSizeService;

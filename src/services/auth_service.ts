@@ -1,14 +1,12 @@
 import { loginService } from "./login_service";
 import { UserModel } from "../models/user_model";
 
-const token = "your_hardcoded_token";
-const sessionDuration = 60 * 60 * 1000;
+const sessionDuration = 60 * 60 * 1000; // 1 hour
 
 const authService = {
   currentUser: {} as UserModel,
 
-  createSession: async (userId: string, userName: string) => {
-
+  createSession: async (userId: string, userName: string, token: string) => {
     const sessionId = `${userId}_${Date.now()}`;
     const sessionStart = Date.now();
 
@@ -34,7 +32,7 @@ const authService = {
     const sessionStartStr = localStorage.getItem("sessionStart");
     const tokenValue = localStorage.getItem("token");
 
-    if (!sessionId || !sessionStartStr || tokenValue !== token) {
+    if (!sessionId || !sessionStartStr || !tokenValue) {
       return false;
     }
 
@@ -75,8 +73,9 @@ const authService = {
     if (response && response.status === true) {
       const userId = response.user_id;
       const userName = response.username;
+      const token = response.token; // 👈 get from backend response
 
-      authService.createSession(userId, userName);
+      await authService.createSession(userId, userName, token);
       return true;
     }
     return false;
@@ -88,6 +87,10 @@ const authService = {
 
   getUser: () => {
     return authService.currentUser;
+  },
+
+  getToken: () => {
+    return localStorage.getItem("token");
   },
 };
 

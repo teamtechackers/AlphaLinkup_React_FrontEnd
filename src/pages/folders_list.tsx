@@ -40,7 +40,13 @@ const FoldersList: React.FC = () => {
     e.preventDefault();
     try {
       const payload = { row_id: editing?.id, name, status: Number(status) };
-      console.log(payload);
+
+      const duplicateRes = await foldersService.checkDuplicateFolder(name, editing?.id);
+      if (duplicateRes?.is_duplicate === true) {
+        toast.error(duplicateRes?.info || "Folder name already exists!");
+        return;
+      }
+
       const res = await foldersService.saveFolder(payload);
 
       if (res.status === "Success") {

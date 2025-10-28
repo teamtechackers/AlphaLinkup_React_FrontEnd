@@ -646,3 +646,151 @@
 .icon-hover:hover {
   transform: scale(1.2);
 }
+
+/* --- General navbar layout fix --- */
+.navbar-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px; /* Adjust horizontal spacing between items */
+}
+
+/* --- Each nav item --- */
+.nav-item .nav-link,
+.nav-item .dropdown-item,
+.nav-item button.nav-link {
+  display: flex !important;
+  align-items: center;
+  gap: 8px; /* consistent spacing between icon and text */
+  white-space: nowrap; /* prevent text from breaking */
+}
+
+/* --- Ensure icons scale well --- */
+.nav-item svg {
+  flex-shrink: 0; /* prevent icons from shrinking or overlapping */
+}
+
+/* --- Fix collapsed navbar spacing --- */
+@media (max-width: 991px) {
+  .navbar-nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .nav-item .nav-link,
+  .nav-item .dropdown-item {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+/* --- Dropdown styling fix --- */
+.dropdown-menu {
+  min-width: 200px;
+}
+
+.dropdown-submenu > .dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -1px;
+}
+
+/* Proper vertical centering for MUI DataGrid footer (pagination bar) */
+.MuiDataGrid-footerContainer,
+.MuiTablePagination-root,
+.MuiTablePagination-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  min-height: 52px !important;
+  justify-content: flex-end;
+}
+
+.MuiTablePagination-selectLabel,
+.MuiTablePagination-displayedRows {
+  display: flex !important;
+  align-items: center !important;
+  line-height: normal !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.MuiTablePagination-select {
+  display: flex !important;
+  align-items: center !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.MuiTablePagination-actions {
+  display: flex !important;
+  align-items: center !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* Dashboard Cards Wrapper */
+.dashboard-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem; /* consistent spacing between cards */
+  justify-content: flex-start;
+  margin-bottom: 1rem; /* adds bottom margin */
+}
+
+/* Individual Card */
+.dashboard-card {
+  flex: 0 0 calc(25% - 1rem); /* 4 cards per row with equal width */
+  min-width: 250px;
+  min-height: 100px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  background-color: #fff;
+  border: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Hover effect */
+.dashboard-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+/* Card inner layout */
+.dashboard-card-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+}
+
+/* Circle icon */
+.dashboard-card-icon {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive behavior */
+@media (max-width: 1200px) {
+  .dashboard-card {
+    flex: 0 0 calc(33.333% - 1rem); /* 3 cards per row */
+  }
+}
+
+@media (max-width: 992px) {
+  .dashboard-card {
+    flex: 0 0 calc(50% - 1rem); /* 2 cards per row */
+  }
+}
+
+@media (max-width: 576px) {
+  .dashboard-card {
+    flex: 0 0 100%; /* 1 card per row on mobile */
+  }
+}

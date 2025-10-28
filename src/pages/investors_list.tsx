@@ -481,7 +481,7 @@ const InvestorsList: React.FC = () => {
                       className="form-select"
                       value={cityId}
                       onChange={(e) => setCityId(e.target.value ? Number(e.target.value) : "")}
-                      //required
+                      required
                       disabled={!stateId}
                     >
                       <option value="">Select City</option>
@@ -535,6 +535,7 @@ const InvestorsList: React.FC = () => {
                       type="file"
                       className="form-control"
                       accept="image/*"
+                      required
                       onChange={(e) => {
                         if (e.target.files && e.target.files[0]) {
                           setUploadedImage(e.target.files[0]);

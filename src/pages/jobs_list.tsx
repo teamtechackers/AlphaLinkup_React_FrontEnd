@@ -300,14 +300,35 @@ const JobsList: React.FC = () => {
 
   const columns = useMemo(
     () => [
-      { field: JobLabels.ROW_ID, headerName: JOBS_STRINGS.TABLE.HEADER_ROW_ID, width: 150 },
-      { field: JobLabels.USER_NAME, headerName: JOBS_STRINGS.TABLE.HEADER_FULL_NAME, width: 150 },
-      { field: JobLabels.JOB_TITLE, headerName: JOBS_STRINGS.TABLE.HEADER_JOB_TITLE, width: 150 },
-      { field: JobLabels.COMPANY_NAME, headerName: JOBS_STRINGS.TABLE.HEADER_COMPANY_NAME, width: 150 },
+      {
+        field: JobLabels.ROW_ID,
+        headerName: JOBS_STRINGS.TABLE.HEADER_ROW_ID,
+        flex: 1,
+        minWidth: 120,
+      },
+      {
+        field: JobLabels.USER_NAME,
+        headerName: JOBS_STRINGS.TABLE.HEADER_FULL_NAME,
+        flex: 1,
+        minWidth: 150,
+      },
+      {
+        field: JobLabels.JOB_TITLE,
+        headerName: JOBS_STRINGS.TABLE.HEADER_JOB_TITLE,
+        flex: 1,
+        minWidth: 150,
+      },
+      {
+        field: JobLabels.COMPANY_NAME,
+        headerName: JOBS_STRINGS.TABLE.HEADER_COMPANY_NAME,
+        flex: 1,
+        minWidth: 150,
+      },
       {
         field: JobLabels.STATUS,
         headerName: JOBS_STRINGS.TABLE.HEADER_STATUS,
-        width: 120,
+        flex: 0.8,
+        minWidth: 120,
         renderCell: (params: any) => {
           const isActive = params.value?.toString().toLowerCase() === "active";
           return (
@@ -316,6 +337,7 @@ const JobsList: React.FC = () => {
               style={{
                 backgroundColor: isActive ? `${COLORS.green}30` : `${COLORS.red}30`,
                 color: isActive ? COLORS.green : COLORS.red,
+                minWidth: 80,
               }}
             >
               {isActive ? JOBS_STRINGS.TABLE.STATUS_ACTIVE : JOBS_STRINGS.TABLE.STATUS_INACTIVE}
@@ -326,29 +348,20 @@ const JobsList: React.FC = () => {
       {
         field: JobLabels.ACTIONS,
         headerName: JOBS_STRINGS.TABLE.HEADER_ACTIONS,
-        width: 120,
+        flex: 0.7,
+        minWidth: 120,
         sortable: false,
         filterable: false,
-        renderCell: (params: any) => (
-          <div className="d-flex align-items-center gap-3 w-100 h-100">
-            <FiEdit size={14} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
-            <FiEye
-              size={14}
-              style={{ cursor: "pointer" }}
-              onClick={() => handleViewClick(params.row)}
-              title="View Details"
-            />
-            <FiTrash2
-              size={14}
-              style={{ cursor: "pointer" }}
-              onClick={() => onDelete(params.row.job_id)}
-            />
-          </div>
-        ),
-      },
-    ],
-    [items]
-  );
+        renderCell: (params: any) => ( 
+        <div className="d-flex align-items-center gap-3 w-100 h-100">
+           <FiEdit size={14} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
+            <FiEye size={14} style={{ cursor: "pointer" }} onClick={() => handleViewClick(params.row)} title="View Details" />
+            <FiTrash2 size={14} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row.job_id)} />
+        </div> ), 
+        }, 
+      ], 
+      [items] 
+    );
 
   return (
     <div className="container-fluid" style={{ backgroundColor: COLORS.lightGray }}>

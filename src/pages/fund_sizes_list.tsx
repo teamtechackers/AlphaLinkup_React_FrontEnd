@@ -43,8 +43,14 @@ const FundSizeList: React.FC = () => {
     e.preventDefault()
     try {
       const payload = { id: editing?.id, investment_range: investmentRange, status: Number(status) }
+
+      const checkDuplicate = await fundSizeService.checkDuplicateFundSize(payload.investment_range, payload.id)
+      if (checkDuplicate?.is_duplicate === true) {
+        toast.error("Fund size already exists!")
+        return
+      }
+
       const res = await fundSizeService.saveFundSize(payload)
-  
       const isSuccess = res?.status === true || String(res?.status).toLowerCase() === "success"
   
       if (isSuccess) {
@@ -91,27 +97,6 @@ const FundSizeList: React.FC = () => {
     setInvestmentRange(item.investment_range || "")
     setStatus(String(item.status ?? "1"))
   }
-
-  // const onDelete = async (item: FundSizeModel) => {
-  //   if (!item.id) return
-
-  //   if (!window.confirm("Are you sure you want to delete this fund size?")) {
-  //     return
-  //   }
-
-  //   try {
-  //     const res = await fundSizeService.deleteFundSize(item.id)
-  //     if (res?.status?.toLowerCase() === "success") {
-  //       toast.success(res.info || "Fund size deleted successfully!")
-  //       await load()
-  //     } else {
-  //       toast.error(res?.info || "Failed to delete fund size")
-  //     }
-  //   } catch (err) {
-  //     console.error(err)
-  //     toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG)
-  //   }
-  // }
 
   const columns = useMemo(
     () => [

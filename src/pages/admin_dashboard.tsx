@@ -102,119 +102,118 @@ const AdminDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="row">
+        <div className="dashboard-cards">
 
-          {/* Users */}
-          <div className="col-md-6 col-xl-3 mb-4">
-            <div className="card shadow-sm border-0 py-2">
-              <div className="d-flex align-items-center p-3">
-                <div
-                  className="rounded-circle d-flex align-items-center justify-content-center"
-                  style={{ backgroundColor: `${COLORS.purple}30`, border: `1px solid ${COLORS.purple}`, height: "4.5rem", width: "4.5rem" }} >
-                  <span style={{ color: COLORS.purple }}>
-                    <FiUsers size={24} />
-                  </span>
-                </div>
-                <div className="ms-auto text-end mr-2">
-                  <h4 className="m-3" style={STYLES.label_2} >{dashboardData?.count_users || 0}</h4>
-                  <p className="text-muted small m-0" style={STYLES.field_text} >{DASHBOARD_STRINGS.CARDS.USERS}</p>
-                </div>
+          <div className="dashboard-card">
+            <div className="dashboard-card-content">
+              <div
+                className="dashboard-card-icon"
+                style={{
+                  backgroundColor: `${COLORS.purple}30`,
+                  border: `1px solid ${COLORS.purple}`,
+                }}
+              >
+                <FiUsers size={24} color={COLORS.purple} />
+              </div>
+              <div className="text-end">
+                <h4 style={STYLES.label_2}>{dashboardData?.count_users || 0}</h4>
+                <p style={STYLES.field_text}>{DASHBOARD_STRINGS.CARDS.USERS}</p>
               </div>
             </div>
           </div>
 
-          {/* Jobs */}
-          <div className="col-md-6 col-xl-3 mb-4">
-            <div className="card shadow-sm border-0 py-2">
-              <div className="d-flex align-items-center p-3">
-                <div className="rounded-circle d-flex align-items-center justify-content-center"
-                 style={{ backgroundColor: `${COLORS.green}30`, border: `1px solid ${COLORS.green}`, height: "4.5rem", width: "4.5rem" }} >
-                  <span style={{ color: COLORS.green }}>
-                    <FiBriefcase size={24}/>
-                  </span>
-                </div>
-                <div className="ms-auto text-end mr-2">
-                  <h4 className="m-3" style={STYLES.label_2} >{dashboardData?.count_jobs || 0}</h4>
-                  <p className="text-muted small m-0" style={STYLES.field_text} >{DASHBOARD_STRINGS.CARDS.JOBS}</p>
-                </div>
+          <div className="dashboard-card">
+            <div className="dashboard-card-content">
+              <div
+                className="dashboard-card-icon"
+                style={{
+                  backgroundColor: `${COLORS.green}30`,
+                  border: `1px solid ${COLORS.green}`,
+                }}
+              >
+                <FiBriefcase size={24} color={COLORS.green} />
+              </div>
+              <div className="text-end">
+                <h4 style={STYLES.label_2}>{dashboardData?.count_jobs || 0}</h4>
+                <p style={STYLES.field_text}>{DASHBOARD_STRINGS.CARDS.JOBS}</p>
               </div>
             </div>
           </div>
 
-          {/* Events */}
-          <div className="col-md-6 col-xl-3 mb-4">
-            <div className="card shadow-sm border-0 py-2">
-              <div className="d-flex align-items-center p-3">
-                <div className="rounded-circle d-flex align-items-center justify-content-center"
-                 style={{ backgroundColor: `${COLORS.teal}30`, border: `1px solid ${COLORS.teal}`, height: "4.5rem", width: "4.5rem" }} >
-                  <span style={{ color: COLORS.teal }}>
-                    <FiAperture size={24}/>
-                  </span> 
-                </div>
-                <div className="ms-auto text-end mr-2">
-                  <h4 className="m-3" style={STYLES.label_2} >{dashboardData?.count_events || 0}</h4>
-                  <p className="text-muted small m-0" style={STYLES.field_text} >{DASHBOARD_STRINGS.CARDS.EVENTS}</p>
-                </div>
+          <div className="dashboard-card">
+            <div className="dashboard-card-content">
+              <div
+                className="dashboard-card-icon"
+                style={{
+                  backgroundColor: `${COLORS.teal}30`,
+                  border: `1px solid ${COLORS.teal}`,
+                }}
+              >
+                <FiAperture size={24} color={COLORS.teal} />
+              </div>
+              <div className="text-end">
+                <h4 style={STYLES.label_2}>{dashboardData?.count_events || 0}</h4>
+                <p style={STYLES.field_text}>{DASHBOARD_STRINGS.CARDS.EVENTS}</p>
               </div>
             </div>
           </div>
 
-          {/* Service Providers */}
-          <div className="col-md-6 col-xl-3 mb-4">
-            <div className="card shadow-sm border-0 py-2">
-              <div className="d-flex align-items-center p-3">
-                <div className="rounded-circle d-flex align-items-center justify-content-center"
-                 style={{ backgroundColor: `${COLORS.yellow}30`, border: `1px solid ${COLORS.yellow}`, height: "4.5rem", width: "4.5rem" }} >
-                  <span style={{ color: COLORS.yellow }}>
-                    <FiStar size={24}/>
-                  </span>
-                </div>
-                <div className="ms-auto text-end mr-2">
-                  <h4 className="m-3" style={STYLES.label_2} >{dashboardData?.count_service || 0}</h4>
-                  <p className="text-muted small m-0" style={STYLES.field_text} >{DASHBOARD_STRINGS.CARDS.SERVICE_PROVIDERS}</p>
-                </div>
+          <div className="dashboard-card">
+            <div className="dashboard-card-content">
+              <div
+                className="dashboard-card-icon"
+                style={{
+                  backgroundColor: `${COLORS.yellow}30`,
+                  border: `1px solid ${COLORS.yellow}`,
+                }}
+              >
+                <FiStar size={24} color={COLORS.yellow} />
+              </div>
+              <div className="text-end">
+                <h4 style={STYLES.label_2}>{dashboardData?.count_service || 0}</h4>
+                <p style={STYLES.field_text}>{DASHBOARD_STRINGS.CARDS.SERVICE_PROVIDERS}</p>
               </div>
             </div>
           </div>
 
-          {/* Investors */}
-          <div className="col-md-6 col-xl-3 mb-4">
-            <div className="card shadow-sm border-0 py-2">
-              <div className="d-flex align-items-center p-3">
-                <div className="rounded-circle d-flex align-items-center justify-content-center"
-                 style={{ backgroundColor: `${COLORS.yellow}30`, border: `1px solid ${COLORS.yellow}`, height: "4.5rem", width: "4.5rem" }} >
-                  <span style={{ color: COLORS.yellow }}>
-                    <FiBarChart2 size={24}/>
-                  </span>
-                </div>
-                <div className="ms-auto text-end mr-2">
-                  <h4 className="m-3" style={STYLES.label_2} >{dashboardData?.count_investor || 0}</h4>
-                  <p className="text-muted small m-0" style={STYLES.field_text} >{DASHBOARD_STRINGS.CARDS.INVESTORS}</p>
-                </div>
+          <div className="dashboard-card">
+            <div className="dashboard-card-content">
+              <div
+                className="dashboard-card-icon"
+                style={{
+                  backgroundColor: `${COLORS.yellow}30`,
+                  border: `1px solid ${COLORS.yellow}`,
+                }}
+              >
+                <FiBarChart2 size={24} color={COLORS.yellow} />
+              </div>
+              <div className="text-end">
+                <h4 style={STYLES.label_2}>{dashboardData?.count_investor || 0}</h4>
+                <p style={STYLES.field_text}>{DASHBOARD_STRINGS.CARDS.INVESTORS}</p>
               </div>
             </div>
           </div>
 
-          {/* Meetings Schedules */}
-          <div className="col-md-6 col-xl-3 mb-4">
-            <div className="card shadow-sm border-0 py-2">
-              <div className="d-flex align-items-center p-3">
-                <div className="rounded-circle d-flex align-items-center justify-content-center"
-                 style={{ backgroundColor: `${COLORS.teal}30`, border: `1px solid ${COLORS.teal}`, height: "4.5rem", width: "4.5rem" }} >
-                  <span style={{ color: COLORS.teal }}>
-                    <FiHeadphones size={24}/>
-                  </span>
-                </div>
-                <div className="ms-auto text-end mr-2">
-                  <h4 className="m-3" style={STYLES.label_2} >{3}</h4>
-                  <p className="text-muted small m-0" style={STYLES.field_text} >{DASHBOARD_STRINGS.CARDS.MEETINGS_SCHEDULES}</p>
-                </div>
+          <div className="dashboard-card">
+            <div className="dashboard-card-content">
+              <div
+                className="dashboard-card-icon"
+                style={{
+                  backgroundColor: `${COLORS.green}30`,
+                  border: `1px solid ${COLORS.green}`,
+                }}
+              >
+                <FiHeadphones size={24} color={COLORS.green} />
+              </div>
+              <div className="text-end">
+                <h4 style={STYLES.label_2}>{dashboardData?.count_events || 0}</h4>
+                <p style={STYLES.field_text}>{DASHBOARD_STRINGS.CARDS.MEETINGS_SCHEDULES}</p>
               </div>
             </div>
           </div>
-
+          
         </div>
-
+        
         {/* Tables Row */}
         <div className="row equal-height">
           

@@ -41,7 +41,7 @@ return (
     }}
   >
 
-  {/* Header */}
+  {/* Header (fixed) */}
   <div
     style={{
       position: "fixed",
@@ -54,28 +54,22 @@ return (
     <Header user={user} onLogout={handleLogout} />
   </div>
 
-  {/* Navbar */}
+  {/* Navbar (normal, not fixed) */}
   <div
     style={{
-      position: "fixed",
-      top: "60px", // height of header
-      left: 0,
-      right: 0,
+      marginTop: "60px", // equal to header height
       zIndex: 999,
     }}
   >
-    <Sidebar /> {/* actually your top navbar */}
+    <Sidebar /> {/* top navbar */}
   </div>
 
   {/* Main Content */}
   <div
     className="content-page page-padding-1"
     style={{
-      marginTop: "140px",
-      marginBottom: "40px",
       flex: 1,
       overflowY: "auto",
-      height: "calc(100vh - 120px)",
       backgroundColor: COLORS.lightGray,
     }}
   >

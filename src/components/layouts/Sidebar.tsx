@@ -54,7 +54,7 @@ const Sidebar: React.FC = () => {
 
         {/* Navbar links */}
         <div className="collapse navbar-collapse" id="navbarContent">
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0"
+          <ul className="navbar-nav me-auto mt-2 mb-2 mb-lg-0"
           style={{ gap: "20px" }} >
 
             {/* Dashboard */}
