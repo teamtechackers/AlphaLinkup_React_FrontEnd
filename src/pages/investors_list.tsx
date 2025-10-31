@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import { DataGrid } from "@mui/x-data-grid";
 import { FiTrash2, FiEdit, FiEye } from "react-icons/fi";
 import { toast } from "react-toastify";
+import { VARIABLES } from "../utils/strings/variables";
 
 import investorsService from "../services/investors_service";
 import { INVESTORS_STRINGS } from "../utils/strings/pages/investors_strings";
@@ -198,8 +199,8 @@ const InvestorsList: React.FC = () => {
     setLoading(true);
     try {
       const formData = new FormData();
-      formData.append("user_id", "MQ");
-      formData.append("token", "cb28a886fa1802bb98441a69d0566909");
+      formData.append("user_id", VARIABLES.USER_ID);
+      formData.append("token", VARIABLES.TOKEN);
       formData.append("name", name);
       formData.append("country_id", String(countryId));
       formData.append("state_id", stateId ? String(stateId) : "0");
@@ -481,7 +482,7 @@ const InvestorsList: React.FC = () => {
                       className="form-select"
                       value={cityId}
                       onChange={(e) => setCityId(e.target.value ? Number(e.target.value) : "")}
-                      required
+                      //required
                       disabled={!stateId}
                     >
                       <option value="">Select City</option>

@@ -58,7 +58,7 @@ const MeetingsSchedulesPage: React.FC = () => {
   const handleOpenInvestorDetails = async (investorId: string) => {
     try {
       const response = await meetingsSchedulesService.getInvestorDetails(investorId);
-      
+      console.log("Investor details fetched:", response.data);
       if (response.status && response.data) {
         setSelectedInvestor(response.data);
         setOpenInvestorDetails(true);
@@ -91,7 +91,7 @@ const MeetingsSchedulesPage: React.FC = () => {
   const handleOpenUserDetails = async (userId: string) => {
     try {
       const response = await meetingsSchedulesService.getRequestorDetails(userId);
-      console.log("User details:", response); 
+      console.log("User details fetched:", response.data);
       if (response.status && response.data) {
         setSelectedUser(response.data);
         setOpenUserDetails(true);

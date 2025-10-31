@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef  } from "react";
 import Box from "@mui/material/Box";
 import { DataGrid } from "@mui/x-data-grid";
 import { FiTrash2, FiEdit, FiEye } from "react-icons/fi";
@@ -58,6 +58,8 @@ const EventsList: React.FC = () => {
 
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedRow, setSelectedRow] = useState<EventModel | null>(null);
+
+  const bannerInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleViewClick = (row: EventModel) => {
     setSelectedRow(row);
@@ -230,6 +232,9 @@ const EventsList: React.FC = () => {
     setUserId("");
     setEventBanner(null);
     setPreviewBanner("");
+    if (bannerInputRef.current) {
+      bannerInputRef.current.value = "";
+    }
   };
 
   const onEdit = async (item: EventModel) => {
@@ -601,7 +606,19 @@ const EventsList: React.FC = () => {
                       {EVENTS_STRINGS.FORM.FIELD_LABELS.BANNER}
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
+                    {/* <input
+                      type="file"
+                      className="form-control"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] ?? null;
+                        setEventBanner(file);
+                        setPreviewBanner(file ? URL.createObjectURL(file) : "");
+                      }}
+                      required={!editing}
+                    /> */}
                     <input
+                      ref={bannerInputRef}
                       type="file"
                       className="form-control"
                       accept="image/*"

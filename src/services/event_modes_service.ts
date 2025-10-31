@@ -66,8 +66,8 @@ const eventModesService = {
     {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
-         params 
       },
+      params: params,
     },);
     return res.data;
   },

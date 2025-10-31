@@ -71,6 +71,7 @@ return (
       flex: 1,
       overflowY: "auto",
       backgroundColor: COLORS.lightGray,
+      marginBottom: "60px",
     }}
   >
     <Outlet />

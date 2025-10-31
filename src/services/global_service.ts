@@ -45,7 +45,6 @@ class GlobalService {
       return [];
     }
   }
-  
 
   static async getPayList() {
     const res = await axios.get(`${baseUrl}${API_ROUTES.GLOBAL_API.API_PAY_LIST}`, {

@@ -5,7 +5,7 @@ export const EVENTS_STRINGS = {
     HEADER_ID: "ID",
     HEADER_FULL_NAME: "Full Name",
     HEADER_EVENT_NAME: "Event Name",
-    HEADER_EVENT_VENUE: "Eevent Venue",
+    HEADER_EVENT_VENUE: "Event Venue",
     HEADER_STATUS: "Status",
     HEADER_ACTIONS: "Actions",
   },
