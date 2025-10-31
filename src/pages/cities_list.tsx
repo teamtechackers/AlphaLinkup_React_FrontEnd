@@ -90,51 +90,120 @@ const loadStates = async () => {
     loadStates();
   }, []);
 
+  // const onSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   if (!stateId) return toast.error("Select a state first");
+  //   if (!cityName.trim()) return toast.error("Enter a city name");
+  
+  //   try {
+  //     const payload: any = {
+  //       row_id: editing?.id,
+  //       state_id: stateId,
+  //       name: cityName.trim(),
+  //       status: Number(status),
+  //     };
+  
+  //     console.log("Payload to check/save:", payload);
+  
+  //     const duplicateRes = await citiesService.checkDuplicateCity(
+  //       payload.name,
+  //       payload.state_id,
+  //       payload.row_id
+  //     );
+  
+  //     console.log("Duplicate check response:", duplicateRes);
+  
+  //     if (duplicateRes.validate === false) {
+  //       return toast.error("City already exists");
+  //     }
+  
+  //     const res = await citiesService.saveCity(payload);
+  //     console.log("Save response:", res);
+  
+  //     if (res.status === true) {
+  //       toast.success(res.info || (editing ? "City updated!" : "City created!"));
+  //       setEditing(null);
+  //       setCityName("");
+  //       setStatus("1");
+  //       setStateId(0);
+  //       await loadCities();
+  //     } else {
+  //       toast.error(res.info || "Failed to save city");
+  //     }
+  //   } catch (err) {
+  //     console.error("Error in onSubmit:", err);
+  //     toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
+  //   }
+  // };
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!stateId) return toast.error("Select a state first");
-    if (!cityName.trim()) return toast.error("Enter a city name");
-  
+
+    console.log("=== Form Submission Started ===");
+    console.log("Form Values:", { cityName, stateId, status, editing });
+
+    if (!stateId) {
+      console.warn("Validation failed: State not selected");
+      return toast.error("Select a state first");
+    }
+
+    if (!cityName.trim()) {
+      console.warn("Validation failed: City name empty");
+      return toast.error("Enter a city name");
+    }
+
     try {
+      // Build payload
       const payload: any = {
         row_id: editing?.id,
         state_id: stateId,
         name: cityName.trim(),
         status: Number(status),
       };
-  
-      console.log("Payload to check/save:", payload);
-  
+      console.log("Payload to check duplicate & save:", payload);
+
+      // 1️⃣ Duplicate check
+      console.log("Calling checkDuplicateCity API...");
       const duplicateRes = await citiesService.checkDuplicateCity(
         payload.name,
         payload.state_id,
         payload.row_id
       );
-  
       console.log("Duplicate check response:", duplicateRes);
-  
+
       if (duplicateRes.validate === false) {
+        console.warn("Duplicate found, aborting save.");
         return toast.error("City already exists");
       }
-  
-      const res = await citiesService.saveCity(payload);
-      console.log("Save response:", res);
-  
-      if (res.status === true) {
-        toast.success(res.info || (editing ? "City updated!" : "City created!"));
+
+      // 2️⃣ Save city
+      console.log("Calling saveCity API...");
+      const saveRes = await citiesService.saveCity(payload);
+      console.log("SaveCity response:", saveRes);
+
+      if (saveRes.status === true) {
+        toast.success(saveRes.info || (editing ? "City updated!" : "City created!"));
+        console.log("City saved successfully, resetting form...");
+
+        // Reset form
         setEditing(null);
         setCityName("");
         setStatus("1");
         setStateId(0);
+
+        console.log("Reloading cities...");
         await loadCities();
+        console.log("=== Form Submission Completed ===");
       } else {
-        toast.error(res.info || "Failed to save city");
+        console.error("Save failed:", saveRes.info);
+        toast.error(saveRes.info || "Failed to save city");
       }
     } catch (err) {
       console.error("Error in onSubmit:", err);
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     }
   };
+
   const onEdit = (item: CityModel) => {
     setEditing(item);
     setCityName(item.city_name);
