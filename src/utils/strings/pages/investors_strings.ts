@@ -9,6 +9,8 @@ export const INVESTORS_STRINGS = {
     HEADER_APPROVAL_STATUS: "Approval Status",
     HEADER_STATUS: "Status",
     HEADER_ACTIONS: "Actions",
+    STATUS_ACTIVE: "Active",
+    STATUS_INACTIVE: "Inactive",
   },
   FORM: {
     ADD: "Add Investor",

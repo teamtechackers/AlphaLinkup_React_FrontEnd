@@ -7,6 +7,7 @@ import { DASHBOARD_STRINGS } from '../utils/strings/pages/dashboard_strings';
 import { DashboardModel } from '../models/dashboard_model';
 import authService from '../services/auth_service';
 import dashboardService from '../services/dashboard_service';
+import { Console } from 'console';
 
 const AdminDashboard: React.FC = () => {
   const [dashboardData, setDashboardData] = useState<DashboardModel | null>(null);
@@ -30,6 +31,7 @@ const AdminDashboard: React.FC = () => {
           count_events: Number(data.count_events ?? 0),
           count_service: Number(data.count_service ?? 0),
           count_investor: Number(data.count_investor ?? 0),
+          count_meetings_total: Number(data.count_meetings_total ?? 0),
           list_jobs: Array.isArray(data.list_jobs) ? data.list_jobs : [],
           list_investor: Array.isArray(data.list_investor) ? data.list_investor : [],
         };
@@ -206,7 +208,7 @@ const AdminDashboard: React.FC = () => {
                 <FiHeadphones size={24} color={COLORS.green} />
               </div>
               <div className="text-end">
-                <h4 style={STYLES.label_2}>{dashboardData?.count_events || 0}</h4>
+                <h4 style={STYLES.label_2}>{dashboardData?.count_meetings_total || 0}</h4>
                 <p style={STYLES.field_text}>{DASHBOARD_STRINGS.CARDS.MEETINGS_SCHEDULES}</p>
               </div>
             </div>

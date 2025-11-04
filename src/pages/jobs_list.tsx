@@ -509,6 +509,7 @@ const JobsList: React.FC = () => {
                       value={cityId}
                       onChange={(e) => setCityId(e.target.value ? Number(e.target.value) : "")}
                       disabled={!stateId}
+                      required
                     >
                       <option value="">Select City</option>
                       {cities.map((ct) => (

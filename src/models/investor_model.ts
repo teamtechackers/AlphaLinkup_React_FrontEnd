@@ -5,9 +5,13 @@ export interface InvestorModel {
   user_name: string;
   name: string;
   country_id: number;
+  country_name: string;
   state_id: number;
+  state_name: string;
   city_id: number;
+  city_name: number;
   fund_size_id: number;
+  fund_size_name: string;
   linkedin_url: string;
   bio: string;
   image: string;

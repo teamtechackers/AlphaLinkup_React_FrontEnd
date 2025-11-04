@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import Box from "@mui/material/Box";
 import { DataGrid } from "@mui/x-data-grid";
 import { FiTrash2, FiEdit, FiEye } from "react-icons/fi";
@@ -20,6 +21,8 @@ const InvestorsList: React.FC = () => {
   const [editing, setEditing] = useState<InvestorModel | null>(null);
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const [rowCount, setRowCount] = useState(0);
+
+  const isSmallScreen = useMediaQuery("(max-width: 768px)");
 
   const [userId, setUserId] = useState<number | "">("");
   const [name, setName] = useState("");
@@ -52,6 +55,7 @@ const InvestorsList: React.FC = () => {
   const [selectedRow, setSelectedRow] = useState<InvestorModel | null>(null);
 
   const handleViewClick = (row: InvestorModel) => {
+    console.log("Investor Details:", row);
     setSelectedRow(row);
     setOpenDialog(true);
   };
@@ -70,9 +74,13 @@ const InvestorsList: React.FC = () => {
           user_name: row.user_name ?? "",
           name: row.name ?? "",
           country_id: Number(row.country_id) || 0,
+          country_name: row.country_name ?? "",
           state_id: Number(row.state_id) || 0,
+          state_name: row.state_name ?? "",
           city_id: Number(row.city_id) || 0,
+          city_name: row.city_name ?? "",
           fund_size_id: Number(row.fund_size_id) || 0,
+          fund_size_name: row.fund_size_name ?? "",
           linkedin_url: row.linkedin_url ?? "",
           bio: row.bio ?? "",
           image: row.profile_image_url ?? "",
@@ -192,6 +200,10 @@ const InvestorsList: React.FC = () => {
     setLanguage("");
     setApprovalStatus("1");
     setStatus("1");
+    setUploadedImage(null);
+    setUploadedImage(null);
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement | null;
+    if (fileInput) fileInput.value = "";
   };
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -298,20 +310,52 @@ const InvestorsList: React.FC = () => {
 
   const columns = useMemo(
     () => [
-      { field: InvestorLabels.ID, headerName: INVESTORS_STRINGS.TABLE.HEADER_ID, width: 100 },
-      { field: InvestorLabels.FULL_NAME, headerName: INVESTORS_STRINGS.TABLE.HEADER_FULL_NAME, width: 150 },
-      { field: InvestorLabels.REFERENCE_NO, headerName: INVESTORS_STRINGS.TABLE.HEADER_REFERENCE_NO, width: 150 },
-      { field: InvestorLabels.NAME, headerName: INVESTORS_STRINGS.TABLE.HEADER_NAME, width: 150 },
+      {
+        field: InvestorLabels.ID,
+        headerName: INVESTORS_STRINGS.TABLE.HEADER_ID,
+        flex: 0.8,
+        minWidth: 100,
+      },
+      {
+        field: InvestorLabels.FULL_NAME,
+        headerName: INVESTORS_STRINGS.TABLE.HEADER_FULL_NAME,
+        flex: 1,
+        minWidth: 150,
+      },
+      {
+        field: InvestorLabels.REFERENCE_NO,
+        headerName: INVESTORS_STRINGS.TABLE.HEADER_REFERENCE_NO,
+        flex: 1,
+        minWidth: 150,
+      },
+      {
+        field: InvestorLabels.NAME,
+        headerName: INVESTORS_STRINGS.TABLE.HEADER_NAME,
+        flex: 1,
+        minWidth: 150,
+      },
       {
         field: InvestorLabels.APPROVAL_STATUS,
         headerName: INVESTORS_STRINGS.TABLE.HEADER_APPROVAL_STATUS,
-        width: 120,
+        flex: 0.8,
+        minWidth: 120,
         renderCell: (params: any) => (
           <span
             className="text-center p-1 rounded"
             style={{
-              backgroundColor: params.value.toLowerCase().includes("pending") ? `${COLORS.orange}30` : `${COLORS.green}30`,
-              color: params.value.toLowerCase().includes("pending") ? COLORS.orange : COLORS.green,
+              backgroundColor: params.value
+                ?.toString()
+                .toLowerCase()
+                .includes("pending")
+                ? `${COLORS.orange}30`
+                : `${COLORS.green}30`,
+              color: params.value
+                ?.toString()
+                .toLowerCase()
+                .includes("pending")
+                ? COLORS.orange
+                : COLORS.green,
+              minWidth: 80,
             }}
           >
             {params.value}
@@ -321,35 +365,54 @@ const InvestorsList: React.FC = () => {
       {
         field: InvestorLabels.STATUS,
         headerName: INVESTORS_STRINGS.TABLE.HEADER_STATUS,
-        width: 100,
-        renderCell: (params: any) => (
-          <span
-            className="text-center p-1 rounded"
-            style={{
-              backgroundColor: params.value.toLowerCase().includes("active") ? `${COLORS.green}30` : `${COLORS.red}30`,
-              color: params.value.toLowerCase().includes("active") ? COLORS.green : COLORS.red,
-            }}
-          >
-            {params.value}
-          </span>
-        ),
+        flex: 0.8,
+        minWidth: 120,
+        renderCell: (params: any) => {
+          const isActive =
+            params.value?.toString().toLowerCase() === "active";
+          return (
+            <span
+              className="text-center p-1 rounded"
+              style={{
+                backgroundColor: isActive
+                  ? `${COLORS.green}30`
+                  : `${COLORS.red}30`,
+                color: isActive ? COLORS.green : COLORS.red,
+                minWidth: 80,
+              }}
+            >
+              {isActive
+                ? INVESTORS_STRINGS.TABLE.STATUS_ACTIVE
+                : INVESTORS_STRINGS.TABLE.STATUS_INACTIVE}
+            </span>
+          );
+        },
       },
       {
         field: InvestorLabels.ACTIONS,
         headerName: INVESTORS_STRINGS.TABLE.HEADER_ACTIONS,
-        width: 120,
+        flex: 0.7,
+        minWidth: 120,
         sortable: false,
         filterable: false,
         renderCell: (params: any) => (
           <div className="d-flex align-items-center gap-3 w-100 h-100">
-            <FiEdit className="icon-hover" size={14} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
+            <FiEdit
+              size={14}
+              style={{ cursor: "pointer" }}
+              onClick={() => onEdit(params.row)}
+            />
             <FiEye
               size={14}
               style={{ cursor: "pointer" }}
               onClick={() => handleViewClick(params.row)}
               title="View Details"
             />
-            <FiTrash2 className="icon-hover" size={14} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
+            <FiTrash2
+              size={14}
+              style={{ cursor: "pointer" }}
+              onClick={() => onDelete(params.row)}
+            />
           </div>
         ),
       },
@@ -372,7 +435,7 @@ const InvestorsList: React.FC = () => {
       <div className="row">
         {/* Table */}
         <div className="col-lg-8">
-          <Box sx={{ height: 800, width: "100%" }}>
+          <Box sx={{ height: 800, width: "100%"}}>
             <DataGrid
               rows={items}
               columns={columns}
@@ -482,7 +545,7 @@ const InvestorsList: React.FC = () => {
                       className="form-select"
                       value={cityId}
                       onChange={(e) => setCityId(e.target.value ? Number(e.target.value) : "")}
-                      //required
+                      required
                       disabled={!stateId}
                     >
                       <option value="">Select City</option>
@@ -733,18 +796,10 @@ const InvestorsList: React.FC = () => {
               { label: "Investor ID", value: selectedRow.investor_id },
               { label: "User Name", value: selectedRow.user_name },
               { label: "Name", value: selectedRow.name },
-              { label: "Country", value: selectedRow.country_id },
-              { label: "State", value: selectedRow.state_id },
-              { label: "City", value: selectedRow.city_id },
-              { label: "Fund Size", value: (() => {
-                  switch (selectedRow.fund_size_id) {
-                    case 1: return "Small";
-                    case 2: return "Medium";
-                    case 3: return "Large";
-                    default: return "N/A";
-                  }
-                })()
-              },
+              { label: "Country", value: selectedRow.city_name },
+              { label: "State", value: selectedRow.state_name },
+              { label: "City", value: selectedRow.city_name },
+              { label: "Fund Size", value: selectedRow.fund_size_name},
               { label: "LinkedIn URL", value: selectedRow.linkedin_url },
               { label: "Bio", value: selectedRow.bio },
               { label: "Profile", value: selectedRow.profile },
@@ -762,16 +817,8 @@ const InvestorsList: React.FC = () => {
               { label: "Countries to Invest", value: selectedRow.countries_to_invest },
               { label: "Investment Industry", value: selectedRow.investment_industry },
               { label: "Language", value: selectedRow.language },
-              { label: "Approval Status", value: (() => {
-                  switch (selectedRow.approval_status) {
-                    case "1": return "Pending";
-                    case "2": return "Approved";
-                    case "3": return "Rejected";
-                    default: return "N/A";
-                  }
-                })()
-              },
-              { label: "Status", value: selectedRow.status === "1" ? "Active" : "Inactive" },
+              { label: "Approval Status", value: selectedRow.approval_status},
+              { label: "Status", value: selectedRow.status},
             ]}
           />
         )}

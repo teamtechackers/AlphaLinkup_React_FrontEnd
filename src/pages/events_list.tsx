@@ -472,6 +472,7 @@ const EventsList: React.FC = () => {
                     <select
                       className="form-select"
                       value={cityId}
+                      required
                       onChange={(e) => setCityId(Number(e.target.value))}>
                       <option value="">Select City</option>
                       {cities.map((c) => (
@@ -606,17 +607,6 @@ const EventsList: React.FC = () => {
                       {EVENTS_STRINGS.FORM.FIELD_LABELS.BANNER}
                       <span style={{ color: COLORS.red}}> *</span>
                     </label>
-                    {/* <input
-                      type="file"
-                      className="form-control"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0] ?? null;
-                        setEventBanner(file);
-                        setPreviewBanner(file ? URL.createObjectURL(file) : "");
-                      }}
-                      required={!editing}
-                    /> */}
                     <input
                       ref={bannerInputRef}
                       type="file"

@@ -484,6 +484,7 @@ const UsersList: React.FC = () => {
                       <select
                         className="form-select"
                         value={cityId}
+                        required
                         onChange={(e) => setCityId(e.target.value)}
                         disabled={!stateId}
                       >

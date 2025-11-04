@@ -26,6 +26,7 @@ export interface DashboardModel {
   count_events: number;
   count_service: number;
   count_investor: number;
+  count_meetings_total: number;
   list_jobs: Job[];
   list_investor: Investor[];
 }
