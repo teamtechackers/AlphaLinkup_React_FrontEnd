@@ -287,29 +287,39 @@ const CardActivationRequestsList: React.FC = () => {
       else if (!isNaN(Number(s))) normalized = Number(s);
       else {
         const l = s.toLowerCase();
-        if (l.startsWith("pend")) normalized = 1;
-        else if (l.startsWith("app")) normalized = 2;
-        else if (l.startsWith("rej")) normalized = 3;
+        if (l.startsWith("inac")) normalized = 0;
+        else if (l.startsWith("pend")) normalized = 1;
+        else if (l.startsWith("rej")) normalized = 2;
+        else normalized = 99; // fallback for "Active" case
       }
     }
 
     const bg =
+      normalized === 0 ? `${COLORS.gray}30` :
       normalized === 1 ? `${COLORS.orange}30` :
-      normalized === 2 ? `${COLORS.green}30` :
-      normalized === 3 ? `${COLORS.red}30` :
-      `${COLORS.gray}30`;
+      normalized === 2 ? `${COLORS.red}30` :
+      `${COLORS.green}30`; // Active
 
     const color =
+      normalized === 0 ? COLORS.gray :
       normalized === 1 ? COLORS.orange :
-      normalized === 2 ? COLORS.green :
-      normalized === 3 ? COLORS.red :
-      COLORS.gray;
+      normalized === 2 ? COLORS.red :
+      COLORS.green; // Active
 
     const label =
+      normalized === 0 ? "Inactive" :
       normalized === 1 ? "Pending" :
-      normalized === 2 ? "Approved" :
-      normalized === 3 ? "Rejected" :
-      "-";
+      normalized === 2 ? "Rejected" :
+      "Active";
+
+    // 🔍 Debug logs
+    console.log("=== renderRequestStatus ===");
+    console.log("Raw Value:", raw);
+    console.log("Normalized:", normalized);
+    console.log("Label:", label);
+    console.log("Background:", bg);
+    console.log("Color:", color);
+    console.log("===========================");
 
     return (
       <span className="text-center p-1 rounded" style={{ backgroundColor: bg, color }}>
