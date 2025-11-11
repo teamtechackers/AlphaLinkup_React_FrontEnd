@@ -617,7 +617,7 @@ const EventsList: React.FC = () => {
                         setEventBanner(file);
                         setPreviewBanner(file ? URL.createObjectURL(file) : "");
                       }}
-                      required={!editing}
+                      required
                     />
                     {previewBanner && (
                       <div className="mt-2">

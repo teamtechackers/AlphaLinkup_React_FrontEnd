@@ -87,6 +87,9 @@ const CardActivationRequestsList: React.FC = () => {
 
       setItems(list);
       setRowCount(data?.recordsTotal ?? 0);
+
+      console.log("📋 Card Activation Requests Table Data:", list);
+
     } catch (err) {
       console.error(err);
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
@@ -298,19 +301,19 @@ const CardActivationRequestsList: React.FC = () => {
       normalized === 0 ? `${COLORS.gray}30` :
       normalized === 1 ? `${COLORS.orange}30` :
       normalized === 2 ? `${COLORS.red}30` :
-      `${COLORS.green}30`; // Active
+      `${COLORS.green}30`;
 
     const color =
       normalized === 0 ? COLORS.gray :
       normalized === 1 ? COLORS.orange :
       normalized === 2 ? COLORS.red :
-      COLORS.green; // Active
+      COLORS.green;
 
     const label =
       normalized === 0 ? "Inactive" :
       normalized === 1 ? "Pending" :
       normalized === 2 ? "Rejected" :
-      "Active";
+      "Approved";
 
     // 🔍 Debug logs
     console.log("=== renderRequestStatus ===");
@@ -583,9 +586,10 @@ const CardActivationRequestsList: React.FC = () => {
                       required
                     >
                       <option value="" >Select Card Status</option>
-                      <option value={1}>Pending</option>
-                      <option value={2}>Approved</option>
-                      <option value={3}>Rejected</option>
+                      <option value={0}>Inactive</option>
+                      <option value={1}>Pending </option>
+                      <option value={2}>Rejected</option>
+                      <option value={99}>Approved</option>
                     </select>
                   </div>
 
