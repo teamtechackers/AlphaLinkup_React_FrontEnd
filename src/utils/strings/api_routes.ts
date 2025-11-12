@@ -121,6 +121,7 @@ export const API_ROUTES = {
     SUBMIT: "/submit-users",
     DELETE: "/delete-users",
     CHECK_DUPLICATE: "/check-duplicate-users",
+    GET_PERMISSIONS_LIST: "/admin-permissions-list",
   },
 
   JOBS: {

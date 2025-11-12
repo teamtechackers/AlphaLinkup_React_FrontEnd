@@ -1,9 +1,9 @@
 import axios from "axios";
 import { VARIABLES } from "../utils/strings/variables";
 import { API_ROUTES } from "../utils/strings/api_routes";
-import { UserModel } from "../models/user_model";
-import qs from "qs"
+
 const baseUrl = process.env.REACT_APP_API_BASE_URL as string;
+
 const usersService = {
   getUsersList: async (draw = 1, start = 0, length = 10) => {
     const res = await axios.post(`${baseUrl}${API_ROUTES.USERS.GET_AJAX}`, null, {

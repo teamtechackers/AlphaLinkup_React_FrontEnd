@@ -35,7 +35,6 @@ const MeetingsSchedulesPage: React.FC = () => {
       
       if (response.status && response.data) {
         const meetings: MeetingModel[] = response.data.meeting_requests || [];
-        console.log("Parsed meetings:", meetings); 
         setItems(meetings);
         setRowCount(response.data.pagination?.total_records || 0);
       } else {
@@ -43,7 +42,6 @@ const MeetingsSchedulesPage: React.FC = () => {
         setItems([]);
       }
     } catch (err) {
-      console.error("Error loading meetings:", err);
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
       setItems([]);
     } finally {
@@ -58,7 +56,6 @@ const MeetingsSchedulesPage: React.FC = () => {
   const handleOpenInvestorDetails = async (investorId: string) => {
     try {
       const response = await meetingsSchedulesService.getInvestorDetails(investorId);
-      console.log("Investor details fetched:", response.data);
       if (response.status && response.data) {
         setSelectedInvestor(response.data);
         setOpenInvestorDetails(true);
@@ -66,7 +63,6 @@ const MeetingsSchedulesPage: React.FC = () => {
         toast.error(response.message || CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
       }
     } catch (err) {
-      console.error("Error loading investor details:", err);
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     }
   };
@@ -83,7 +79,6 @@ const MeetingsSchedulesPage: React.FC = () => {
         toast.error(response.message || CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
       }
     } catch (err) {
-      console.error("Error loading investor meetings:", err);
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     }
   };
@@ -91,7 +86,6 @@ const MeetingsSchedulesPage: React.FC = () => {
   const handleOpenUserDetails = async (userId: string) => {
     try {
       const response = await meetingsSchedulesService.getRequestorDetails(userId);
-      console.log("User details fetched:", response.data);
       if (response.status && response.data) {
         setSelectedUser(response.data);
         setOpenUserDetails(true);
@@ -99,7 +93,6 @@ const MeetingsSchedulesPage: React.FC = () => {
         toast.error(response.message || CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
       }
     } catch (err) {
-      console.error("Error loading user details:", err);
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     }
   };
@@ -140,7 +133,6 @@ const MeetingsSchedulesPage: React.FC = () => {
         toast.error(response.message || CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
       }
     } catch (err) {
-      console.error("Error updating meeting:", err);
       toast.error(CONSTANTS.MESSAGES.SOMETHING_WENT_WRONG);
     }
   };

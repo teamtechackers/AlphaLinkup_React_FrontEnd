@@ -12,12 +12,26 @@ import { COLORS } from "../utils/theme/colors";
 import { STYLES } from "../utils/typography/styles";
 import GlobalService from "../services/global_service";
 import { VARIABLES } from "../utils/strings/variables";
+import PermissionsModal from "../components/PermissionsModal";
+
+const USER_ROLES = [
+  { label: "User", value: "user" },
+  { label: "Super Admin", value: "superadmin" },
+  { label: "Sub Admin", value: "subadmin" },
+];
 
 const UsersList: React.FC = () => {
   const [items, setItems] = useState<UserModel[]>([]);
   const [loading, setLoading] = useState(false);
 
   const [editing, setEditing] = useState<UserModel | null>(null);
+
+  const [userRole, setUserRole] = useState(USER_ROLES[0].value);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [permissions, setPermissions] = useState<string[]>([]);
+  const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false);
+
   const [fullName, setFullName] = useState("");
   const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
@@ -40,6 +54,10 @@ const UsersList: React.FC = () => {
     pageSize: 10,
   });
   const [rowCount, setRowCount] = useState(0);
+
+  const isSubmittingAdmin = userRole === 'superadmin' || userRole === 'subadmin';
+  const isSubAdmin = userRole === 'subadmin';
+
   const load = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
     setLoading(true);
     try {
@@ -54,13 +72,16 @@ const UsersList: React.FC = () => {
             email_address: row.email_address ?? "",
             profile_photo: row.profile_photo ?? "",
             address: row.address ?? "",
-            country_id: row.country_id ? Number(row.country_id) : null,
+            country_id: row.country_id ? String(row.country_id) : null,
             country_name: row.country_name ?? "",
-            state_id: row.state_id ? Number(row.state_id) : null,
+            state_id: row.state_id ? String(row.state_id) : null,
             state_name: row.state_name ?? "",
-            city_id: row.city_id ? Number(row.city_id) : null,
+            city_id: row.city_id ? String(row.city_id) : null,
             city_name: row.city_name ?? "",
             status: row.status === "Active" ? "Active" : "Inactive",
+            user_role: row.user_role ?? "user",
+            username: row.username ?? "",
+            permissions: row.permissions ? String(row.permissions).split(',') : [],
           }))
         : [];
 
@@ -91,6 +112,14 @@ const UsersList: React.FC = () => {
     setStatus("1");
     setPreviewImage("");
     setUploadedImage(null);
+    setUserRole(USER_ROLES[0].value);
+    setUsername("");
+    setPassword("");
+    setPermissions([]);
+  };
+
+  const handleSavePermissions = (selectedIds: string[]) => {
+    setPermissions(selectedIds);
   };
 
   useEffect(() => {
@@ -114,7 +143,6 @@ const UsersList: React.FC = () => {
     const fetchStates = async () => {
       try {
         const list = await GlobalService.getStates(countryId);
-        console.log(list)
         setStates(list);
         setCities([]);
         setStateId("");
@@ -131,20 +159,31 @@ const UsersList: React.FC = () => {
       setCities([]);
       return;
     }
-  const fetchCities = async () => {
-    try {
-      const list = await GlobalService.getCities(stateId);
-      setCities(list);
-      setCityId("");
-    } catch (err) {
-      console.error("Error loading cities", err);
-    }
-  };
+    const fetchCities = async () => {
+      try {
+        const list = await GlobalService.getCities(stateId);
+        setCities(list);
+        setCityId("");
+      } catch (err) {
+        console.error("Error loading cities", err);
+      }
+    };
     fetchCities();
   }, [stateId]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isSubmittingAdmin) {
+      if (!cityId) {
+          toast.error("City is required.");
+          return;
+      }
+      if (!username || (!editing && !password) || (isSubAdmin && permissions.length === 0)) {
+        toast.error("Admin user requires Username, Password (for new users), and SubAdmin requires Permissions.");
+        return;
+      }
+    }
 
     try {
       const dup = await usersService.checkDuplicateUser(mobile, email, editing?.user_id);
@@ -163,6 +202,8 @@ const UsersList: React.FC = () => {
         formData.append("row_id", String(editing.user_id));
       }
 
+      formData.append("user_role", userRole); 
+
       formData.append("full_name", fullName);
       formData.append("mobile", mobile);
       formData.append("email", email);
@@ -172,9 +213,24 @@ const UsersList: React.FC = () => {
       formData.append("city_id", cityId);
       formData.append("status", status);
 
+      if (isSubmittingAdmin) {
+        formData.append("username", username);
+        if (password) {
+          formData.append("password", password);
+        }
+
+        if (isSubAdmin && permissions.length > 0) {
+          permissions.forEach((id) => {
+            formData.append("permissions[]", id);
+          });
+        }
+      }
+
       if (uploadedImage) {
         formData.append("profile_photo", uploadedImage);
       }
+      
+      // Removed: console.log block for FormData payload
 
       const res = await usersService.saveUser(formData);
 
@@ -205,9 +261,14 @@ const UsersList: React.FC = () => {
     setEmail(item.email_address ?? "");
     setAddress(item.address ?? "");
     setStatus(item.status === "Active" ? "1" : "0");
-
     setPreviewImage(item.profile_photo ?? "");
     setUploadedImage(null);
+
+    const itemRole = (item as any).user_role || USER_ROLES[0].value;
+    setUserRole(itemRole);
+    setUsername((item as any).username ?? "");
+    setPassword("");
+    setPermissions((item as any).permissions ?? []);
 
     if (item.country_id) {
       setCountryId(String(item.country_id));
@@ -309,18 +370,16 @@ const UsersList: React.FC = () => {
     <div className="content">
       <div className="container-fluid" style={{ backgroundColor: COLORS.lightGray }}>
 
-        {/* Page Title */}
-          <div className="row">
-            <div className="col-12">
-              <div style={STYLES.page_title}>
-                  {USERS_STRINGS.TITLE}
-                </div>
+        <div className="row">
+          <div className="col-12">
+            <div style={STYLES.page_title}>
+              {USERS_STRINGS.TITLE}
             </div>
           </div>
+        </div>
 
         <div className="row">
 
-          {/* Table */}
           <div className="col-lg-8">
             <Box sx={{ height: 800, width: "100%" }}>
               <DataGrid
@@ -333,12 +392,11 @@ const UsersList: React.FC = () => {
                 paginationModel={paginationModel}
                 onPaginationModelChange={setPaginationModel}
                 paginationMode="server"
-                rowCount={rowCount}  
+                rowCount={rowCount}
               />
             </Box>
           </div>
 
-          {/* Form */}
           <div className="col-lg-4">
             <div className="card shadow-sm">
               <div className="card-header" style={{ backgroundColor: COLORS.lightGray }}>
@@ -347,8 +405,71 @@ const UsersList: React.FC = () => {
               <div className="card-body">
                 <form onSubmit={onSubmit}>
                   <div className="row g-3 align-items-end">
+
+                    <div className="col-md-12">
+                      <label className="form-label" style={STYLES.field_label}>
+                        User Role <span style={{ color: COLORS.red}}> *</span>
+                      </label>
+                      <select
+                        className="form-select"
+                        value={userRole}
+                        onChange={(e) => setUserRole(e.target.value)}
+                        required
+                      >
+                        {USER_ROLES.map(role => (
+                          <option key={role.value} value={role.value}>{role.label}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {isSubmittingAdmin && (
+                      <>
+                        <div className="col-md-12">
+                          <label className="form-label" style={STYLES.field_label}>
+                            Username <span style={{ color: COLORS.red}}> *</span>
+                          </label>
+                          <input
+                            className="form-control"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            required
+                            type="text"
+                            maxLength={CONSTANTS.MAX_LENGTHS.FIELD_100}
+                          />
+                        </div>
+                        <div className="col-md-12">
+                          <label className="form-label" style={STYLES.field_label}>
+                            Password {editing ? "(Leave blank to keep current)" : <span style={{ color: COLORS.red}}> *</span>}
+                          </label>
+                          <input
+                            className="form-control"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required={!editing}
+                            type="password"
+                            maxLength={CONSTANTS.MAX_LENGTHS.FIELD_100}
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {isSubAdmin && (
+                      <div className="col-md-12">
+                        <label className="form-label d-block" style={STYLES.field_label}>
+                            Permissions 
+                            <span style={{ color: COLORS.red}}> *</span>
+                            {permissions.length === 0 && <span className="ms-2 text-danger small">Required</span>}
+                        </label>
+                        <button 
+                          type="button" 
+                          className="btn btn-sm btn-outline-primary w-100" 
+                          onClick={() => setIsPermissionsModalOpen(true)}
+                        >
+                            {permissions.length > 0 ? `Edit Permissions (${permissions.length} selected)` : 'Select Permissions'}
+                        </button>
+                      </div>
+                    )}
                     
-                    {/* Full Name */}
                     <div className="col-md-12">
                       <label className="form-label" style={STYLES.field_label}>
                         {USERS_STRINGS.FORM.FIELD_LABELS.FULL_NAME} 
@@ -364,7 +485,6 @@ const UsersList: React.FC = () => {
                       />
                     </div>
 
-                    {/* Mobile */}
                     <div className="col-md-12">
                       <label className="form-label" style={STYLES.field_label}>
                         {USERS_STRINGS.FORM.FIELD_LABELS.MOBILE} 
@@ -386,7 +506,6 @@ const UsersList: React.FC = () => {
                       />
                     </div>
 
-                    {/* Email */}
                     <div className="col-md-12">
                       <label className="form-label" style={STYLES.field_label}>
                         {USERS_STRINGS.FORM.FIELD_LABELS.EMAIL} 
@@ -402,7 +521,6 @@ const UsersList: React.FC = () => {
                       />
                     </div>
 
-                    {/* Profile Photo */}
                     <div className="col-md-12">
                       <label className="form-label" style={STYLES.field_label}>
                         {USERS_STRINGS.FORM.FIELD_LABELS.PROFILE_PHOTO} 
@@ -412,14 +530,14 @@ const UsersList: React.FC = () => {
                         className="form-control"
                         accept="image/*"
                         onChange={(e) => setUploadedImage(e.target.files?.[0] ?? null)}
-                        required={!editing}
+                        required={!editing && !previewImage}
                       />
+                      {previewImage && !uploadedImage && <span className="small text-muted">Current photo exists. Upload new to replace.</span>}
                     </div>
 
-                    {/* Address */}
                     <div className="col-md-12">
                       <label className="form-label" style={STYLES.field_label}>
-                        {USERS_STRINGS.FORM.FIELD_LABELS.ADDRESS}  
+                        {USERS_STRINGS.FORM.FIELD_LABELS.ADDRESS} 
                         <span style={{ color: COLORS.red}}> *</span>
                       </label>
                       <input
@@ -432,10 +550,9 @@ const UsersList: React.FC = () => {
                       />
                     </div>
 
-                    {/* Country */}
                     <div className="col-md-12">
                       <label className="form-label" style={STYLES.field_label}>
-                        {USERS_STRINGS.FORM.FIELD_LABELS.COUNTRY}  
+                        {USERS_STRINGS.FORM.FIELD_LABELS.COUNTRY} 
                         <span style={{ color: COLORS.red}}> *</span>
                       </label>
                       <select
@@ -453,10 +570,9 @@ const UsersList: React.FC = () => {
                       </select>
                     </div>
 
-                    {/* State */}
                     <div className="col-md-12">
                       <label className="form-label" style={STYLES.field_label}>
-                        {USERS_STRINGS.FORM.FIELD_LABELS.STATE}   
+                        {USERS_STRINGS.FORM.FIELD_LABELS.STATE} 
                         <span style={{ color: COLORS.red}}> *</span>
                       </label>
                       <select
@@ -464,7 +580,7 @@ const UsersList: React.FC = () => {
                         value={stateId}
                         onChange={(e) => setStateId(e.target.value)}
                         required
-                        disabled={!countryId}
+                        disabled={!countryId || states.length === 0}
                       >
                         <option value="">Select State</option>
                         {states.map((s) => (
@@ -475,29 +591,27 @@ const UsersList: React.FC = () => {
                       </select>
                     </div>
 
-                    {/* City */}
                     <div className="col-md-12">
                       <label className="form-label" style={STYLES.field_label}>
-                        {USERS_STRINGS.FORM.FIELD_LABELS.CITY}  
+                        {USERS_STRINGS.FORM.FIELD_LABELS.CITY} 
                         <span style={{ color: COLORS.red}}> *</span>
                       </label>
                       <select
                         className="form-select"
                         value={cityId}
-                        required
                         onChange={(e) => setCityId(e.target.value)}
-                        disabled={!stateId}
+                        required 
+                        disabled={!stateId || cities.length === 0}
                       >
                         <option value="">Select City</option>
                         {cities.map((ct) => (
-                        <option key={ct.city_id} value={ct.city_id}>
-                          {ct.city_name}
-                        </option>
+                          <option key={ct.city_id} value={ct.city_id}>
+                            {ct.city_name}
+                          </option>
                         ))}
                       </select>
                     </div>
 
-                    {/* Status */}
                     <div className="col-md-12">
                       <label className="form-label" style={STYLES.field_label}>
                         {USERS_STRINGS.TABLE.HEADER_STATUS} 
@@ -510,7 +624,6 @@ const UsersList: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Buttons */}
                   <div className="d-flex gap-2 mt-3">
                     <button type="submit" className="btn" style={{ backgroundColor: COLORS.purple, color: COLORS.white }}>
                       {editing ? CONSTANTS.BUTTONS.UPDATE : CONSTANTS.BUTTONS.SAVE}
@@ -533,6 +646,13 @@ const UsersList: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      <PermissionsModal 
+        show={isPermissionsModalOpen}
+        onClose={() => setIsPermissionsModalOpen(false)}
+        currentPermissions={permissions}
+        onSave={handleSavePermissions}
+      />
     </div>
   );
 };

@@ -135,6 +135,21 @@ class GlobalService {
     }
   }
 
+  static async getAdminPermissions() {
+    try {
+      const res = await axios.get(`${baseUrl}${API_ROUTES.USERS.GET_PERMISSIONS_LIST}`, {
+        params: {
+          user_id: VARIABLES.USER_ID,
+          token: VARIABLES.TOKEN,
+        },
+      });
+      return res.data;
+    } catch (err) {
+      console.error("Error fetching admin permissions:", err);
+      return { status: false, permissions: {} }; 
+    }
+  }
+
 }
 
 export default GlobalService;
