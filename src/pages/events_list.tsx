@@ -20,7 +20,6 @@ const EventsList: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   const [userId, setUserId] = useState<number | "">("");
-  const [fullName, setFullName] = useState("");
   const [eventName, setEventName] = useState("");
   const [industryType, setIndustryType] = useState<number | "">("");
   const [countryId, setCountryId] = useState<number | "">("");
@@ -50,7 +49,6 @@ const EventsList: React.FC = () => {
 
   const [editing, setEditing] = useState<EventModel | null>(null);
 
-  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [previewBanner, setPreviewBanner] = useState<string>("");
 
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });

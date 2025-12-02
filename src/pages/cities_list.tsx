@@ -33,7 +33,6 @@ const CitiesList: React.FC = () => {
     setLoading(true);
     try {
       const { page, pageSize } = paginationModel;
-      const start = page * pageSize;
 
       const data = await citiesService.getCitiesList(page, pageSize);
 
@@ -84,10 +83,12 @@ const loadStates = async () => {
 
   useEffect(() => {
     loadCities();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paginationModel]);
 
   useEffect(() => {
     loadStates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onSubmit = async (e: React.FormEvent) => {

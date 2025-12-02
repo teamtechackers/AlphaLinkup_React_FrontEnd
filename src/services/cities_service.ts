@@ -1,8 +1,6 @@
 import axios from "axios";
 import { VARIABLES } from "../utils/strings/variables";
 import { API_ROUTES } from "../utils/strings/api_routes";
-import { start } from "repl";
-import { stringify } from "querystring";
 import qs from "qs";
 const baseUrl = process.env.REACT_APP_API_BASE_URL as string;
 

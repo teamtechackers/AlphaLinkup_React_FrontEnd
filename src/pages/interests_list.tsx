@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import Box from "@mui/material/Box";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { DataGrid } from "@mui/x-data-grid";
 import interestsService from "../services/interests_service";
 import { INTERESTS_STRINGS } from "../utils/strings/pages/interests_strings";
 import { CONSTANTS } from "../utils/strings/constants";
@@ -30,8 +30,6 @@ const InterestsList: React.FC = () => {
       
       const list = Array.isArray(data?.data)
         ? data.data.map((row: any[]) => {
-            const statusHtml = row[2] as string;
-            const isActive = statusHtml.toLowerCase().includes("active");
             return {
               name: row[1],
                status: row[2]?.includes("Active") ? 1 : 0,

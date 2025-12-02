@@ -20,15 +20,15 @@ const Footer: React.FC = () => {
           className="d-flex flex-wrap gap-3 justify-content-center mt-2 mt-md-0"
           style={STYLES.footer_text}
         >
-          <a href="#" className="text-decoration-none text-muted">
+          <button type="button" className="btn btn-link text-decoration-none text-muted p-0 border-0 bg-transparent" style={{...STYLES.footer_text, cursor: 'pointer'}}>
             {CONSTANTS.VARIABLES.FOOTER.ABOUT_US}
-          </a>
-          <a href="#" className="text-decoration-none text-muted">
+          </button>
+          <button type="button" className="btn btn-link text-decoration-none text-muted p-0 border-0 bg-transparent" style={{...STYLES.footer_text, cursor: 'pointer'}}>
             {CONSTANTS.VARIABLES.FOOTER.HELP}
-          </a>
-          <a href="#" className="text-decoration-none text-muted">
+          </button>
+          <button type="button" className="btn btn-link text-decoration-none text-muted p-0 border-0 bg-transparent" style={{...STYLES.footer_text, cursor: 'pointer'}}>
             {CONSTANTS.VARIABLES.FOOTER.CONTACT_US}
-          </a>
+          </button>
         </div>
       </div>
     </footer>

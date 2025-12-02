@@ -62,18 +62,17 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
         {/* RIGHT SECTION */}
         <ul className="navbar-nav ms-auto">
           <li className="nav-item dropdown">
-            <a
-              href="#"
-              className="nav-link d-flex align-items-center px-3"
-              role="button"
+            <button
+              type="button"
+              className="nav-link d-flex align-items-center px-3 border-0 bg-transparent"
               onClick={toggleDropdown}
               aria-expanded={isDropdownOpen}
-              style={{ ...STYLES.label_3,color: COLORS.white }}
+              style={{ ...STYLES.label_3, color: COLORS.white, cursor: 'pointer' }}
             >
               {user.user_name}
               <FiChevronDown size={16} style={{ marginLeft: 4 }} />
               <i className="mdi mdi-chevron-down ms-1"></i>
-            </a>
+            </button>
 
             <ul
               className={`dropdown-menu dropdown-menu-end shadow-sm ${
@@ -93,10 +92,11 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
               <li><hr className="dropdown-divider" /></li>
               
               <li>
-                <a
-                  href="#"
-                  className="dropdown-item d-flex align-items-center"
+                <button
+                  type="button"
+                  className="dropdown-item d-flex align-items-center border-0 bg-transparent w-100 text-start"
                   onClick={onLogout}
+                  style={{ cursor: 'pointer' }}
                 >
                   <i className="fe-log-out me-2"></i>
                   <span
@@ -104,7 +104,7 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
                   >
                     {CONSTANTS.VARIABLES.HEADER.LOGOUT}
                   </span>
-                </a>
+                </button>
               </li>
             </ul>
             

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import Box from "@mui/material/Box";
-import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import { DataGrid } from '@mui/x-data-grid';
 import countriesService from "../services/countries_service";
 import { COUNTRIES_STRINGS } from "../utils/strings/pages/countries_strings";
 import { CONSTANTS } from "../utils/strings/constants";

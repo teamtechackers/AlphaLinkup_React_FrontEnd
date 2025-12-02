@@ -360,6 +360,7 @@ const JobsList: React.FC = () => {
         </div> ), 
         }, 
       ], 
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       [items] 
     );
 

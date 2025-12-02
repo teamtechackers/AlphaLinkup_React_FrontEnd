@@ -100,6 +100,7 @@ const CardActivationRequestsList: React.FC = () => {
 
   useEffect(() => {
     load(paginationModel.page, paginationModel.pageSize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paginationModel]);
   useEffect(() => {
     const fetchCountries = async () => {

@@ -7,7 +7,6 @@ import { DASHBOARD_STRINGS } from '../utils/strings/pages/dashboard_strings';
 import { DashboardModel } from '../models/dashboard_model';
 import authService from '../services/auth_service';
 import dashboardService from '../services/dashboard_service';
-import { Console } from 'console';
 
 const AdminDashboard: React.FC = () => {
   const [dashboardData, setDashboardData] = useState<DashboardModel | null>(null);
@@ -46,7 +45,7 @@ const AdminDashboard: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [retryCount]);
+  }, []);
 
   useEffect(() => {
     fetchDashboardData();

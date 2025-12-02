@@ -35,7 +35,6 @@ const UsersList: React.FC = () => {
   const [fullName, setFullName] = useState("");
   const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
-  const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
   const [address, setAddress] = useState("");
   const [countryId, setCountryId] = useState<string>("");
   const [stateId, setStateId] = useState<string>("");

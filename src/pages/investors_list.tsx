@@ -22,8 +22,6 @@ const InvestorsList: React.FC = () => {
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const [rowCount, setRowCount] = useState(0);
 
-  const isSmallScreen = useMediaQuery("(max-width: 768px)");
-
   const [userId, setUserId] = useState<number | "">("");
   const [name, setName] = useState("");
   const [countryId, setCountryId] = useState<number | "">("");

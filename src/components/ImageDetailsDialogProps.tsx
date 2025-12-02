@@ -39,7 +39,7 @@ const ImageDetailsDialog: React.FC<ImageDetailsDialogProps> = ({ open, onClose, 
           <Box display="flex" justifyContent="center" mb={4}>
             <img
               src={imageUrl}
-              alt="Dialog Image"
+              alt={title}
               style={{
                 width: 120,
                 height: 120,

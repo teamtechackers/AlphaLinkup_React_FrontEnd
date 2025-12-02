@@ -19,7 +19,6 @@ const ServiceProvidersList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState<ServiceProviderModel | null>(null);
   const [spUserId, setSpUserId] = useState("");
-  const [fullName, setFullName] = useState("");
   const [countryId, setCountryId] = useState("");
   const [stateId, setStateId] = useState("");
   const [cityId, setCityId] = useState("");

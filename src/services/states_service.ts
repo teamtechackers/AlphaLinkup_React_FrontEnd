@@ -83,9 +83,4 @@ const statesService = {
   },
 };
 
-const extractCountryId = (html: string): number => {
-  const match = html?.match(/data-country="(\d+)"/);
-  return match ? parseInt(match[1], 10) : 0;
-};
-
 export default statesService;
