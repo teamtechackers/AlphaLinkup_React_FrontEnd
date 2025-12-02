@@ -207,7 +207,6 @@ const EventsList: React.FC = () => {
 
   const resetForm = () => {
     setEditing(null);
-    setFullName("");
     setEventName("");
     setIndustryType("");
     setCountryId("");
