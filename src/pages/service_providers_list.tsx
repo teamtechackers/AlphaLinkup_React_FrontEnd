@@ -163,17 +163,16 @@ const ServiceProvidersList: React.FC = () => {
   }, []);
 
   const resetForm = () => {
-  setEditing(null);
-  setSpUserId("");
-  setFullName("");
-  setCountryId("");
-  setStateId("");
-  setCityId("");
-  setDescription("");
-  setAvgSpRating("");
-  setApprovalStatus(1);
-  setStatus(1);
-};
+    setEditing(null);
+    setSpUserId("");
+    setCountryId("");
+    setStateId("");
+    setCityId("");
+    setDescription("");
+    setAvgSpRating("");
+    setApprovalStatus(1);
+    setStatus(1);
+  };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -210,7 +209,6 @@ const ServiceProvidersList: React.FC = () => {
   const onEdit = async (item: ServiceProviderModel) => {
     setEditing(item);
     setSpUserId(item.user_id ? String(item.user_id) : "");
-    setFullName(item.user_name ?? "");
     setDescription(item.description ?? "");
     
     if (item.country_id) {

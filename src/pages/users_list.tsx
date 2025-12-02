@@ -103,7 +103,6 @@ const UsersList: React.FC = () => {
     setFullName("");
     setMobile("");
     setEmail("");
-    setProfilePhoto(null);
     setAddress("");
     setCountryId("");
     setStateId("");
