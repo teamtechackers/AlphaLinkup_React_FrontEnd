@@ -4,6 +4,7 @@ export interface UserModel {
   phone_number: string | null;
   email_address: string | null;
   profile_photo?: string | null;
+  role?: string | null;
   address?: string | null;
   country_id?: number | null;
   country_name?: string | null;
@@ -17,6 +18,7 @@ export interface UserModel {
 export const UserModelLabels = {
   USER_ID: "user_id",
   USER_NAME: "user_name",
+  ROLE: "role",
   PHONE_NUMBER: "phone_number",
   EMAIL_ADDRESS: "email_address",
   STATUS: "status",

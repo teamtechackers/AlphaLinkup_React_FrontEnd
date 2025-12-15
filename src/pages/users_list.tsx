@@ -70,6 +70,7 @@ const UsersList: React.FC = () => {
             phone_number: row.phone_number ?? "",
             email_address: row.email_address ?? "",
             profile_photo: row.profile_photo ?? "",
+            role: row.role ?? "",
             address: row.address ?? "",
             country_id: row.country_id ? String(row.country_id) : null,
             country_name: row.country_name ?? "",
@@ -314,6 +315,7 @@ const UsersList: React.FC = () => {
     () => [
       { field: UserModelLabels.USER_ID, headerName: USERS_STRINGS.TABLE.HEADER_ID, width: 100 },
       { field: UserModelLabels.USER_NAME, headerName: USERS_STRINGS.TABLE.HEADER_FULL_NAME, width: 150 },
+      { field: UserModelLabels.ROLE, headerName: USERS_STRINGS.TABLE.ROLE, width: 120 },
       { field: UserModelLabels.PHONE_NUMBER, headerName: USERS_STRINGS.TABLE.HEADER_MOBILE, width: 170 },
       { field: UserModelLabels.EMAIL_ADDRESS, headerName: USERS_STRINGS.TABLE.HEADER_EMAIL, width: 220 },
       {

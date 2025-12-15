@@ -4,6 +4,7 @@ export const USERS_STRINGS = {
     TABLE_TITLE: "Users List",
     HEADER_ID: "ID",
     HEADER_FULL_NAME: "Full Name",
+    ROLE: "Role",
     HEADER_MOBILE: "Mobile",
     HEADER_EMAIL: "Email",
     HEADER_STATUS: "Status",
