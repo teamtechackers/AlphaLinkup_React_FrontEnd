@@ -1,0 +1,40 @@
+name: Deploy AlphaLinkup Frontend to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: 52.66.224.22
+          username: ubuntu
+          key: ${{ secrets.ALPHA_PROD_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/AlphaLinkup_React_FrontEnd
+
+            echo "🔄 Pulling latest code..."
+            git fetch origin
+            git reset --hard origin/main
+
+            echo "📦 Installing dependencies..."
+            npm install
+
+            echo "🛠 Building frontend..."
+            npm run build
+
+            echo "♻️ Reloading nginx..."
+            sudo systemctl reload nginx
+
+            echo "✅ Deployment finished."
+
+
