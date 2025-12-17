@@ -13,6 +13,9 @@ export interface UserModel {
   city_id?: number | null;
   city_name?: string | null;
   status: "Active" | "Inactive";
+  user_role?: string | null;
+  username?: string | null;
+  permissions?: string[];
 }
 
 export const UserModelLabels = {

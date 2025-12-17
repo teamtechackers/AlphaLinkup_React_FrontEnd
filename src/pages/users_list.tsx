@@ -36,13 +36,18 @@ const UsersList: React.FC = () => {
   const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
-  const [countryId, setCountryId] = useState<string>("");
-  const [stateId, setStateId] = useState<string>("");
-  const [cityId, setCityId] = useState<string>("");
+  const [countryId, setCountryId] = useState<number | "">("");
+  const [stateId, setStateId] = useState<number | "">("");
+  const [cityId, setCityId] = useState<number | "">("");
   const [status, setStatus] = useState("1");
 
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState<string>("");
+  
+  // Add effect to monitor userRole changes
+  useEffect(() => {
+    console.log("userRole state changed to:", userRole);
+  }, [userRole]);
 
   const [countries, setCountries] = useState<any[]>([]);
   const [states, setStates] = useState<any[]>([]);
@@ -63,27 +68,37 @@ const UsersList: React.FC = () => {
       const start = page * pageSize;
       const data = await usersService.getUsersList(page + 1, start, pageSize);
 
+      console.log("Raw API response:", data);
+
       const list = Array.isArray(data?.users_list)
-        ? data.users_list.map((row: any) => ({
-            user_id: Number(row.user_id),
-            user_name: row.user_name ?? "",
-            phone_number: row.phone_number ?? "",
-            email_address: row.email_address ?? "",
-            profile_photo: row.profile_photo ?? "",
-            role: row.role ?? "",
-            address: row.address ?? "",
-            country_id: row.country_id ? String(row.country_id) : null,
-            country_name: row.country_name ?? "",
-            state_id: row.state_id ? String(row.state_id) : null,
-            state_name: row.state_name ?? "",
-            city_id: row.city_id ? String(row.city_id) : null,
-            city_name: row.city_name ?? "",
-            status: row.status === "Active" ? "Active" : "Inactive",
-            user_role: row.user_role ?? "user",
-            username: row.username ?? "",
-            permissions: row.permissions ? String(row.permissions).split(',') : [],
-          }))
+        ? data.users_list.map((row: any) => {
+            console.log("Processing row:", row);
+            // Log all properties to see what's available
+            console.log("Row properties:", Object.keys(row));
+            
+            return {
+              user_id: Number(row.user_id),
+              user_name: row.user_name ?? "",
+              phone_number: row.phone_number ?? "",
+              email_address: row.email_address ?? "",
+              profile_photo: row.profile_photo ?? "",
+              role: row.role ?? "",
+              address: row.address ?? "",
+              country_id: row.country_id ? Number(row.country_id) : null,
+              country_name: row.country_name ?? "",
+              state_id: row.state_id ? Number(row.state_id) : null,
+              state_name: row.state_name ?? "",
+              city_id: row.city_id ? Number(row.city_id) : null,
+              city_name: row.city_name ?? "",
+              status: row.status === "Active" ? "Active" : "Inactive",
+              user_role: row.user_role ?? row.role ?? "user",
+              username: row.username ?? "",
+              permissions: row.permissions ? String(row.permissions).split(',') : [],
+            }
+          })
         : [];
+
+      console.log("Mapped list:", list);
 
       setItems(list);
       setRowCount(data?.recordsTotal ?? 0);
@@ -100,6 +115,7 @@ const UsersList: React.FC = () => {
   }, [paginationModel]);
 
   const resetForm = () => {
+    console.log("Resetting form");
     setEditing(null);
     setFullName("");
     setMobile("");
@@ -141,7 +157,7 @@ const UsersList: React.FC = () => {
     }
     const fetchStates = async () => {
       try {
-        const list = await GlobalService.getStates(countryId);
+        const list = await GlobalService.getStates(countryId.toString());
         setStates(list);
         setCities([]);
         setStateId("");
@@ -160,7 +176,7 @@ const UsersList: React.FC = () => {
     }
     const fetchCities = async () => {
       try {
-        const list = await GlobalService.getCities(stateId);
+        const list = await GlobalService.getCities(stateId.toString());
         setCities(list);
         setCityId("");
       } catch (err) {
@@ -172,6 +188,9 @@ const UsersList: React.FC = () => {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Form submit - userRole:", userRole);
+    console.log("Form submit - mobile:", mobile);
+    console.log("Form submit - fullName:", fullName);
 
     if (isSubmittingAdmin) {
       if (!cityId) {
@@ -207,9 +226,9 @@ const UsersList: React.FC = () => {
       formData.append("mobile", mobile);
       formData.append("email", email);
       formData.append("address", address);
-      formData.append("country_id", countryId);
-      formData.append("state_id", stateId);
-      formData.append("city_id", cityId);
+      formData.append("country_id", countryId.toString());
+      formData.append("state_id", stateId.toString());
+      formData.append("city_id", cityId.toString());
       formData.append("status", status);
 
       if (isSubmittingAdmin) {
@@ -254,6 +273,16 @@ const UsersList: React.FC = () => {
   };
 
   const onEdit = async (item: UserModel) => {
+    console.log("=== Starting onEdit ===");
+    console.log("Editing item:", item);
+    console.log("Item keys:", Object.keys(item));
+    console.log("Item user_role:", item.user_role);
+    console.log("Item role:", item.role);
+    
+    // Check if the user role exists in our USER_ROLES array
+    const availableRoles = USER_ROLES.map(r => r.value);
+    console.log("Available roles:", availableRoles);
+    
     setEditing(item);
     setFullName(item.user_name ?? "");
     setMobile(item.phone_number ?? "");
@@ -263,27 +292,47 @@ const UsersList: React.FC = () => {
     setPreviewImage(item.profile_photo ?? "");
     setUploadedImage(null);
 
-    const itemRole = (item as any).user_role || USER_ROLES[0].value;
-    setUserRole(itemRole);
-    setUsername((item as any).username ?? "");
+    const itemRole = item.user_role || item.role || USER_ROLES[0].value;
+    console.log("Raw itemRole:", itemRole);
+    
+    // Ensure the role is one of our predefined roles, otherwise default to first role
+    const validRole = availableRoles.includes(itemRole) ? itemRole : USER_ROLES[0].value;
+    console.log("Setting user role:", validRole);
+    setUserRole(validRole);
+    console.log("userRole state after setUserRole:", validRole);
+    
+    setUsername(item.username ?? "");
     setPassword("");
-    setPermissions((item as any).permissions ?? []);
+    setPermissions(item.permissions ?? []);
 
     if (item.country_id) {
-      setCountryId(String(item.country_id));
-      const stateList = await GlobalService.getStates(item.country_id);
+      setCountryId(item.country_id);
+      const stateList = await GlobalService.getStates(item.country_id.toString());
       setStates(stateList);
 
       if (item.state_id) {
-        setStateId(String(item.state_id));
-        const cityList = await GlobalService.getCities(item.state_id);
+        setStateId(item.state_id);
+        const cityList = await GlobalService.getCities(item.state_id.toString());
         setCities(cityList);
 
         if (item.city_id) {
-          setCityId(String(item.city_id));
+          setCityId(item.city_id);
         }
       }
+    } else {
+      // Reset dependent fields if no country_id
+      setStates([]);
+      setCities([]);
+      setStateId("");
+      setCityId("");
     }
+    
+    // Add a small delay to see if that helps with the UI update
+    setTimeout(() => {
+      console.log("After timeout - userRole:", validRole);
+    }, 0);
+    
+    console.log("=== Finished onEdit ===");
   };
 
   const onDelete = async (item: UserModel) => {
@@ -413,7 +462,12 @@ const UsersList: React.FC = () => {
                       <select
                         className="form-select"
                         value={userRole}
-                        onChange={(e) => setUserRole(e.target.value)}
+                        onChange={(e) => {
+                          console.log("User role changed to:", e.target.value);
+                          console.log("Previous userRole state:", userRole);
+                          setUserRole(e.target.value);
+                          console.log("New userRole state set to:", e.target.value);
+                        }}
                         required
                       >
                         {USER_ROLES.map(role => (
@@ -478,7 +532,10 @@ const UsersList: React.FC = () => {
                       <input
                         className="form-control"
                         value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
+                        onChange={(e) => {
+                          console.log("Full name changed to:", e.target.value);
+                          setFullName(e.target.value);
+                        }}
                         required
                         type="text"
                         maxLength={CONSTANTS.MAX_LENGTHS.FIELD_100}
@@ -494,13 +551,14 @@ const UsersList: React.FC = () => {
                         className="form-control"
                         value={mobile}
                         onChange={(e) => {
+                          console.log("Mobile changed to:", e.target.value);
                           const val = e.target.value;
                           if (/^\d*$/.test(val)) {
                             setMobile(val);
                           }
                         }}
                         required
-                        type="number"
+                        type="text"
                         maxLength={CONSTANTS.MAX_LENGTHS.FIELD_100}
                         onWheel={(e) => e.currentTarget.blur()}
                       />
@@ -557,8 +615,8 @@ const UsersList: React.FC = () => {
                       </label>
                       <select
                         className="form-select"
-                        value={countryId}
-                        onChange={(e) => setCountryId(e.target.value)}
+                        value={countryId === "" ? "" : countryId}
+                        onChange={(e) => setCountryId(e.target.value ? Number(e.target.value) : "")}
                         required
                       >
                         <option value="">Select Country</option>
@@ -577,8 +635,8 @@ const UsersList: React.FC = () => {
                       </label>
                       <select
                         className="form-select"
-                        value={stateId}
-                        onChange={(e) => setStateId(e.target.value)}
+                        value={stateId === "" ? "" : stateId}
+                        onChange={(e) => setStateId(e.target.value ? Number(e.target.value) : "")}
                         required
                         disabled={!countryId || states.length === 0}
                       >
@@ -598,8 +656,8 @@ const UsersList: React.FC = () => {
                       </label>
                       <select
                         className="form-select"
-                        value={cityId}
-                        onChange={(e) => setCityId(e.target.value)}
+                        value={cityId === "" ? "" : cityId}
+                        onChange={(e) => setCityId(e.target.value ? Number(e.target.value) : "")}
                         required 
                         disabled={!stateId || cities.length === 0}
                       >
