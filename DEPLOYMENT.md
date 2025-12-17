@@ -202,3 +202,5 @@ npm run build
 - React app will be served from `build` folder after `npm run build`
 - For domain setup, update Nginx `server_name` and DNS records
 
+<!-- Auto-deploy note: any push to main will trigger GitHub Actions deploy pipeline. -->
+
