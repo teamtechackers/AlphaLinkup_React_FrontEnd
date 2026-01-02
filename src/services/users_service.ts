@@ -5,16 +5,22 @@ import { API_ROUTES } from "../utils/strings/api_routes";
 const baseUrl = process.env.REACT_APP_API_BASE_URL as string;
 
 const usersService = {
-  getUsersList: async (draw = 1, start = 0, length = 10) => {
-    const res = await axios.post(`${baseUrl}${API_ROUTES.USERS.GET_AJAX}`, null, {
-      params: {
-        user_id: VARIABLES.USER_ID,
-        token: VARIABLES.TOKEN,
-        draw,
-        start,
-        length,
-      },
-    });
+  getUsersList: async (draw = 1, start = 0, length = 10, onlyUser?: boolean, onlyAdmin?: boolean) => {
+    const params: any = {
+      user_id: VARIABLES.USER_ID,
+      token: VARIABLES.TOKEN,
+      draw,
+      start,
+      length,
+    };
+    
+    if (onlyUser === true) {
+      params.only_user = true;
+    } else if (onlyAdmin === true) {
+      params.only_admin = true;
+    }
+    
+    const res = await axios.post(`${baseUrl}${API_ROUTES.USERS.GET_AJAX}`, null, { params });
     return res.data;
   },
 

@@ -16,6 +16,19 @@ export interface UserModel {
   user_role?: string | null;
   username?: string | null;
   permissions?: string[];
+  
+  // New fields for API compatibility
+  row_id?: number;
+  user_type?: string | null;
+  password?: string | null;
+  is_super_admin?: boolean;
+  permissions_details?: Array<{ 
+    permission_id: number;
+    permission_name: string;
+    permission_key: string;
+  }> | null;
+  permission_count?: number;
+  all_permissions?: boolean;
 }
 
 export const UserModelLabels = {
@@ -26,4 +39,6 @@ export const UserModelLabels = {
   EMAIL_ADDRESS: "email_address",
   STATUS: "status",
   ACTIONS: "actions",
+  ROW_ID: "row_id",
+  USER_TYPE: "user_type",
 };
