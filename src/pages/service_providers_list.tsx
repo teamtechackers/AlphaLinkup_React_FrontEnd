@@ -303,30 +303,6 @@ const ServiceProvidersList: React.FC = () => {
           renderApprovalStatus(params.value ?? params.row?.approval_status),
       },
       {
-        field: ServiceProviderModelLabels.STATUS,
-        headerName: SERVICE_PROVIDERS_STRINGS.TABLE.HEADER_STATUS,
-        width: 140,
-        renderCell: (params: any) => {
-          const normalized = typeof params.value === "string"
-            ? statusStringToNumber[params.value] ?? 0
-            : Number(params.value);
-
-          return (
-            <span
-              className="text-center p-1 rounded"
-              style={{
-                backgroundColor: normalized === 1 ? `${COLORS.green}30` : `${COLORS.red}30`,
-                color: normalized === 1 ? COLORS.green : COLORS.red,
-              }}
-            >
-              {normalized === 1
-                ? SERVICE_PROVIDERS_STRINGS.TABLE.STATUS_ACTIVE
-                : SERVICE_PROVIDERS_STRINGS.TABLE.STATUS_INACTIVE}
-            </span>
-          );
-        },
-      },
-      {
         field: ServiceProviderModelLabels.ACTIONS,
         headerName: SERVICE_PROVIDERS_STRINGS.TABLE.HEADER_ACTIONS,
         width: 150,

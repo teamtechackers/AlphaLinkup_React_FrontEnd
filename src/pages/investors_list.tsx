@@ -311,32 +311,27 @@ const InvestorsList: React.FC = () => {
       {
         field: InvestorLabels.ID,
         headerName: INVESTORS_STRINGS.TABLE.HEADER_ID,
-        flex: 0.8,
-        minWidth: 100,
+        minWidth: 80,
       },
       {
         field: InvestorLabels.FULL_NAME,
         headerName: INVESTORS_STRINGS.TABLE.HEADER_FULL_NAME,
-        flex: 1,
         minWidth: 150,
       },
       {
         field: InvestorLabels.REFERENCE_NO,
         headerName: INVESTORS_STRINGS.TABLE.HEADER_REFERENCE_NO,
-        flex: 1,
         minWidth: 150,
       },
       {
         field: InvestorLabels.NAME,
         headerName: INVESTORS_STRINGS.TABLE.HEADER_NAME,
-        flex: 1,
         minWidth: 150,
       },
       {
         field: InvestorLabels.APPROVAL_STATUS,
         headerName: INVESTORS_STRINGS.TABLE.HEADER_APPROVAL_STATUS,
-        flex: 0.8,
-        minWidth: 120,
+        minWidth: 150,
         renderCell: (params: any) => (
           <span
             className="text-center p-1 rounded"
@@ -361,36 +356,9 @@ const InvestorsList: React.FC = () => {
         ),
       },
       {
-        field: InvestorLabels.STATUS,
-        headerName: INVESTORS_STRINGS.TABLE.HEADER_STATUS,
-        flex: 0.8,
-        minWidth: 120,
-        renderCell: (params: any) => {
-          const isActive =
-            params.value?.toString().toLowerCase() === "active";
-          return (
-            <span
-              className="text-center p-1 rounded"
-              style={{
-                backgroundColor: isActive
-                  ? `${COLORS.green}30`
-                  : `${COLORS.red}30`,
-                color: isActive ? COLORS.green : COLORS.red,
-                minWidth: 80,
-              }}
-            >
-              {isActive
-                ? INVESTORS_STRINGS.TABLE.STATUS_ACTIVE
-                : INVESTORS_STRINGS.TABLE.STATUS_INACTIVE}
-            </span>
-          );
-        },
-      },
-      {
         field: InvestorLabels.ACTIONS,
         headerName: INVESTORS_STRINGS.TABLE.HEADER_ACTIONS,
-        flex: 0.7,
-        minWidth: 120,
+        minWidth: 150,
         sortable: false,
         filterable: false,
         renderCell: (params: any) => (

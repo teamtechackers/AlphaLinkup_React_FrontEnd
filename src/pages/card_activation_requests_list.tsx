@@ -334,31 +334,15 @@ const CardActivationRequestsList: React.FC = () => {
 
   const columns = useMemo(
     () => [
-      { field: CardActivationRequestLabels.UBC_ID, headerName: CARD_ACTIVATION_REQUESTS_STRINGS.TABLE.HEADER_ID, width: 100 },
-      { field: CardActivationRequestLabels.USER_NAME, headerName: CARD_ACTIVATION_REQUESTS_STRINGS.TABLE.HEADER_NAME, width: 150 },
-      { field: CardActivationRequestLabels.DESCRIPTION, headerName: CARD_ACTIVATION_REQUESTS_STRINGS.TABLE.HEADER_DESCRIPTION, width: 250 },
+      { field: CardActivationRequestLabels.UBC_ID, headerName: CARD_ACTIVATION_REQUESTS_STRINGS.TABLE.HEADER_ID, width: 80 },
+      { field: CardActivationRequestLabels.USER_NAME, headerName: CARD_ACTIVATION_REQUESTS_STRINGS.TABLE.HEADER_NAME, width: 200 },
+      { field: CardActivationRequestLabels.DESCRIPTION, headerName: CARD_ACTIVATION_REQUESTS_STRINGS.TABLE.HEADER_DESCRIPTION, width: 300 },
       {
         field: CardActivationRequestLabels.CARD_STATUS,
         headerName: CARD_ACTIVATION_REQUESTS_STRINGS.TABLE.HEADER_REQUEST_STATUS,
         width: 160,
         renderCell: (params: any) =>
           renderRequestStatus(params.value ?? params.row?.request_status),
-      },
-      {
-        field: CardActivationRequestLabels.STATUS,
-        headerName: CARD_ACTIVATION_REQUESTS_STRINGS.TABLE.HEADER_OVERALL_STATUS,
-        width: 140,
-        renderCell: (params: any) => (
-          <span
-            className="text-center p-1 rounded"
-            style={{
-              backgroundColor: params.value.toLowerCase().includes("active") ? `${COLORS.green}30` : `${COLORS.red}30`,
-              color: params.value.toLowerCase().includes("active") ? COLORS.green : COLORS.red,
-            }}
-          >
-            {params.value.replace(/<[^>]+>/g, "")}
-          </span>
-        ),
       },
       {
         field: CardActivationRequestLabels.ACTIONS,

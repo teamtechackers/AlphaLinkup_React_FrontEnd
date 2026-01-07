@@ -674,26 +674,44 @@ const UsersList: React.FC = () => {
             <div style={STYLES.page_title}>
               {USERS_STRINGS.TITLE}
             </div>
+          </div>
+        </div>
 
-            {/* Tabs for Users and Admins */}
-            <ul className="nav nav-tabs mt-3">
-              <li className="nav-item">
-                <button
-                  className={`nav-link ${activeTab === 'users' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('users')}
-                >
-                  Users
-                </button>
-              </li>
-              <li className="nav-item">
-                <button
-                  className={`nav-link ${activeTab === 'admins' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('admins')}
-                >
-                  Admins
-                </button>
-              </li>
-            </ul>
+        {/* Tabs for Users and Admins */}
+        <div className="row">
+          <div className="col-lg-8">
+            <div className="d-flex" style={{ width: "100%", backgroundColor: COLORS.lightGray, borderRadius: "4px", overflow: "hidden" }}>
+              <button
+                className={`flex-fill text-center py-2 px-0 ${activeTab === 'users' ? 'active' : ''}`}
+                onClick={() => setActiveTab('users')}
+                style={{
+                  backgroundColor: activeTab === 'users' ? COLORS.white : COLORS.lightGray,
+                  color: COLORS.black,
+                  border: `1px solid ${COLORS.gray}`,
+                  borderRight: 'none',
+                  fontWeight: activeTab === 'users' ? 'bold' : 'normal',
+                  cursor: 'pointer',
+                  outline: 'none',
+                }}
+              >
+                Users
+              </button>
+              <button
+                className={`flex-fill text-center py-2 px-0 ${activeTab === 'admins' ? 'active' : ''}`}
+                onClick={() => setActiveTab('admins')}
+                style={{
+                  backgroundColor: activeTab === 'admins' ? COLORS.white : COLORS.lightGray,
+                  color: COLORS.black,
+                  border: `1px solid ${COLORS.gray}`,
+                  borderLeft: 'none',
+                  fontWeight: activeTab === 'admins' ? 'bold' : 'normal',
+                  cursor: 'pointer',
+                  outline: 'none',
+                }}
+              >
+                Admins
+              </button>
+            </div>
           </div>
         </div>
 
