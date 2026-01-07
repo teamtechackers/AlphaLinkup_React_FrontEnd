@@ -25,7 +25,7 @@ const UsersList: React.FC = () => {
   const [userItems, setUserItems] = useState<UserModel[]>([]);
   const [adminItems, setAdminItems] = useState<UserModel[]>([]);
   const [loading, setLoading] = useState(false);
-  
+
   // Ref to track if we're currently in an edit operation
   const isEditingRef = React.useRef(false);
 
@@ -48,7 +48,7 @@ const UsersList: React.FC = () => {
 
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState<string>("");
-  
+
   // Add effect to monitor userRole changes
   useEffect(() => {
     console.log("userRole state changed to:", userRole);
@@ -66,7 +66,7 @@ const UsersList: React.FC = () => {
     page: 0,
     pageSize: 10,
   });
-  
+
   const [userRowCount, setUserRowCount] = useState(0);
   const [adminRowCount, setAdminRowCount] = useState(0);
 
@@ -83,38 +83,38 @@ const UsersList: React.FC = () => {
 
       const list = Array.isArray(data?.users_list)
         ? data.users_list.map((row: any) => {
-            console.log("Processing user row:", row);
-            // Log all properties to see what's available
-            console.log("User row properties:", Object.keys(row));
-            
-            return {
-              user_id: Number(row.user_id),
-              user_name: row.user_name ?? "",
-              phone_number: row.phone_number ?? "",
-              email_address: row.email_address ?? "",
-              profile_photo: row.profile_photo ?? "",
-              role: row.role ?? "",
-              address: row.address ?? "",
-              country_id: row.country_id ? Number(row.country_id) : null,
-              country_name: row.country_name ?? "",
-              state_id: row.state_id ? Number(row.state_id) : null,
-              state_name: row.state_name ?? "",
-              city_id: row.city_id ? Number(row.city_id) : null,
-              city_name: row.city_name ?? "",
-              status: row.status === "Active" ? "Active" : "Inactive",
-              user_role: row.user_role ?? row.role ?? "user",
-              username: row.username ?? "",
-              permissions: typeof row.permissions === 'string' ? row.permissions.split(',') : [],
-              // New fields
-              row_id: row.row_id,
-              user_type: row.user_type,
-              password: row.password,
-              is_super_admin: row.is_super_admin,
-              permissions_details: Array.isArray(row.permissions) ? row.permissions : null,
-              permission_count: row.permission_count,
-              all_permissions: row.all_permissions,
-            }
-          })
+          console.log("Processing user row:", row);
+          // Log all properties to see what's available
+          console.log("User row properties:", Object.keys(row));
+
+          return {
+            user_id: Number(row.user_id),
+            user_name: row.user_name ?? "",
+            phone_number: row.phone_number ?? "",
+            email_address: row.email_address ?? "",
+            profile_photo: row.profile_photo ?? "",
+            role: row.role ?? "",
+            address: row.address ?? "",
+            country_id: row.country_id ? Number(row.country_id) : null,
+            country_name: row.country_name ?? "",
+            state_id: row.state_id ? Number(row.state_id) : null,
+            state_name: row.state_name ?? "",
+            city_id: row.city_id ? Number(row.city_id) : null,
+            city_name: row.city_name ?? "",
+            status: row.status === "Active" ? "Active" : "Inactive",
+            user_role: row.user_role ?? row.role ?? "user",
+            username: row.username ?? "",
+            permissions: typeof row.permissions === 'string' ? row.permissions.split(',') : [],
+            // New fields
+            row_id: row.row_id,
+            user_type: row.user_type,
+            password: row.password,
+            is_super_admin: row.is_super_admin,
+            permissions_details: Array.isArray(row.permissions) ? row.permissions : null,
+            permission_count: row.permission_count,
+            all_permissions: row.all_permissions,
+          }
+        })
         : [];
 
       console.log("Mapped user list:", list);
@@ -139,40 +139,40 @@ const UsersList: React.FC = () => {
 
       const list = Array.isArray(data?.users_list)
         ? data.users_list.map((row: any) => {
-            console.log("Processing admin row:", row);
-            // Log all properties to see what's available
-            console.log("Admin row properties:", Object.keys(row));
-            
-            return {
-              user_id: Number(row.user_id),
-              user_name: row.user_name ?? "",
-              phone_number: row.phone_number ?? "",
-              email_address: row.email_address ?? "",
-              profile_photo: row.profile_photo ?? "",
-              role: row.role ?? "",
-              address: row.address ?? "",
-              country_id: row.country_id ? Number(row.country_id) : null,
-              country_name: row.country_name ?? "",
-              state_id: row.state_id ? Number(row.state_id) : null,
-              state_name: row.state_name ?? "",
-              city_id: row.city_id ? Number(row.city_id) : null,
-              city_name: row.city_name ?? "",
-              status: row.status === "Active" ? "Active" : "Inactive",
-              user_role: row.user_role ?? row.role ?? "user",
-              username: row.username ?? "",
-              permissions: Array.isArray(row.permissions) 
-                ? row.permissions.map((p: any) => p.permission_id?.toString()) 
-                : typeof row.permissions === 'string' ? row.permissions.split(',') : [],
-              // New fields
-              row_id: row.row_id,
-              user_type: row.user_type,
-              password: row.password,
-              is_super_admin: row.is_super_admin,
-              permissions_details: Array.isArray(row.permissions) ? row.permissions : null,
-              permission_count: row.permission_count,
-              all_permissions: row.all_permissions,
-            }
-          })
+          console.log("Processing admin row:", row);
+          // Log all properties to see what's available
+          console.log("Admin row properties:", Object.keys(row));
+
+          return {
+            user_id: Number(row.user_id),
+            user_name: row.user_name ?? "",
+            phone_number: row.phone_number ?? "",
+            email_address: row.email_address ?? "",
+            profile_photo: row.profile_photo ?? "",
+            role: row.role ?? "",
+            address: row.address ?? "",
+            country_id: row.country_id ? Number(row.country_id) : null,
+            country_name: row.country_name ?? "",
+            state_id: row.state_id ? Number(row.state_id) : null,
+            state_name: row.state_name ?? "",
+            city_id: row.city_id ? Number(row.city_id) : null,
+            city_name: row.city_name ?? "",
+            status: row.status === "Active" ? "Active" : "Inactive",
+            user_role: row.user_role ?? row.role ?? "user",
+            username: row.username ?? "",
+            permissions: Array.isArray(row.permissions)
+              ? row.permissions.map((p: any) => p.permission_id?.toString())
+              : typeof row.permissions === 'string' ? row.permissions.split(',') : [],
+            // New fields
+            row_id: row.row_id,
+            user_type: row.user_type,
+            password: row.password,
+            is_super_admin: row.is_super_admin,
+            permissions_details: Array.isArray(row.permissions) ? row.permissions : null,
+            permission_count: row.permission_count,
+            all_permissions: row.all_permissions,
+          }
+        })
         : [];
 
       console.log("Mapped admin list:", list);
@@ -209,6 +209,12 @@ const UsersList: React.FC = () => {
     }
   }, [activeTab, adminPagination.page, adminPagination.pageSize]);
 
+  // Reset form when switching tabs to ensure correct default role
+  useEffect(() => {
+    resetForm();
+  }, [activeTab]);
+
+
   const resetForm = () => {
     console.log("Resetting form");
     setEditing(null);
@@ -222,7 +228,9 @@ const UsersList: React.FC = () => {
     setStatus("1");
     setPreviewImage("");
     setUploadedImage(null);
-    setUserRole(USER_ROLES[0].value);
+    // Set default role based on active tab
+    // Users tab -> 'user', Admins tab -> 'superadmin'
+    setUserRole(activeTab === 'users' ? 'user' : 'superadmin');
     setUsername("");
     setPassword("");
     setPermissions([]);
@@ -302,24 +310,24 @@ const UsersList: React.FC = () => {
 
     const isCurrentSubmittingAdmin = userRole === 'superadmin' || userRole === 'subadmin';
     const isCurrentSubAdmin = userRole === 'subadmin';
-    
+
     if (isCurrentSubmittingAdmin) {
       if (!cityId) {
-          toast.error("City is required.");
-          return;
+        toast.error("City is required.");
+        return;
       }
-      
+
       // Check each required field separately and show specific error messages
       if (!username) {
         toast.error("Username is required for admin users.");
         return;
       }
-      
+
       if (!editing && !password) {
         toast.error("Password is required for new admin users.");
         return;
       }
-      
+
       if (isCurrentSubAdmin && permissions.length === 0) {
         toast.error("Permissions are required for subadmin users.");
         return;
@@ -343,7 +351,7 @@ const UsersList: React.FC = () => {
         formData.append("row_id", String(editing.user_id));
       }
 
-      formData.append("user_role", userRole); 
+      formData.append("user_role", userRole);
 
       formData.append("full_name", fullName);
       formData.append("mobile", mobile);
@@ -370,7 +378,7 @@ const UsersList: React.FC = () => {
       if (uploadedImage) {
         formData.append("profile_photo", uploadedImage);
       }
-      
+
       // Removed: console.log block for FormData payload
 
       const res = await usersService.saveUser(formData);
@@ -406,14 +414,14 @@ const UsersList: React.FC = () => {
     console.log("Item user_role:", item.user_role);
     console.log("Item role:", item.role);
     console.log("Item user_type:", item.user_type);
-    
+
     // Set the editing flag
     isEditingRef.current = true;
-    
+
     // Check if the user role exists in our USER_ROLES array
     const availableRoles = USER_ROLES.map(r => r.value);
     console.log("Available roles:", availableRoles);
-    
+
     setEditing(item);
     setFullName(item.user_name ?? "");
     setMobile(item.phone_number ?? "");
@@ -425,7 +433,7 @@ const UsersList: React.FC = () => {
 
     // Determine appropriate role based on user type and active tab
     let itemRole = item.user_role || item.role || USER_ROLES[0].value;
-    
+
     // If we're on the users tab, force role to 'user'
     if (activeTab === 'users') {
       itemRole = 'user';
@@ -437,15 +445,15 @@ const UsersList: React.FC = () => {
         itemRole = 'subadmin';
       }
     }
-    
+
     console.log("Raw itemRole:", itemRole);
-    
+
     // Ensure the role is one of our predefined roles, otherwise default to first role
     const validRole = availableRoles.includes(itemRole) ? itemRole : USER_ROLES[0].value;
     console.log("Setting user role:", validRole);
     setUserRole(validRole);
     console.log("userRole state after setUserRole:", validRole);
-    
+
     // Set username and permissions based on the user type
     if (activeTab === 'admins' || item.user_type !== 'user') {
       setUsername(item.username ?? "");
@@ -460,24 +468,24 @@ const UsersList: React.FC = () => {
       setUsername("");
       setPermissions([]);
     }
-    
+
     setPassword("");
 
     if (item.country_id) {
       setCountryId(item.country_id);
-      
+
       // Wait for the UI to update the country dropdown
       await new Promise(resolve => setTimeout(resolve, 0));
-      
+
       const stateList = await GlobalService.getStates(item.country_id.toString());
       setStates(stateList);
 
       if (item.state_id) {
         setStateId(item.state_id);
-        
+
         // Wait for the UI to update the state dropdown
         await new Promise(resolve => setTimeout(resolve, 0));
-        
+
         const cityList = await GlobalService.getCities(item.state_id.toString());
         setCities(cityList);
 
@@ -493,14 +501,14 @@ const UsersList: React.FC = () => {
       setStateId("");
       setCityId("");
     }
-    
+
     // Add a small delay to see if that helps with the UI update
     setTimeout(() => {
       console.log("After timeout - userRole:", validRole);
       // Reset the editing flag after UI update
       isEditingRef.current = false;
     }, 0);
-    
+
     console.log("=== Finished onEdit ===");
   };
 
@@ -666,11 +674,11 @@ const UsersList: React.FC = () => {
             <div style={STYLES.page_title}>
               {USERS_STRINGS.TITLE}
             </div>
-            
+
             {/* Tabs for Users and Admins */}
             <ul className="nav nav-tabs mt-3">
               <li className="nav-item">
-                <button 
+                <button
                   className={`nav-link ${activeTab === 'users' ? 'active' : ''}`}
                   onClick={() => setActiveTab('users')}
                 >
@@ -678,7 +686,7 @@ const UsersList: React.FC = () => {
                 </button>
               </li>
               <li className="nav-item">
-                <button 
+                <button
                   className={`nav-link ${activeTab === 'admins' ? 'active' : ''}`}
                   onClick={() => setActiveTab('admins')}
                 >
@@ -719,7 +727,7 @@ const UsersList: React.FC = () => {
 
                     <div className="col-md-12">
                       <label className="form-label" style={STYLES.field_label}>
-                        User Role <span style={{ color: COLORS.red}}> *</span>
+                        User Role <span style={{ color: COLORS.red }}> *</span>
                       </label>
                       <select
                         className="form-select"
@@ -734,9 +742,9 @@ const UsersList: React.FC = () => {
                         disabled={activeTab === 'users'}
                       >
                         {USER_ROLES
-                          .filter(role => 
-                            activeTab === 'users' 
-                              ? role.value === 'user' 
+                          .filter(role =>
+                            activeTab === 'users'
+                              ? role.value === 'user'
                               : ['superadmin', 'subadmin'].includes(role.value)
                           )
                           .map(role => (
@@ -750,7 +758,7 @@ const UsersList: React.FC = () => {
                       <>
                         <div className="col-md-12">
                           <label className="form-label" style={STYLES.field_label}>
-                            Username <span style={{ color: COLORS.red}}> *</span>
+                            Username <span style={{ color: COLORS.red }}> *</span>
                           </label>
                           <input
                             className="form-control"
@@ -763,7 +771,7 @@ const UsersList: React.FC = () => {
                         </div>
                         <div className="col-md-12">
                           <label className="form-label" style={STYLES.field_label}>
-                            Password {editing ? "(Leave blank to keep current)" : <span style={{ color: COLORS.red}}> *</span>}
+                            Password {editing ? "(Leave blank to keep current)" : <span style={{ color: COLORS.red }}> *</span>}
                           </label>
                           <input
                             className="form-control"
@@ -780,24 +788,24 @@ const UsersList: React.FC = () => {
                     {(activeTab === 'admins' && userRole === 'subadmin') && (
                       <div className="col-md-12">
                         <label className="form-label d-block" style={STYLES.field_label}>
-                            Permissions 
-                            <span style={{ color: COLORS.red}}> *</span>
-                            {permissions.length === 0 && <span className="ms-2 text-danger small">Required</span>}
+                          Permissions
+                          <span style={{ color: COLORS.red }}> *</span>
+                          {permissions.length === 0 && <span className="ms-2 text-danger small">Required</span>}
                         </label>
-                        <button 
-                          type="button" 
-                          className="btn btn-sm btn-outline-primary w-100" 
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-primary w-100"
                           onClick={() => setIsPermissionsModalOpen(true)}
                         >
-                            {permissions.length > 0 ? `Edit Permissions (${permissions.length} selected)` : 'Select Permissions'}
+                          {permissions.length > 0 ? `Edit Permissions (${permissions.length} selected)` : 'Select Permissions'}
                         </button>
                       </div>
                     )}
-                    
+
                     <div className="col-md-12">
                       <label className="form-label" style={STYLES.field_label}>
-                        {USERS_STRINGS.FORM.FIELD_LABELS.FULL_NAME} 
-                        <span style={{ color: COLORS.red}}> *</span>
+                        {USERS_STRINGS.FORM.FIELD_LABELS.FULL_NAME}
+                        <span style={{ color: COLORS.red }}> *</span>
                       </label>
                       <input
                         className="form-control"
@@ -814,8 +822,8 @@ const UsersList: React.FC = () => {
 
                     <div className="col-md-12">
                       <label className="form-label" style={STYLES.field_label}>
-                        {USERS_STRINGS.FORM.FIELD_LABELS.MOBILE} 
-                        <span style={{ color: COLORS.red}}> *</span>
+                        {USERS_STRINGS.FORM.FIELD_LABELS.MOBILE}
+                        <span style={{ color: COLORS.red }}> *</span>
                       </label>
                       <input
                         className="form-control"
@@ -836,8 +844,8 @@ const UsersList: React.FC = () => {
 
                     <div className="col-md-12">
                       <label className="form-label" style={STYLES.field_label}>
-                        {USERS_STRINGS.FORM.FIELD_LABELS.EMAIL} 
-                        <span style={{ color: COLORS.red}}> *</span>
+                        {USERS_STRINGS.FORM.FIELD_LABELS.EMAIL}
+                        <span style={{ color: COLORS.red }}> *</span>
                       </label>
                       <input
                         type="email"
@@ -851,7 +859,7 @@ const UsersList: React.FC = () => {
 
                     <div className="col-md-12">
                       <label className="form-label" style={STYLES.field_label}>
-                        {USERS_STRINGS.FORM.FIELD_LABELS.PROFILE_PHOTO} 
+                        {USERS_STRINGS.FORM.FIELD_LABELS.PROFILE_PHOTO}
                       </label>
                       <input
                         type="file"
@@ -865,8 +873,8 @@ const UsersList: React.FC = () => {
 
                     <div className="col-md-12">
                       <label className="form-label" style={STYLES.field_label}>
-                        {USERS_STRINGS.FORM.FIELD_LABELS.ADDRESS} 
-                        <span style={{ color: COLORS.red}}> *</span>
+                        {USERS_STRINGS.FORM.FIELD_LABELS.ADDRESS}
+                        <span style={{ color: COLORS.red }}> *</span>
                       </label>
                       <input
                         type="text"
@@ -880,8 +888,8 @@ const UsersList: React.FC = () => {
 
                     <div className="col-md-12">
                       <label className="form-label" style={STYLES.field_label}>
-                        {USERS_STRINGS.FORM.FIELD_LABELS.COUNTRY} 
-                        <span style={{ color: COLORS.red}}> *</span>
+                        {USERS_STRINGS.FORM.FIELD_LABELS.COUNTRY}
+                        <span style={{ color: COLORS.red }}> *</span>
                       </label>
                       <select
                         className="form-select"
@@ -900,8 +908,8 @@ const UsersList: React.FC = () => {
 
                     <div className="col-md-12">
                       <label className="form-label" style={STYLES.field_label}>
-                        {USERS_STRINGS.FORM.FIELD_LABELS.STATE} 
-                        <span style={{ color: COLORS.red}}> *</span>
+                        {USERS_STRINGS.FORM.FIELD_LABELS.STATE}
+                        <span style={{ color: COLORS.red }}> *</span>
                       </label>
                       <select
                         className="form-select"
@@ -921,14 +929,14 @@ const UsersList: React.FC = () => {
 
                     <div className="col-md-12">
                       <label className="form-label" style={STYLES.field_label}>
-                        {USERS_STRINGS.FORM.FIELD_LABELS.CITY} 
-                        <span style={{ color: COLORS.red}}> *</span>
+                        {USERS_STRINGS.FORM.FIELD_LABELS.CITY}
+                        <span style={{ color: COLORS.red }}> *</span>
                       </label>
                       <select
                         className="form-select"
                         value={cityId === "" ? "" : cityId}
                         onChange={(e) => setCityId(e.target.value ? Number(e.target.value) : "")}
-                        required 
+                        required
                         disabled={stateId === "" || cities.length === 0}
                       >
                         <option value="">Select City</option>
@@ -942,8 +950,8 @@ const UsersList: React.FC = () => {
 
                     <div className="col-md-12">
                       <label className="form-label" style={STYLES.field_label}>
-                        {USERS_STRINGS.TABLE.HEADER_STATUS} 
-                        <span style={{ color: COLORS.red}}> *</span>
+                        {USERS_STRINGS.TABLE.HEADER_STATUS}
+                        <span style={{ color: COLORS.red }}> *</span>
                       </label>
                       <select className="form-select" value={status} onChange={(e) => setStatus(e.target.value)} required>
                         <option value="1">{USERS_STRINGS.FORM.FIELD_LABELS.STATUS_ACTIVE}</option>
@@ -974,8 +982,8 @@ const UsersList: React.FC = () => {
           </div>
         </div>
       </div>
-      
-      <PermissionsModal 
+
+      <PermissionsModal
         show={isPermissionsModalOpen}
         onClose={() => setIsPermissionsModalOpen(false)}
         currentPermissions={permissions}
