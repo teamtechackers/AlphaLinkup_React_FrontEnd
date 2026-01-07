@@ -308,8 +308,20 @@ const UsersList: React.FC = () => {
           toast.error("City is required.");
           return;
       }
-      if (!username || (!editing && !password) || (isCurrentSubAdmin && permissions.length === 0)) {
-        toast.error("Admin user requires Username, Password (for new users), and SubAdmin requires Permissions.");
+      
+      // Check each required field separately and show specific error messages
+      if (!username) {
+        toast.error("Username is required for admin users.");
+        return;
+      }
+      
+      if (!editing && !password) {
+        toast.error("Password is required for new admin users.");
+        return;
+      }
+      
+      if (isCurrentSubAdmin && permissions.length === 0) {
+        toast.error("Permissions are required for subadmin users.");
         return;
       }
     }
