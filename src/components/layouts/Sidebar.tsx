@@ -4,7 +4,7 @@ import { COLORS } from "../../utils/theme/colors";
 import { STYLES } from "../../utils/typography/styles";
 import { APP_ROUTES } from "../../utils/strings/app_routes";
 
-import { FiAirplay, FiBriefcase, FiChevronDown, FiBarChart2, FiHeadphones , FiUsers, FiCreditCard, FiGrid, FiAperture, FiStar, FiFolderPlus, FiChevronRight,  } from "react-icons/fi";
+import { FiAirplay, FiBriefcase, FiChevronDown, FiBarChart2, FiHeadphones , FiUsers, FiCreditCard, FiGrid, FiAperture, FiStar, FiFolderPlus, FiChevronRight, FiTrash2 } from "react-icons/fi";
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
@@ -254,6 +254,23 @@ const Sidebar: React.FC = () => {
               >
                 <FiUsers  size={16} style={{ marginRight: 8, marginBottom: 2 }} />
                 Users
+              </Link>
+            </li>
+
+            {/* Account Deletion Requests */}
+            <li className="nav-item">
+              <Link
+                to={APP_ROUTES.ACCOUNT_DELETION_REQUESTS}
+                className={`nav-link ${isActive(APP_ROUTES.ACCOUNT_DELETION_REQUESTS) ? "active" : ""}`}
+                style={{
+                  ...STYLES.nav_item,
+                  color: isActive(APP_ROUTES.ACCOUNT_DELETION_REQUESTS) ? COLORS.teal : COLORS.darkGray,
+                }}
+                onMouseEnter={(e) => handleHover(e, isActive(APP_ROUTES.ACCOUNT_DELETION_REQUESTS))}
+                onMouseLeave={(e) => handleLeave(e, isActive(APP_ROUTES.ACCOUNT_DELETION_REQUESTS))}
+              >
+                <FiTrash2  size={16} style={{ marginRight: 8, marginBottom: 2 }} />
+                Account Deletion Requests
               </Link>
             </li>
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { STYLES } from "../utils/typography/styles";
-import { FiBriefcase, FiBarChart2 , FiUsers, FiAperture, FiStar, FiHeadphones } from "react-icons/fi";
+import { FiBriefcase, FiBarChart2 , FiUsers, FiAperture, FiStar, FiHeadphones, FiTrash2 } from "react-icons/fi";
 import { COLORS } from '../utils/theme/colors';
 import { CONSTANTS } from "../utils/strings/constants";
 import { DASHBOARD_STRINGS } from '../utils/strings/pages/dashboard_strings';
@@ -31,6 +31,7 @@ const AdminDashboard: React.FC = () => {
           count_service: Number(data.count_service ?? 0),
           count_investor: Number(data.count_investor ?? 0),
           count_meetings_total: Number(data.count_meetings_total ?? 0),
+          count_deletion_requests: Number(data.count_deletion_requests ?? 0),
           list_jobs: Array.isArray(data.list_jobs) ? data.list_jobs : [],
           list_investor: Array.isArray(data.list_investor) ? data.list_investor : [],
         };
@@ -209,6 +210,24 @@ const AdminDashboard: React.FC = () => {
               <div className="text-end">
                 <h4 style={STYLES.label_2}>{dashboardData?.count_meetings_total || 0}</h4>
                 <p style={STYLES.field_text}>{DASHBOARD_STRINGS.CARDS.MEETINGS_SCHEDULES}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="dashboard-card">
+            <div className="dashboard-card-content">
+              <div
+                className="dashboard-card-icon"
+                style={{
+                  backgroundColor: `${COLORS.red}30`,
+                  border: `1px solid ${COLORS.red}`,
+                }}
+              >
+                <FiTrash2 size={24} color={COLORS.red} />
+              </div>
+              <div className="text-end">
+                <h4 style={STYLES.label_2}>{dashboardData?.count_deletion_requests || 0}</h4>
+                <p style={STYLES.field_text}>{DASHBOARD_STRINGS.CARDS.ACCOUNT_DELETION_REQUESTS}</p>
               </div>
             </div>
           </div>

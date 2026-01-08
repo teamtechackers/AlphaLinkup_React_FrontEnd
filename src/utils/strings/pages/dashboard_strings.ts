@@ -8,6 +8,7 @@ export const DASHBOARD_STRINGS = {
     SERVICE_PROVIDERS: "Total Service Providers",
     INVESTORS: "Total Investors",
     MEETINGS_SCHEDULES: "Total Meetings Schedules",
+    ACCOUNT_DELETION_REQUESTS: "Account Deletion Requests",
   },
   TABLE_USERS: {
     TABLE_TITLE: "Top 5 Users",

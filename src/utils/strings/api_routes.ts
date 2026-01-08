@@ -166,4 +166,9 @@ export const API_ROUTES = {
     UPDATE_MEETING_REQUEST: "/Api-Admin-Update-Meeting-Request",
     GET_INVESTOR_MEETINGS: "/Api-Admin-Investor-Meeting-Requests",
   },
+
+  ACCOUNT_DELETION_REQUESTS: {
+    GET_LIST: "/Api-Admin-Deletion-Requests",
+    DELETE: "/delete-account-deletion-requests",
+  },
 };

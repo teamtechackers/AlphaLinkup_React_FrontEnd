@@ -26,4 +26,5 @@ export const APP_ROUTES = {
   SERVICE_PROVIDERS: "/list-service-provider",
   INVESTORS: "/list-investors",
   MEETINGS_SCHEDULES: "/list-meetings-schedules",
+  ACCOUNT_DELETION_REQUESTS: "/list-account-deletion-requests",
 };

@@ -23,6 +23,7 @@ import IndustriesTypeList from './pages/industries_type_list';
 import FundSizesList from './pages/fund_sizes_list';
 import FoldersList from './pages/folders_list';
 import MeetingsSchedulesPage from './pages/metings_schedules';
+import AccountDeletionRequestsList from './pages/account_deletion_requests_list';
 import AdminLayout from './components/layouts/AdminLayout';
 import { APP_ROUTES } from './utils/strings/app_routes';
 import authService from './services/auth_service';
@@ -71,6 +72,7 @@ const AppRoutes: React.FC = () => {
         <Route path={APP_ROUTES.INDUSTRY_TYPES} element={<IndustriesTypeList />} />
         <Route path={APP_ROUTES.FUND_SIZES} element={<FundSizesList />} />
         <Route path={APP_ROUTES.FOLDERS} element={<FoldersList />} />
+        <Route path={APP_ROUTES.ACCOUNT_DELETION_REQUESTS} element={<AccountDeletionRequestsList />} />
       </Route>
     </Routes>
   );
