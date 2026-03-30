@@ -56,6 +56,9 @@ const DetailsDialog = ({ open, onClose, title, fields }) => {
         {rows.map((row, rowIndex) => {
           const isLastRow = rowIndex === rows.length - 1;
           const missingColumns = 3 - row.length;
+          const hasJobDescription = row.some(
+            (field) => (field.label?.toLowerCase() || "") === "job description"
+          );
 
           return (
             <Box
@@ -64,7 +67,7 @@ const DetailsDialog = ({ open, onClose, title, fields }) => {
               mb={`${rowSpacing}px`}
               key={rowIndex}
               justifyContent="flex-start"
-              flexWrap="nowrap"
+              flexWrap={hasJobDescription ? "wrap" : "nowrap"}
             >
               {row.map((field, colIndex) => {
                 const labelLower = field.label?.toLowerCase() || "";
@@ -75,13 +78,13 @@ const DetailsDialog = ({ open, onClose, title, fields }) => {
                   <Box
                     key={colIndex}
                     minWidth={200}
-                    flex={isJobDescription ? "0 0 66%" : "1"}
+                    flex={isJobDescription ? "1 1 100%" : "1"}
                   >
                     <Box fontWeight="bold" mb={0.5}>
                       {field.label}:
                     </Box>
 
-                    <Box whiteSpace="pre-wrap">
+                    <Box whiteSpace="pre-wrap" sx={{ overflowWrap: "anywhere", wordBreak: "break-word" }}>
                       {isEventBanner ? (
                         <img
                           src={field.value}
