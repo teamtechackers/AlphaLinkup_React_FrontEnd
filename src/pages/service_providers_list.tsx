@@ -502,17 +502,6 @@ const ServiceProvidersList: React.FC = () => {
                     </select>
                   </div>
 
-                  <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>
-                      {SERVICE_PROVIDERS_STRINGS.FORM.FIELD_LABELS.STATUS}
-                      <span style={{ color: COLORS.red }}> *</span>
-                    </label>
-                    <select className="form-select" value={status} onChange={(e) => setStatus(Number(e.target.value))} required>
-                      <option value="">Select Status</option>
-                      <option value="1">Active</option>
-                      <option value="0">Inactive</option>
-                    </select>
-                  </div>
                 </div>
 
                 <div className="d-flex gap-2 mt-3">

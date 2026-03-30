@@ -579,18 +579,6 @@ const CardActivationRequestsList: React.FC = () => {
                     </select>
                   </div>
 
-                  {/* Overall Status */}
-                  <div className="col-md-12">
-                    <label className="form-label" style={STYLES.field_label}>
-                      {CARD_ACTIVATION_REQUESTS_STRINGS.FORM.FIELD_LABELS.STATE}
-                      <span style={{ color: COLORS.red}}> *</span>
-                    </label>
-                    <select className="form-select" value={status === "" ? 1 : status} onChange={(e) => setStatus(e.target.value === "" ? "" : Number(e.target.value))} required>
-                      <option value="" >Select Status</option>
-                      <option value={1}>Active</option>
-                      <option value={0}>Inactive</option>
-                    </select>
-                  </div>
                 </div>
 
                 {/* Buttons */}
