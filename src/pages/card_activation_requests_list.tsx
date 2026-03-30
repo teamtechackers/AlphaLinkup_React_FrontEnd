@@ -381,6 +381,7 @@ const CardActivationRequestsList: React.FC = () => {
               rows={items}
               columns={columns}
               loading={loading}
+              localeText={{ noRowsLabel: "No card activation requests found" }}
               getRowId={(row) => row.ubc_id ?? 0}
               disableRowSelectionOnClick
               pageSizeOptions={[5, 10, 20, 50]}

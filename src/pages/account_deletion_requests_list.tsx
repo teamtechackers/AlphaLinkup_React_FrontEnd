@@ -134,6 +134,7 @@ const AccountDeletionRequestsList: React.FC = () => {
                 rows={items}
                 columns={columns}
                 loading={loading}
+                localeText={{ noRowsLabel: "No account deletion requests found" }}
                 getRowId={(row) => row.user_id}
                 disableRowSelectionOnClick
                 pageSizeOptions={[5, 10, 20, 50]}

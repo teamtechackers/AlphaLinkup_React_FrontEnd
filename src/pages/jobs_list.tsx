@@ -384,6 +384,7 @@ const JobsList: React.FC = () => {
               rows={items}
               columns={columns}
               loading={loading}
+              localeText={{ noRowsLabel: "No jobs found" }}
               getRowId={(row) => row.row_id}
               disableRowSelectionOnClick
               pageSizeOptions={[5, 10, 20, 50]}

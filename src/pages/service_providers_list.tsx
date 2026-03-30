@@ -362,6 +362,7 @@ const ServiceProvidersList: React.FC = () => {
               rows={items}
               columns={columns}
               loading={loading}
+              localeText={{ noRowsLabel: "No service providers found" }}
               getRowId={(row) => row.sp_id}
               disableRowSelectionOnClick
               pageSizeOptions={[5, 10, 20, 50]}

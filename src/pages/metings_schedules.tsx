@@ -268,6 +268,7 @@ const MeetingsSchedulesPage: React.FC = () => {
               columns={columns}
               getRowId={(row) => row.meeting_id}
               loading={loading}
+              localeText={{ noRowsLabel: "No meeting schedules found" }}
               pageSizeOptions={[5, 10, 20, 50]}
               paginationModel={paginationModel}
               onPaginationModelChange={setPaginationModel}

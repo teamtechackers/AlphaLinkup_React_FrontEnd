@@ -406,6 +406,7 @@ const InvestorsList: React.FC = () => {
               rows={items}
               columns={columns}
               loading={loading}
+              localeText={{ noRowsLabel: "No investors found" }}
               getRowId={(row) => row.investor_id}
               disableRowSelectionOnClick
               pageSizeOptions={[5, 10, 20, 50]}

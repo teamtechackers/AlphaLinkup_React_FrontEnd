@@ -723,6 +723,9 @@ const UsersList: React.FC = () => {
                 rows={currentItems}
                 columns={currentColumns}
                 loading={loading}
+                localeText={{
+                  noRowsLabel: activeTab === 'users' ? 'No users found' : 'No admins found',
+                }}
                 getRowId={(row) => row.user_id}
                 disableRowSelectionOnClick
                 pageSizeOptions={[5, 10, 20, 50]}

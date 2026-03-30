@@ -366,6 +366,7 @@ const EventsList: React.FC = () => {
               rows={items}
               columns={columns}
               loading={loading}
+              localeText={{ noRowsLabel: "No events found" }}
               getRowId={(row) => Number(row.event_id)}
               disableRowSelectionOnClick
               pageSizeOptions={[5, 10, 20, 50]}
