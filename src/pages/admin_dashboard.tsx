@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { STYLES } from "../utils/typography/styles";
 import { FiBriefcase, FiBarChart2 , FiUsers, FiAperture, FiStar, FiHeadphones, FiTrash2 } from "react-icons/fi";
 import { COLORS } from '../utils/theme/colors';
@@ -7,8 +8,10 @@ import { DASHBOARD_STRINGS } from '../utils/strings/pages/dashboard_strings';
 import { DashboardModel } from '../models/dashboard_model';
 import authService from '../services/auth_service';
 import dashboardService from '../services/dashboard_service';
+import { APP_ROUTES } from '../utils/strings/app_routes';
 
 const AdminDashboard: React.FC = () => {
+  const navigate = useNavigate();
   const [dashboardData, setDashboardData] = useState<DashboardModel | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -58,6 +61,79 @@ const AdminDashboard: React.FC = () => {
     fetchDashboardData();
   };
 
+  const dashboardCards = [
+    {
+      count: dashboardData?.count_users || 0,
+      label: DASHBOARD_STRINGS.CARDS.USERS,
+      route: APP_ROUTES.USERS,
+      icon: <FiUsers size={24} color={COLORS.purple} />,
+      iconStyles: {
+        backgroundColor: `${COLORS.purple}30`,
+        border: `1px solid ${COLORS.purple}`,
+      },
+    },
+    {
+      count: dashboardData?.count_jobs || 0,
+      label: DASHBOARD_STRINGS.CARDS.JOBS,
+      route: APP_ROUTES.JOBS,
+      icon: <FiBriefcase size={24} color={COLORS.green} />,
+      iconStyles: {
+        backgroundColor: `${COLORS.green}30`,
+        border: `1px solid ${COLORS.green}`,
+      },
+    },
+    {
+      count: dashboardData?.count_events || 0,
+      label: DASHBOARD_STRINGS.CARDS.EVENTS,
+      route: APP_ROUTES.EVENTS,
+      icon: <FiAperture size={24} color={COLORS.teal} />,
+      iconStyles: {
+        backgroundColor: `${COLORS.teal}30`,
+        border: `1px solid ${COLORS.teal}`,
+      },
+    },
+    {
+      count: dashboardData?.count_service || 0,
+      label: DASHBOARD_STRINGS.CARDS.SERVICE_PROVIDERS,
+      route: APP_ROUTES.SERVICE_PROVIDERS,
+      icon: <FiStar size={24} color={COLORS.yellow} />,
+      iconStyles: {
+        backgroundColor: `${COLORS.yellow}30`,
+        border: `1px solid ${COLORS.yellow}`,
+      },
+    },
+    {
+      count: dashboardData?.count_investor || 0,
+      label: DASHBOARD_STRINGS.CARDS.INVESTORS,
+      route: APP_ROUTES.INVESTORS,
+      icon: <FiBarChart2 size={24} color={COLORS.yellow} />,
+      iconStyles: {
+        backgroundColor: `${COLORS.yellow}30`,
+        border: `1px solid ${COLORS.yellow}`,
+      },
+    },
+    {
+      count: dashboardData?.count_meetings_total || 0,
+      label: DASHBOARD_STRINGS.CARDS.MEETINGS_SCHEDULES,
+      route: APP_ROUTES.MEETINGS_SCHEDULES,
+      icon: <FiHeadphones size={24} color={COLORS.green} />,
+      iconStyles: {
+        backgroundColor: `${COLORS.green}30`,
+        border: `1px solid ${COLORS.green}`,
+      },
+    },
+    {
+      count: dashboardData?.count_deletion_requests || 0,
+      label: DASHBOARD_STRINGS.CARDS.ACCOUNT_DELETION_REQUESTS,
+      route: APP_ROUTES.ACCOUNT_DELETION_REQUESTS,
+      icon: <FiTrash2 size={24} color={COLORS.red} />,
+      iconStyles: {
+        backgroundColor: `${COLORS.red}30`,
+        border: `1px solid ${COLORS.red}`,
+      },
+    },
+  ];
+
   if (loading) {
     return (
       <div className="content" style={STYLES.page_title}>
@@ -105,133 +181,25 @@ const AdminDashboard: React.FC = () => {
         </div>
 
         <div className="dashboard-cards">
-
-          <div className="dashboard-card">
-            <div className="dashboard-card-content">
-              <div
-                className="dashboard-card-icon"
-                style={{
-                  backgroundColor: `${COLORS.purple}30`,
-                  border: `1px solid ${COLORS.purple}`,
-                }}
-              >
-                <FiUsers size={24} color={COLORS.purple} />
+          {dashboardCards.map((card) => (
+            <button
+              key={card.route}
+              type="button"
+              className="dashboard-card dashboard-card-button"
+              onClick={() => navigate(card.route)}
+              aria-label={`Open ${card.label}`}
+            >
+              <div className="dashboard-card-content">
+                <div className="dashboard-card-icon" style={card.iconStyles}>
+                  {card.icon}
+                </div>
+                <div className="text-end">
+                  <h4 style={STYLES.label_2}>{card.count}</h4>
+                  <p style={STYLES.field_text}>{card.label}</p>
+                </div>
               </div>
-              <div className="text-end">
-                <h4 style={STYLES.label_2}>{dashboardData?.count_users || 0}</h4>
-                <p style={STYLES.field_text}>{DASHBOARD_STRINGS.CARDS.USERS}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="dashboard-card">
-            <div className="dashboard-card-content">
-              <div
-                className="dashboard-card-icon"
-                style={{
-                  backgroundColor: `${COLORS.green}30`,
-                  border: `1px solid ${COLORS.green}`,
-                }}
-              >
-                <FiBriefcase size={24} color={COLORS.green} />
-              </div>
-              <div className="text-end">
-                <h4 style={STYLES.label_2}>{dashboardData?.count_jobs || 0}</h4>
-                <p style={STYLES.field_text}>{DASHBOARD_STRINGS.CARDS.JOBS}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="dashboard-card">
-            <div className="dashboard-card-content">
-              <div
-                className="dashboard-card-icon"
-                style={{
-                  backgroundColor: `${COLORS.teal}30`,
-                  border: `1px solid ${COLORS.teal}`,
-                }}
-              >
-                <FiAperture size={24} color={COLORS.teal} />
-              </div>
-              <div className="text-end">
-                <h4 style={STYLES.label_2}>{dashboardData?.count_events || 0}</h4>
-                <p style={STYLES.field_text}>{DASHBOARD_STRINGS.CARDS.EVENTS}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="dashboard-card">
-            <div className="dashboard-card-content">
-              <div
-                className="dashboard-card-icon"
-                style={{
-                  backgroundColor: `${COLORS.yellow}30`,
-                  border: `1px solid ${COLORS.yellow}`,
-                }}
-              >
-                <FiStar size={24} color={COLORS.yellow} />
-              </div>
-              <div className="text-end">
-                <h4 style={STYLES.label_2}>{dashboardData?.count_service || 0}</h4>
-                <p style={STYLES.field_text}>{DASHBOARD_STRINGS.CARDS.SERVICE_PROVIDERS}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="dashboard-card">
-            <div className="dashboard-card-content">
-              <div
-                className="dashboard-card-icon"
-                style={{
-                  backgroundColor: `${COLORS.yellow}30`,
-                  border: `1px solid ${COLORS.yellow}`,
-                }}
-              >
-                <FiBarChart2 size={24} color={COLORS.yellow} />
-              </div>
-              <div className="text-end">
-                <h4 style={STYLES.label_2}>{dashboardData?.count_investor || 0}</h4>
-                <p style={STYLES.field_text}>{DASHBOARD_STRINGS.CARDS.INVESTORS}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="dashboard-card">
-            <div className="dashboard-card-content">
-              <div
-                className="dashboard-card-icon"
-                style={{
-                  backgroundColor: `${COLORS.green}30`,
-                  border: `1px solid ${COLORS.green}`,
-                }}
-              >
-                <FiHeadphones size={24} color={COLORS.green} />
-              </div>
-              <div className="text-end">
-                <h4 style={STYLES.label_2}>{dashboardData?.count_meetings_total || 0}</h4>
-                <p style={STYLES.field_text}>{DASHBOARD_STRINGS.CARDS.MEETINGS_SCHEDULES}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="dashboard-card">
-            <div className="dashboard-card-content">
-              <div
-                className="dashboard-card-icon"
-                style={{
-                  backgroundColor: `${COLORS.red}30`,
-                  border: `1px solid ${COLORS.red}`,
-                }}
-              >
-                <FiTrash2 size={24} color={COLORS.red} />
-              </div>
-              <div className="text-end">
-                <h4 style={STYLES.label_2}>{dashboardData?.count_deletion_requests || 0}</h4>
-                <p style={STYLES.field_text}>{DASHBOARD_STRINGS.CARDS.ACCOUNT_DELETION_REQUESTS}</p>
-              </div>
-            </div>
-          </div>
-          
+            </button>
+          ))}
         </div>
         
         {/* Tables Row */}
