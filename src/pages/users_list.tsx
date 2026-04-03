@@ -677,9 +677,9 @@ const UsersList: React.FC = () => {
           </div>
         </div>
 
-        {/* Tabs for Users and Admins */}
-        <div className="row">
-          <div className="col-lg-8">
+        <div className="row align-items-start">
+
+          <div className="col-lg-8 d-flex flex-column gap-3">
             <div className="d-flex" style={{ width: "100%", backgroundColor: COLORS.lightGray, borderRadius: "4px", overflow: "hidden" }}>
               <button
                 className={`flex-fill text-center py-2 px-0 ${activeTab === 'users' ? 'active' : ''}`}
@@ -712,12 +712,7 @@ const UsersList: React.FC = () => {
                 Admins
               </button>
             </div>
-          </div>
-        </div>
 
-        <div className="row">
-
-          <div className="col-lg-8">
             <Box sx={{ height: 800, width: "100%" }}>
               <DataGrid
                 rows={currentItems}
