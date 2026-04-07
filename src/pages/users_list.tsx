@@ -20,6 +20,8 @@ const USER_ROLES = [
   { label: "Sub Admin", value: "subadmin" },
 ];
 
+const FORM_CONTAINER_BORDER_COLOR = "#dee2e6";
+
 const UsersList: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'users' | 'admins'>('users');
   const [userItems, setUserItems] = useState<UserModel[]>([]);
@@ -687,7 +689,7 @@ const UsersList: React.FC = () => {
                 style={{
                   backgroundColor: activeTab === 'users' ? COLORS.white : COLORS.lightGray,
                   color: COLORS.black,
-                  border: `1px solid ${COLORS.gray}`,
+                  border: `1px solid ${FORM_CONTAINER_BORDER_COLOR}`,
                   borderRight: 'none',
                   fontWeight: activeTab === 'users' ? 'bold' : 'normal',
                   cursor: 'pointer',
@@ -702,7 +704,7 @@ const UsersList: React.FC = () => {
                 style={{
                   backgroundColor: activeTab === 'admins' ? COLORS.white : COLORS.lightGray,
                   color: COLORS.black,
-                  border: `1px solid ${COLORS.gray}`,
+                  border: `1px solid ${FORM_CONTAINER_BORDER_COLOR}`,
                   borderLeft: 'none',
                   fontWeight: activeTab === 'admins' ? 'bold' : 'normal',
                   cursor: 'pointer',
