@@ -40,12 +40,23 @@ else
     exit 1
 fi
 
+# Sync build to Nginx root
+if [ -d "/var/www/alpha-frontend" ]; then
+    echo "📦 Syncing build to Nginx root (/var/www/alpha-frontend)..."
+    sudo cp -r build/* /var/www/alpha-frontend/
+    sudo chown -R www-data:www-data /var/www/alpha-frontend/
+    
+    # Restart Nginx
+    echo "🔄 Restarting Nginx..."
+    sudo systemctl restart nginx
+else
+    echo "⚠️  /var/www/alpha-frontend not found. Nginx sync skipped."
+    echo "📋 Next steps:"
+    echo "1. If using nginx, point it to: /home/ubuntu/AlphaLinkup_React_FrontEnd/build"
+    echo "2. Or use 'serve' package: npm install -g serve && serve -s build -l 80"
+    echo "3. Or use PM2: pm2 serve build 80 --spa"
+fi
+
 echo ""
 echo "✅ Deployment completed successfully!"
 echo ""
-echo "📋 Next steps:"
-echo "1. If using nginx, point it to: /home/ubuntu/AlphaLinkup_React_FrontEnd/build"
-echo "2. Or use 'serve' package: npm install -g serve && serve -s build -l 80"
-echo "3. Or use PM2: pm2 serve build 80 --spa"
-echo ""
-
