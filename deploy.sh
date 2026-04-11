@@ -27,8 +27,8 @@ else
 fi
 
 # Build production version
-echo "🔨 Building production version..."
-npm run build
+echo "🔨 Building production version (optimizing memory)..."
+GENERATE_SOURCEMAP=false npm run build
 
 # Check if build was successful
 if [ -d "build" ]; then
