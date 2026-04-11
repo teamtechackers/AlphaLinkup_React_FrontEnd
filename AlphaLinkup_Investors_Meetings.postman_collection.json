@@ -1,0 +1,845 @@
+{
+  "info": {
+    "name": "AlphaLinkup Investors and Meetings APIs",
+    "_postman_id": "4f5fd126-c41f-4ec3-b8da-cb3da8afc8c1",
+    "description": "Postman collection for all APIs currently used by the Investors page and Meetings Schedules page in the React admin frontend. Configure collection variables before running. Note: the meetings page calls the requestor-details API using params.row.request_id from the grid click handler, while the service method parameter is named requestorId.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://your-api-host.example.com",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "draw",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "start",
+      "value": "0",
+      "type": "string"
+    },
+    {
+      "key": "length",
+      "value": "10",
+      "type": "string"
+    },
+    {
+      "key": "page",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "limit",
+      "value": "10",
+      "type": "string"
+    },
+    {
+      "key": "country_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "state_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "investor_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "delete_investor_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "requestor_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "request_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "meeting_date",
+      "value": "2026-04-11",
+      "type": "string"
+    },
+    {
+      "key": "meeting_time",
+      "value": "09:00 AM",
+      "type": "string"
+    },
+    {
+      "key": "request_status",
+      "value": "Scheduled",
+      "type": "string"
+    },
+    {
+      "key": "investor_user_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "name",
+      "value": "Sample Investor",
+      "type": "string"
+    },
+    {
+      "key": "linkedin_url",
+      "value": "https://www.linkedin.com/in/sample-investor",
+      "type": "string"
+    },
+    {
+      "key": "bio",
+      "value": "Sample investor bio",
+      "type": "string"
+    },
+    {
+      "key": "profile",
+      "value": "Angel Investor",
+      "type": "string"
+    },
+    {
+      "key": "investment_stage",
+      "value": "Seed",
+      "type": "string"
+    },
+    {
+      "key": "availability",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "meeting_city",
+      "value": "New York",
+      "type": "string"
+    },
+    {
+      "key": "countries_to_invest",
+      "value": "USA, Canada",
+      "type": "string"
+    },
+    {
+      "key": "investment_industry",
+      "value": "SaaS",
+      "type": "string"
+    },
+    {
+      "key": "language",
+      "value": "English",
+      "type": "string"
+    },
+    {
+      "key": "fund_size_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "approval_status",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "status",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "row_id",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Investors Page",
+      "description": "APIs used directly by src/pages/investors_list.tsx, including list, save/update, delete, and lookup APIs used to populate form dropdowns.",
+      "item": [
+        {
+          "name": "List Investors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/list-investors-ajax?user_id={{user_id}}&token={{token}}&draw={{draw}}&start={{start}}&length={{length}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "list-investors-ajax"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                },
+                {
+                  "key": "draw",
+                  "value": "{{draw}}"
+                },
+                {
+                  "key": "start",
+                  "value": "{{start}}"
+                },
+                {
+                  "key": "length",
+                  "value": "{{length}}"
+                }
+              ]
+            },
+            "description": "Used by the investors grid loader. The page calculates start as page * pageSize and passes draw as page + 1."
+          }
+        },
+        {
+          "name": "Get Countries",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/Api-Country-List?user_id={{user_id}}&token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "Api-Country-List"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "description": "Loads the country dropdown when the investors page mounts."
+          }
+        },
+        {
+          "name": "Get States",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/Api-State-List?user_id={{user_id}}&token={{token}}&country_id={{country_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "Api-State-List"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                },
+                {
+                  "key": "country_id",
+                  "value": "{{country_id}}"
+                }
+              ]
+            },
+            "description": "Triggered after a country is selected and also during edit-mode form hydration."
+          }
+        },
+        {
+          "name": "Get Cities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/Api-City-List?user_id={{user_id}}&token={{token}}&state_id={{state_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "Api-City-List"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                },
+                {
+                  "key": "state_id",
+                  "value": "{{state_id}}"
+                }
+              ]
+            },
+            "description": "Triggered after a state is selected and also during edit-mode form hydration."
+          }
+        },
+        {
+          "name": "Get Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/Api-User-List?user_id={{user_id}}&token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "Api-User-List"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "description": "Populates the Full Name user select used to bind an investor profile to a user."
+          }
+        },
+        {
+          "name": "Get Fund Sizes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/Api-Fund-Size-List?user_id={{user_id}}&token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "Api-Fund-Size-List"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "description": "Loads the fund size select used in the investors form."
+          }
+        },
+        {
+          "name": "Create Investor",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "text"
+                },
+                {
+                  "key": "name",
+                  "value": "{{name}}",
+                  "type": "text"
+                },
+                {
+                  "key": "country_id",
+                  "value": "{{country_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "state_id",
+                  "value": "{{state_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "city_id",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "fund_size_id",
+                  "value": "{{fund_size_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "linkedin_url",
+                  "value": "{{linkedin_url}}",
+                  "type": "text"
+                },
+                {
+                  "key": "bio",
+                  "value": "{{bio}}",
+                  "type": "text"
+                },
+                {
+                  "key": "profile",
+                  "value": "{{profile}}",
+                  "type": "text"
+                },
+                {
+                  "key": "investment_stage",
+                  "value": "{{investment_stage}}",
+                  "type": "text"
+                },
+                {
+                  "key": "availability",
+                  "value": "{{availability}}",
+                  "type": "text"
+                },
+                {
+                  "key": "meeting_city",
+                  "value": "{{meeting_city}}",
+                  "type": "text"
+                },
+                {
+                  "key": "countries_to_invest",
+                  "value": "{{countries_to_invest}}",
+                  "type": "text"
+                },
+                {
+                  "key": "investment_industry",
+                  "value": "{{investment_industry}}",
+                  "type": "text"
+                },
+                {
+                  "key": "language",
+                  "value": "{{language}}",
+                  "type": "text"
+                },
+                {
+                  "key": "approval_status",
+                  "value": "{{approval_status}}",
+                  "type": "text"
+                },
+                {
+                  "key": "status",
+                  "value": "{{status}}",
+                  "type": "text"
+                },
+                {
+                  "key": "user_for_investor",
+                  "value": "{{investor_user_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/submit-investors?user_id={{user_id}}&token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "submit-investors"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "description": "Create flow used by the investors page. The page sends user_id and token both as query params and inside form-data."
+          }
+        },
+        {
+          "name": "Update Investor",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "text"
+                },
+                {
+                  "key": "name",
+                  "value": "{{name}}",
+                  "type": "text"
+                },
+                {
+                  "key": "country_id",
+                  "value": "{{country_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "state_id",
+                  "value": "{{state_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "city_id",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "fund_size_id",
+                  "value": "{{fund_size_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "linkedin_url",
+                  "value": "{{linkedin_url}}",
+                  "type": "text"
+                },
+                {
+                  "key": "bio",
+                  "value": "{{bio}}",
+                  "type": "text"
+                },
+                {
+                  "key": "profile",
+                  "value": "{{profile}}",
+                  "type": "text"
+                },
+                {
+                  "key": "investment_stage",
+                  "value": "{{investment_stage}}",
+                  "type": "text"
+                },
+                {
+                  "key": "availability",
+                  "value": "{{availability}}",
+                  "type": "text"
+                },
+                {
+                  "key": "meeting_city",
+                  "value": "{{meeting_city}}",
+                  "type": "text"
+                },
+                {
+                  "key": "countries_to_invest",
+                  "value": "{{countries_to_invest}}",
+                  "type": "text"
+                },
+                {
+                  "key": "investment_industry",
+                  "value": "{{investment_industry}}",
+                  "type": "text"
+                },
+                {
+                  "key": "language",
+                  "value": "{{language}}",
+                  "type": "text"
+                },
+                {
+                  "key": "approval_status",
+                  "value": "{{approval_status}}",
+                  "type": "text"
+                },
+                {
+                  "key": "status",
+                  "value": "{{status}}",
+                  "type": "text"
+                },
+                {
+                  "key": "user_for_investor",
+                  "value": "{{investor_user_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "row_id",
+                  "value": "{{row_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/submit-investors?user_id={{user_id}}&token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "submit-investors"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "description": "Edit flow used by the investors page. This uses the same submit endpoint as create, with row_id appended to form-data. The page uses editing.investor_id as row_id."
+          }
+        },
+        {
+          "name": "Delete Investor",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/delete-investors?keys={{delete_investor_id}}&user_id={{user_id}}&token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "delete-investors"
+              ],
+              "query": [
+                {
+                  "key": "keys",
+                  "value": "{{delete_investor_id}}"
+                },
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "description": "Deletes an investor by investor_id. The frontend passes the id in the keys query parameter."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Meetings Page",
+      "description": "APIs used directly by src/pages/metings_schedules.tsx for listing meetings, opening detail dialogs, and updating meeting schedules.",
+      "item": [
+        {
+          "name": "List Meeting Requests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/Api-Admin-Meeting-Requests?user_id={{user_id}}&token={{token}}&page={{page}}&limit={{limit}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "Api-Admin-Meeting-Requests"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                },
+                {
+                  "key": "page",
+                  "value": "{{page}}"
+                },
+                {
+                  "key": "limit",
+                  "value": "{{limit}}"
+                }
+              ]
+            },
+            "description": "Loads the main meetings schedules grid."
+          }
+        },
+        {
+          "name": "Get Requestor Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/Api-Get-Requestor-Details?requestor_id={{requestor_id}}&user_id={{user_id}}&token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "Api-Get-Requestor-Details"
+              ],
+              "query": [
+                {
+                  "key": "requestor_id",
+                  "value": "{{requestor_id}}"
+                },
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "description": "Used when clicking the requestor name. The service expects requestor_id, but the page currently passes params.row.request_id into this call."
+          }
+        },
+        {
+          "name": "Get Investor Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/Api-Admin-Investor-Profile?user_id={{user_id}}&token={{token}}&investor_id={{investor_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "Api-Admin-Investor-Profile"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                },
+                {
+                  "key": "investor_id",
+                  "value": "{{investor_id}}"
+                }
+              ]
+            },
+            "description": "Used by the investor-name click handler to populate the investor details dialog."
+          }
+        },
+        {
+          "name": "Get Investor Meeting Requests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/Api-Admin-Investor-Meeting-Requests?user_id={{user_id}}&token={{token}}&investor_id={{investor_id}}&page={{page}}&limit={{limit}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "Api-Admin-Investor-Meeting-Requests"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                },
+                {
+                  "key": "investor_id",
+                  "value": "{{investor_id}}"
+                },
+                {
+                  "key": "page",
+                  "value": "{{page}}"
+                },
+                {
+                  "key": "limit",
+                  "value": "{{limit}}"
+                }
+              ]
+            },
+            "description": "Triggered by the monitor icon to load all meeting requests for a selected investor."
+          }
+        },
+        {
+          "name": "Update Meeting Request",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/Api-Admin-Update-Meeting-Request?user_id={{user_id}}&token={{token}}&request_id={{request_id}}&meeting_date={{meeting_date}}&meeting_time={{meeting_time}}&request_status={{request_status}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "Api-Admin-Update-Meeting-Request"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                },
+                {
+                  "key": "request_id",
+                  "value": "{{request_id}}"
+                },
+                {
+                  "key": "meeting_date",
+                  "value": "{{meeting_date}}"
+                },
+                {
+                  "key": "meeting_time",
+                  "value": "{{meeting_time}}"
+                },
+                {
+                  "key": "request_status",
+                  "value": "{{request_status}}"
+                }
+              ]
+            },
+            "description": "Updates a meeting request from the edit form. The frontend sends null as the POST body and puts all fields in query params. request_status is populated from selectedMeeting.schedule_status. The request_id query param is intentionally populated with the meeting_id value."
+          }
+        }
+      ]
+    }
+  ]
+}

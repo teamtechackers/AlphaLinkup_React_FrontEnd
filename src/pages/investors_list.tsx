@@ -51,6 +51,7 @@ const InvestorsList: React.FC = () => {
 
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedRow, setSelectedRow] = useState<InvestorModel | null>(null);
+  const hasExistingImage = Boolean(editing?.image);
 
   const handleViewClick = (row: InvestorModel) => {
     console.log("Investor Details:", row);
@@ -566,7 +567,7 @@ const InvestorsList: React.FC = () => {
                       type="file"
                       className="form-control"
                       accept="image/*"
-                      required
+                      required={!hasExistingImage}
                       onChange={(e) => {
                         if (e.target.files && e.target.files[0]) {
                           setUploadedImage(e.target.files[0]);

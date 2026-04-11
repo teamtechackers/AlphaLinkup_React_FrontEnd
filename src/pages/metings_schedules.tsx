@@ -117,7 +117,7 @@ const MeetingsSchedulesPage: React.FC = () => {
 
     try {
       const payload = {
-        request_id: selectedMeeting.request_id,
+        request_id: selectedMeeting.meeting_id,
         meeting_date: selectedMeeting.meeting_date,
         meeting_time: selectedMeeting.meeting_time,
         request_status: selectedMeeting.schedule_status,

@@ -58,6 +58,7 @@ const EventsList: React.FC = () => {
   const [selectedRow, setSelectedRow] = useState<EventModel | null>(null);
 
   const bannerInputRef = useRef<HTMLInputElement | null>(null);
+  const hasExistingBanner = Boolean(editing?.event_banner);
 
   const handleViewClick = (row: EventModel) => {
     setSelectedRow(row);
@@ -277,6 +278,7 @@ const EventsList: React.FC = () => {
     setEventType(item.event_type_id ? Number(item.event_type_id) : "");
     setEventDetails(item.event_details ?? "");
     setEventBanner(null);
+    setPreviewBanner(item.event_banner ?? "");
     setStatus(item.status ?? "Active");
   };
 
@@ -618,7 +620,7 @@ const EventsList: React.FC = () => {
                         setEventBanner(file);
                         setPreviewBanner(file ? URL.createObjectURL(file) : "");
                       }}
-                      required
+                      required={!hasExistingBanner}
                     />
                     {previewBanner && (
                       <div className="mt-2">
