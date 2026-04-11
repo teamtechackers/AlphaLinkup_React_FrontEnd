@@ -27,6 +27,8 @@ interface PermissionsModalProps {
     onSave: (selectedIds: string[]) => void;
 }
 
+const HIDDEN_PERMISSION_CATEGORIES = new Set(['admins', 'reports']);
+
 const PermissionsModal: React.FC<PermissionsModalProps> = ({ show, onClose, currentPermissions, onSave }) => {
     const [allPermissions, setAllPermissions] = useState<PermissionsByCategory>({});
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set(currentPermissions));
@@ -97,7 +99,9 @@ const PermissionsModal: React.FC<PermissionsModalProps> = ({ show, onClose, curr
                         {isLoading ? (
                             <p className="text-center">{CONSTANTS.MESSAGES.LOADING_DATA}</p>
                         ) : (
-                            Object.entries(allPermissions).map(([category, permissions]) => (
+                            Object.entries(allPermissions)
+                                .filter(([category]) => !HIDDEN_PERMISSION_CATEGORIES.has(category.toLowerCase()))
+                                .map(([category, permissions]) => (
                                 <div key={category} className="mb-4 card p-3">
                                     <h6 className="text-capitalize fw-bold border-bottom pb-2">
                                         {category.replace('_', ' ')}
