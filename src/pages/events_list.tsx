@@ -622,6 +622,7 @@ const EventsList: React.FC = () => {
                       }}
                       required={!hasExistingBanner}
                     />
+                    {hasExistingBanner && !eventBanner && <span className="small text-muted">Current photo exists. Upload new to replace.</span>}
                     {previewBanner && (
                       <div className="mt-2">
                         <img src={previewBanner} alt="Preview" width={150} className="rounded shadow-sm" />

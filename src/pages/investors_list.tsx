@@ -574,6 +574,7 @@ const InvestorsList: React.FC = () => {
                         }
                       }}
                     />
+                    {hasExistingImage && !uploadedImage && <span className="small text-muted">Current photo exists. Upload new to replace.</span>}
                   </div>
 
                   {/* Availability Status */}
