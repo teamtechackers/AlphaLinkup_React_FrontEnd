@@ -11,8 +11,11 @@ import { EventModeModel, EventModeModelLabels } from "../models/event_mode_model
 import { CONSTANTS } from "../utils/strings/constants";
 import { COLORS } from "../utils/theme/colors";
 import { STYLES } from "../utils/typography/styles";
+import { usePermissions } from "../components/providers/PermissionsProvider";
 
 const EventModesList: React.FC = () => {
+  const { loading: permissionsLoading, getPermissionsForPage } = usePermissions();
+  const pagePermissions = getPermissionsForPage("master_data");
   const [items, setItems] = useState<EventModeModel[]>([]);
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState<EventModeModel | null>(null);
@@ -23,6 +26,11 @@ const EventModesList: React.FC = () => {
   const [rowCount, setRowCount] = useState(0);
 
   const load = async () => {
+    if (!pagePermissions.canViewTable) {
+      setItems([]);
+      setRowCount(0);
+      return;
+    }
     setLoading(true);
     try {
       const { page, pageSize } = paginationModel;
@@ -47,10 +55,22 @@ const EventModesList: React.FC = () => {
       setLoading(false);
     }
   };
-  useEffect(() => { load(); }, [paginationModel]);
+  useEffect(() => {
+    if (permissionsLoading || !pagePermissions.canViewTable) {
+      setItems([]);
+      setRowCount(0);
+      return;
+    }
+    load();
+  }, [paginationModel, permissionsLoading, pagePermissions.canViewTable]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const canSubmit = editing ? pagePermissions.canEdit : pagePermissions.canCreate;
+    if (!canSubmit) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
     try {
       const payload = { id: editing?.id , name, status: Number(status) };
       
@@ -76,11 +96,19 @@ const EventModesList: React.FC = () => {
     }
   };
   const onEdit = (item: EventModeModel) => {
+    if (!pagePermissions.canEdit) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
     setEditing(item);
     setName(item.name ||"");
     setStatus(item.status ?? 1);
   };
   const onDelete = async (item: EventModeModel) => {
+    if (!pagePermissions.canDelete) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
     if (!item.id) return;
     try {
       const res = await eventModesService.deleteEventMode(item.id);
@@ -123,14 +151,21 @@ const EventModesList: React.FC = () => {
         filterable: false,
         renderCell: (params: any) => (
           <div className="d-flex align-items-center gap-3 w-100 h-100">
-            <FiEdit size={14} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
-            <FiTrash2 size={14} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
+            <FiEdit size={14} style={{ cursor: pagePermissions.canEdit ? "pointer" : "not-allowed", opacity: pagePermissions.canEdit ? 1 : 0.35 }} onClick={() => pagePermissions.canEdit && onEdit(params.row)} />
+            <FiTrash2 size={14} style={{ cursor: pagePermissions.canDelete ? "pointer" : "not-allowed", opacity: pagePermissions.canDelete ? 1 : 0.35 }} onClick={() => pagePermissions.canDelete && onDelete(params.row)} />
           </div>
         ),
       },
     ],
-    [items]
+    [pagePermissions.canDelete, pagePermissions.canEdit]
   );
+
+  const visibleColumns =
+    pagePermissions.canEdit || pagePermissions.canDelete
+      ? columns
+      : columns.filter((col: any) => col.field !== EventModeModelLabels.ACTIONS);
+
+  const isFormDisabled = editing ? !pagePermissions.canEdit : !pagePermissions.canCreate;
 
   return (
     <div className="container-fluid vh-100" style={{ backgroundColor: COLORS.lightGray }}>
@@ -147,17 +182,20 @@ const EventModesList: React.FC = () => {
       <div className="row">
         <div className="col-lg-8">
           <Box sx={{ height: 800, width: '100%' }}>
-            <DataGrid
-              rows={items}
-              columns={columns}
-              loading={loading}
-              getRowId={(row) => row.id}
-              disableRowSelectionOnClick
-              paginationMode="server"
-              rowCount={rowCount}
-              paginationModel={paginationModel}
-              onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
-            />
+            
+              <DataGrid
+                className={!pagePermissions.canViewTable ? "permission-denied-grid" : undefined}
+                rows={items}
+                columns={visibleColumns}
+                loading={loading || permissionsLoading}
+                localeText={{ noRowsLabel: pagePermissions.canViewTable ? "No data found" : "You do not have permission to see this content" }}
+                getRowId={(row) => row.id}
+                disableRowSelectionOnClick
+                paginationMode="server"
+                rowCount={rowCount}
+                paginationModel={paginationModel}
+                onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
+              />
           </Box>
         </div>
 
@@ -168,6 +206,7 @@ const EventModesList: React.FC = () => {
             </div>
             <div className="card-body">
               <form onSubmit={onSubmit}>
+                <fieldset disabled={isFormDisabled}>
                 <div className="row g-3 align-items-end">
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
@@ -195,10 +234,13 @@ const EventModesList: React.FC = () => {
                     </select>
                   </div>
                 </div>
+                </fieldset>
                 <div className="d-flex gap-2 mt-3">
-                  <button type="submit" className="btn" style={{ backgroundColor: COLORS.purple, color: COLORS.white }}>
-                    {editing ? CONSTANTS.BUTTONS.UPDATE : CONSTANTS.BUTTONS.SAVE}
-                  </button>
+                  {!isFormDisabled && (
+                    <button type="submit" className="btn" style={{ backgroundColor: COLORS.purple, color: COLORS.white }}>
+                      {editing ? CONSTANTS.BUTTONS.UPDATE : CONSTANTS.BUTTONS.SAVE}
+                    </button>
+                  )}
                   {editing && (
                     <button
                       type="button"
@@ -224,3 +266,8 @@ const EventModesList: React.FC = () => {
 };
 
 export default EventModesList;
+
+
+
+
+

@@ -14,8 +14,11 @@ import { STYLES } from "../utils/typography/styles";
 import GlobalService from "../services/global_service";
 import { CONSTANTS } from "../utils/strings/constants";
 import DetailsDialog from "../components/DetailsDialog";
+import { usePermissions } from "../components/providers/PermissionsProvider";
 
 const InvestorsList: React.FC = () => {
+  const { loading: permissionsLoading, getPermissionsForPage } = usePermissions();
+  const pagePermissions = getPermissionsForPage("investors");
   const [items, setItems] = useState<InvestorModel[]>([]);
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState<InvestorModel | null>(null);
@@ -60,6 +63,11 @@ const InvestorsList: React.FC = () => {
   };
 
   const load = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
+    if (!pagePermissions.canViewTable) {
+      setItems([]);
+      setRowCount(0);
+      return;
+    }
     setLoading(true);
     try {
       const start = page * pageSize;
@@ -107,8 +115,13 @@ const InvestorsList: React.FC = () => {
   };
 
   useEffect(() => {
+    if (permissionsLoading || !pagePermissions.canViewTable) {
+      setItems([]);
+      setRowCount(0);
+      return;
+    }
     load(paginationModel.page, paginationModel.pageSize);
-  }, [paginationModel]);
+  }, [paginationModel, permissionsLoading, pagePermissions.canViewTable]);
 
   
   useEffect(() => {
@@ -207,6 +220,11 @@ const InvestorsList: React.FC = () => {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const canSubmit = editing ? pagePermissions.canEdit : pagePermissions.canCreate;
+    if (!canSubmit) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
     setLoading(true);
     try {
       const formData = new FormData();
@@ -255,6 +273,10 @@ const InvestorsList: React.FC = () => {
   };
 
   const onEdit = async (item: InvestorModel) => {
+    if (!pagePermissions.canEdit) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
     setEditing(item);
 
     setUserId(item.user_id ?? "");
@@ -291,6 +313,10 @@ const InvestorsList: React.FC = () => {
   };
 
   const onDelete = async (item: InvestorModel) => {
+    if (!pagePermissions.canDelete) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
     if (!item.investor_id) return;
     if (!window.confirm("Are you sure you want to delete this investor?")) return;
     try {
@@ -366,8 +392,8 @@ const InvestorsList: React.FC = () => {
           <div className="d-flex align-items-center gap-3 w-100 h-100">
             <FiEdit
               size={14}
-              style={{ cursor: "pointer" }}
-              onClick={() => onEdit(params.row)}
+              style={{ cursor: pagePermissions.canEdit ? "pointer" : "not-allowed", opacity: pagePermissions.canEdit ? 1 : 0.35 }}
+              onClick={() => pagePermissions.canEdit && onEdit(params.row)}
             />
             <FiEye
               size={14}
@@ -377,15 +403,17 @@ const InvestorsList: React.FC = () => {
             />
             <FiTrash2
               size={14}
-              style={{ cursor: "pointer" }}
-              onClick={() => onDelete(params.row)}
+              style={{ cursor: pagePermissions.canDelete ? "pointer" : "not-allowed", opacity: pagePermissions.canDelete ? 1 : 0.35 }}
+              onClick={() => pagePermissions.canDelete && onDelete(params.row)}
             />
           </div>
         ),
       },
     ],
-    [items]
+    [pagePermissions.canEdit, pagePermissions.canDelete]
   );
+
+  const isFormDisabled = editing ? !pagePermissions.canEdit : !pagePermissions.canCreate;
 
   return (
     <div className="container-fluid" style={{ backgroundColor: COLORS.lightGray }}>
@@ -403,19 +431,21 @@ const InvestorsList: React.FC = () => {
         {/* Table */}
         <div className="col-lg-8">
           <Box sx={{ height: 800, width: "100%"}}>
-            <DataGrid
-              rows={items}
-              columns={columns}
-              loading={loading}
-              localeText={{ noRowsLabel: "No investors found" }}
-              getRowId={(row) => row.investor_id}
-              disableRowSelectionOnClick
-              pageSizeOptions={[5, 10, 20, 50]}
-              paginationModel={paginationModel}
-              onPaginationModelChange={setPaginationModel}
-              paginationMode="server"
-              rowCount={rowCount}
-            />
+            
+              <DataGrid
+                className={!pagePermissions.canViewTable ? "permission-denied-grid" : undefined}
+                rows={items}
+                columns={columns}
+                loading={loading || permissionsLoading}
+                localeText={{ noRowsLabel: pagePermissions.canViewTable ? "No investors found"  : "You do not have permission to see this content"}}
+                getRowId={(row) => row.investor_id}
+                disableRowSelectionOnClick
+                pageSizeOptions={[5, 10, 20, 50]}
+                paginationModel={paginationModel}
+                onPaginationModelChange={setPaginationModel}
+                paginationMode="server"
+                rowCount={rowCount}
+              />
           </Box>
         </div>
 
@@ -427,6 +457,7 @@ const InvestorsList: React.FC = () => {
             </div>
             <div className="card-body">
               <form onSubmit={onSubmit}>
+                <fieldset disabled={isFormDisabled}>
                 <div className="row g-3 align-items-start">
                   {/* Full Name */}
                   <div className="col-md-12">
@@ -729,10 +760,13 @@ const InvestorsList: React.FC = () => {
 
                   {/* Buttons */}
                   <div className="col-12 mt-3 d-flex justify-content-between">
-                    <button type="submit" className="btn"  style={{ backgroundColor: COLORS.purple, color: COLORS.white }}>{editing ? "Update" : "Save"}</button>
+                    {!isFormDisabled && (
+                      <button type="submit" className="btn"  style={{ backgroundColor: COLORS.purple, color: COLORS.white }}>{editing ? "Update" : "Save"}</button>
+                    )}
                     {editing && <button type="button" className="btn btn-secondary" onClick={resetForm}>Cancel</button>}
                   </div>
                 </div>
+                </fieldset>
               </form>
             </div>
           </div>
@@ -780,3 +814,8 @@ const InvestorsList: React.FC = () => {
 };
 
 export default InvestorsList;
+
+
+
+
+

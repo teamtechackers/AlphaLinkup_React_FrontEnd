@@ -13,8 +13,11 @@ import { COLORS } from "../utils/theme/colors";
 import { STYLES } from "../utils/typography/styles";
 import type { CityModel } from "../models/city_model";
 import { StateModel } from "../models/state_model";
+import { usePermissions } from "../components/providers/PermissionsProvider";
 
 const CitiesList: React.FC = () => {
+  const { loading: permissionsLoading, getPermissionsForPage } = usePermissions();
+  const pagePermissions = getPermissionsForPage("master_data");
   const [items, setItems] = useState<CityModel[]>([]);
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState<CityModel | null>(null);
@@ -30,6 +33,11 @@ const CitiesList: React.FC = () => {
   const [draw, setDraw] = useState(1);
 
   const loadCities = async () => {
+    if (!pagePermissions.canViewTable) {
+      setItems([]);
+      setRowCount(0);
+      return;
+    }
     setLoading(true);
     try {
       const { page, pageSize } = paginationModel;
@@ -82,9 +90,14 @@ const loadStates = async () => {
 
 
   useEffect(() => {
+    if (permissionsLoading || !pagePermissions.canViewTable) {
+      setItems([]);
+      setRowCount(0);
+      return;
+    }
     loadCities();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paginationModel]);
+  }, [paginationModel, permissionsLoading, pagePermissions.canViewTable]);
 
   useEffect(() => {
     loadStates();
@@ -93,6 +106,11 @@ const loadStates = async () => {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const canSubmit = editing ? pagePermissions.canEdit : pagePermissions.canCreate;
+    if (!canSubmit) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
 
     console.group("🟣 City Form Submission");
     console.log("Form Inputs:", {
@@ -251,6 +269,10 @@ const loadStates = async () => {
   // };
 
   const onEdit = (item: CityModel) => {
+    if (!pagePermissions.canEdit) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
     setEditing(item);
     setCityName(item.city_name);
     setStatus(String(item.status));
@@ -259,6 +281,10 @@ const loadStates = async () => {
   };
 
   const onDelete = async (item: CityModel) => {
+    if (!pagePermissions.canDelete) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
     if (!item.id) return;
     try {
       const res = await citiesService.deleteCity(item.id);
@@ -301,14 +327,21 @@ const loadStates = async () => {
         sortable: false,
         renderCell: (params: any) => (
           <div className="d-flex align-items-center gap-3 w-100 h-100">
-            <FiEdit size={14} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
-            <FiTrash2 size={14} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
+            <FiEdit size={14} style={{ cursor: pagePermissions.canEdit ? "pointer" : "not-allowed", opacity: pagePermissions.canEdit ? 1 : 0.35 }} onClick={() => pagePermissions.canEdit && onEdit(params.row)} />
+            <FiTrash2 size={14} style={{ cursor: pagePermissions.canDelete ? "pointer" : "not-allowed", opacity: pagePermissions.canDelete ? 1 : 0.35 }} onClick={() => pagePermissions.canDelete && onDelete(params.row)} />
           </div>
         ),
       },
     ],
-    [items]
+    [pagePermissions.canDelete, pagePermissions.canEdit]
   );
+
+  const visibleColumns =
+    pagePermissions.canEdit || pagePermissions.canDelete
+      ? columns
+      : columns.filter((col: any) => col.field !== "actions");
+
+  const isFormDisabled = editing ? !pagePermissions.canEdit : !pagePermissions.canCreate;
 
   return (
     <div className="container-fluid vh-100" style={{ backgroundColor: COLORS.lightGray }}>
@@ -326,17 +359,20 @@ const loadStates = async () => {
         {/* Table */}
         <div className="col-lg-8">
           <Box sx={{ height: 800, width: "100%" }}>
-            <DataGrid
-              rows={items}
-              columns={columns}
-              loading={loading}
-              getRowId={(row) => row.id}
-              disableRowSelectionOnClick
-              paginationMode="server"
-              rowCount={rowCount}
-              paginationModel={paginationModel}
-              onPaginationModelChange={(model) => setPaginationModel(model)}
-            />
+            
+              <DataGrid
+                className={!pagePermissions.canViewTable ? "permission-denied-grid" : undefined}
+                rows={items}
+                columns={visibleColumns}
+                loading={loading || permissionsLoading}
+                localeText={{ noRowsLabel: pagePermissions.canViewTable ? "No data found" : "You do not have permission to see this content" }}
+                getRowId={(row) => row.id}
+                disableRowSelectionOnClick
+                paginationMode="server"
+                rowCount={rowCount}
+                paginationModel={paginationModel}
+                onPaginationModelChange={(model) => setPaginationModel(model)}
+              />
           </Box>
         </div>
 
@@ -348,6 +384,7 @@ const loadStates = async () => {
             </div>
             <div className="card-body">
               <form onSubmit={onSubmit}>
+                <fieldset disabled={isFormDisabled}>
                 {/* State */}
                 <div className="mb-3">
                   <label className="form-label" style={STYLES.field_label}>
@@ -395,12 +432,15 @@ const loadStates = async () => {
                     <option value="0">{CITIES_STRINGS.TABLE.STATUS_INACTIVE}</option>
                   </select>
                 </div>
+                </fieldset>
 
                 {/* Buttons */}
                 <div className="d-flex gap-2 mt-3">
-                  <button type="submit" className="btn" style={{ backgroundColor: COLORS.purple, color: COLORS.white }}>
-                    {editing ? CONSTANTS.BUTTONS.UPDATE : CONSTANTS.BUTTONS.SAVE}
-                  </button>
+                  {!isFormDisabled && (
+                    <button type="submit" className="btn" style={{ backgroundColor: COLORS.purple, color: COLORS.white }}>
+                      {editing ? CONSTANTS.BUTTONS.UPDATE : CONSTANTS.BUTTONS.SAVE}
+                    </button>
+                  )}
                   {editing && (
                     <button
                       type="button"
@@ -427,3 +467,8 @@ const loadStates = async () => {
 };
 
 export default CitiesList;
+
+
+
+
+

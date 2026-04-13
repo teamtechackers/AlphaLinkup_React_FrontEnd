@@ -11,8 +11,11 @@ import { CONSTANTS } from "../utils/strings/constants";
 import { COLORS } from "../utils/theme/colors";
 import { STYLES } from "../utils/typography/styles";
 import { EmploymentTypeModel, EmploymentTypeModelLabels } from "../models/employment_type_model";
+import { usePermissions } from "../components/providers/PermissionsProvider";
 
 const EmploymentTypeList: React.FC = () => {
+  const { loading: permissionsLoading, getPermissionsForPage } = usePermissions();
+  const pagePermissions = getPermissionsForPage("master_data");
   const [items, setItems] = useState<EmploymentTypeModel[]>([]);
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState<EmploymentTypeModel | null>(null);
@@ -23,6 +26,11 @@ const EmploymentTypeList: React.FC = () => {
   const [rowCount, setRowCount] = useState(0);
 
   const load = async () => {
+    if (!pagePermissions.canViewTable) {
+      setItems([]);
+      setRowCount(0);
+      return;
+    }
     setLoading(true);
     try {
       const res = await employmentTypeService.getListAjax(page, pageSize);
@@ -34,11 +42,21 @@ const EmploymentTypeList: React.FC = () => {
   };
 
   useEffect(() => {
+    if (permissionsLoading || !pagePermissions.canViewTable) {
+      setItems([]);
+      setRowCount(0);
+      return;
+    }
     load();
-  }, [page, pageSize]);
+  }, [page, pageSize, permissionsLoading, pagePermissions.canViewTable]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const canSubmit = editing ? pagePermissions.canEdit : pagePermissions.canCreate;
+    if (!canSubmit) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
     try {
       const payload = { id: editing?.id, name, status: Number(status) };
 
@@ -66,12 +84,20 @@ const EmploymentTypeList: React.FC = () => {
   
 
   const onEdit = (item: EmploymentTypeModel) => {
+    if (!pagePermissions.canEdit) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
     setEditing(item);
     setName(item.name || "");
     setStatus(String(item.status ?? "1"));
   };
 
   const onDelete = async (item: EmploymentTypeModel) => {
+    if (!pagePermissions.canDelete) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
     if (!item.id) return;
     try {
       const res = await employmentTypeService.delete(item.id);
@@ -117,14 +143,21 @@ const EmploymentTypeList: React.FC = () => {
         filterable: false,
         renderCell: (params: any) => (
           <div className="d-flex align-items-center gap-3 w-100 h-100">
-            <FiEdit size={14} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
-            <FiTrash2 size={14} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
+            <FiEdit size={14} style={{ cursor: pagePermissions.canEdit ? "pointer" : "not-allowed", opacity: pagePermissions.canEdit ? 1 : 0.35 }} onClick={() => pagePermissions.canEdit && onEdit(params.row)} />
+            <FiTrash2 size={14} style={{ cursor: pagePermissions.canDelete ? "pointer" : "not-allowed", opacity: pagePermissions.canDelete ? 1 : 0.35 }} onClick={() => pagePermissions.canDelete && onDelete(params.row)} />
           </div>
         ),
       },
     ],
-    [items]
+    [pagePermissions.canDelete, pagePermissions.canEdit]
   );
+
+  const visibleColumns =
+    pagePermissions.canEdit || pagePermissions.canDelete
+      ? columns
+      : columns.filter((col: any) => col.field !== EmploymentTypeModelLabels.ACTIONS);
+
+  const isFormDisabled = editing ? !pagePermissions.canEdit : !pagePermissions.canCreate;
 
   return (
     <div className="container-fluid vh-100" style={{ backgroundColor: COLORS.lightGray }}>
@@ -142,21 +175,24 @@ const EmploymentTypeList: React.FC = () => {
         {/* Table */}
         <div className="col-lg-8">
           <Box sx={{ height: 800, width: "100%" }}>
-            <DataGrid
-              rows={items}
-              columns={columns}
-              loading={loading}
-              getRowId={(row) => row.id}
-              disableRowSelectionOnClick
-              paginationMode="server"
-              rowCount={rowCount}
-              paginationModel={{ page, pageSize }}
-              onPaginationModelChange={(model) => {
-                setPage(model.page);
-                setPageSize(model.pageSize);
-              }}
-              pageSizeOptions={[5, 10, 20, 50]}
-            />
+            
+              <DataGrid
+                className={!pagePermissions.canViewTable ? "permission-denied-grid" : undefined}
+                rows={items}
+                columns={visibleColumns}
+                loading={loading || permissionsLoading}
+                localeText={{ noRowsLabel: pagePermissions.canViewTable ? "No data found" : "You do not have permission to see this content" }}
+                getRowId={(row) => row.id}
+                disableRowSelectionOnClick
+                paginationMode="server"
+                rowCount={rowCount}
+                paginationModel={{ page, pageSize }}
+                onPaginationModelChange={(model) => {
+                  setPage(model.page);
+                  setPageSize(model.pageSize);
+                }}
+                pageSizeOptions={[5, 10, 20, 50]}
+              />
           </Box>
         </div>
 
@@ -170,6 +206,7 @@ const EmploymentTypeList: React.FC = () => {
             </div>
             <div className="card-body">
               <form onSubmit={onSubmit}>
+                <fieldset disabled={isFormDisabled}>
                 <div className="row g-3 align-items-end">
                   {/* Name */}
                   <div className="col-md-12">
@@ -196,16 +233,19 @@ const EmploymentTypeList: React.FC = () => {
                     </select>
                   </div>
                 </div>
+                </fieldset>
 
                 {/* Buttons */}
                 <div className="d-flex gap-2 mt-3">
-                  <button
-                    type="submit"
-                    className="btn"
-                    style={{ backgroundColor: COLORS.purple, color: COLORS.white }}
-                  >
-                    {editing ? CONSTANTS.BUTTONS.UPDATE : CONSTANTS.BUTTONS.SAVE}
-                  </button>
+                  {!isFormDisabled && (
+                    <button
+                      type="submit"
+                      className="btn"
+                      style={{ backgroundColor: COLORS.purple, color: COLORS.white }}
+                    >
+                      {editing ? CONSTANTS.BUTTONS.UPDATE : CONSTANTS.BUTTONS.SAVE}
+                    </button>
+                  )}
                   {editing && (
                     <button
                       style={{ backgroundColor: COLORS.red, color: COLORS.white }}
@@ -231,3 +271,8 @@ const EmploymentTypeList: React.FC = () => {
 };
 
 export default EmploymentTypeList;
+
+
+
+
+

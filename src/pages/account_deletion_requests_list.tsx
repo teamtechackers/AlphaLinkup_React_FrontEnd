@@ -10,8 +10,11 @@ import { AccountDeletionRequestModel, AccountDeletionRequestModelLabels } from "
 import { CONSTANTS } from "../utils/strings/constants";
 import { COLORS } from "../utils/theme/colors";
 import { STYLES } from "../utils/typography/styles";
+import { usePermissions } from "../components/providers/PermissionsProvider";
 
 const AccountDeletionRequestsList: React.FC = () => {
+  const { loading: permissionsLoading, getPermissionsForPage } = usePermissions();
+  const pagePermissions = getPermissionsForPage("account_deletion_requests");
   const [items, setItems] = useState<AccountDeletionRequestModel[]>([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
@@ -21,6 +24,11 @@ const AccountDeletionRequestsList: React.FC = () => {
   const [rowCount, setRowCount] = useState(0);
 
   const loadData = async () => {
+    if (!pagePermissions.canViewTable) {
+      setItems([]);
+      setRowCount(0);
+      return;
+    }
     setLoading(true);
     try {
       const data = await accountDeletionRequestsService.getAccountDeletionRequestsList();
@@ -53,15 +61,29 @@ const AccountDeletionRequestsList: React.FC = () => {
 
   // Initial load when component mounts
   useEffect(() => {
+    if (permissionsLoading || !pagePermissions.canViewTable) {
+      setItems([]);
+      setRowCount(0);
+      return;
+    }
     loadData();
-  }, []);
+  }, [permissionsLoading, pagePermissions.canViewTable]);
 
   // Effect to reload data when pagination changes
   useEffect(() => {
+    if (permissionsLoading || !pagePermissions.canViewTable) {
+      setItems([]);
+      setRowCount(0);
+      return;
+    }
     loadData();
-  }, [pagination.page, pagination.pageSize]);
+  }, [pagination.page, pagination.pageSize, permissionsLoading, pagePermissions.canViewTable]);
 
   const onDelete = async (item: AccountDeletionRequestModel) => {
+    if (!pagePermissions.canDelete) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
     if (!item.user_id) return;
     if (!window.confirm(ACCOUNT_DELETION_REQUESTS_STRINGS.MESSAGES.DELETE_CONFIRM)) return;
 
@@ -106,15 +128,20 @@ const AccountDeletionRequestsList: React.FC = () => {
             <FiTrash2
               className="icon-hover"
               size={14}
-              style={{ cursor: "pointer", color: COLORS.red }}
-              onClick={() => onDelete(params.row)}
+              style={{ cursor: pagePermissions.canDelete ? "pointer" : "not-allowed", opacity: pagePermissions.canDelete ? 1 : 0.35, color: COLORS.red }}
+              onClick={() => pagePermissions.canDelete && onDelete(params.row)}
             />
           </div>
         ),
       },
     ],
-    []
+    [pagePermissions.canDelete]
   );
+
+  const visibleColumns =
+    pagePermissions.canDelete
+      ? columns
+      : columns.filter((col: any) => col.field !== AccountDeletionRequestModelLabels.ACTIONS);
 
   return (
     <div className="content">
@@ -130,19 +157,21 @@ const AccountDeletionRequestsList: React.FC = () => {
         <div className="row">
           <div className="col-12">
             <Box sx={{ height: 600, width: "100%" }}>
-              <DataGrid
+              
+                <DataGrid
+                className={!pagePermissions.canViewTable ? "permission-denied-grid" : undefined}
                 rows={items}
-                columns={columns}
-                loading={loading}
-                localeText={{ noRowsLabel: "No account deletion requests found" }}
-                getRowId={(row) => row.user_id}
-                disableRowSelectionOnClick
-                pageSizeOptions={[5, 10, 20, 50]}
-                paginationModel={pagination}
-                onPaginationModelChange={setPagination}
-                paginationMode="client"
-                rowCount={rowCount}
-              />
+                  columns={visibleColumns}
+                  loading={loading || permissionsLoading}
+                  localeText={{ noRowsLabel: pagePermissions.canViewTable ? "No account deletion requests found"  : "You do not have permission to see this content"}}
+                  getRowId={(row) => row.user_id}
+                  disableRowSelectionOnClick
+                  pageSizeOptions={[5, 10, 20, 50]}
+                  paginationModel={pagination}
+                  onPaginationModelChange={setPagination}
+                  paginationMode="client"
+                  rowCount={rowCount}
+                />
             </Box>
           </div>
         </div>
@@ -152,3 +181,7 @@ const AccountDeletionRequestsList: React.FC = () => {
 };
 
 export default AccountDeletionRequestsList;
+
+
+
+

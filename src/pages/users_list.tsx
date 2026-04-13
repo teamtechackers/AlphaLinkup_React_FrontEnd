@@ -13,6 +13,7 @@ import { STYLES } from "../utils/typography/styles";
 import GlobalService from "../services/global_service";
 import { VARIABLES } from "../utils/strings/variables";
 import PermissionsModal from "../components/PermissionsModal";
+import { usePermissions } from "../components/providers/PermissionsProvider";
 
 const USER_ROLES = [
   { label: "User", value: "user" },
@@ -23,6 +24,7 @@ const USER_ROLES = [
 const FORM_CONTAINER_BORDER_COLOR = "#dee2e6";
 
 const UsersList: React.FC = () => {
+  const { loading: permissionsLoading, getPermissionsForPage, can } = usePermissions();
   const [activeTab, setActiveTab] = useState<'users' | 'admins'>('users');
   const [userItems, setUserItems] = useState<UserModel[]>([]);
   const [adminItems, setAdminItems] = useState<UserModel[]>([]);
@@ -74,8 +76,27 @@ const UsersList: React.FC = () => {
 
   const isSubmittingAdmin = userRole === 'superadmin' || userRole === 'subadmin';
   const isSubAdmin = userRole === 'subadmin';
+  const usersPermissions = getPermissionsForPage('users');
+  const adminsPermissions = getPermissionsForPage('admins');
+  const activePermissions = activeTab === 'users' ? usersPermissions : adminsPermissions;
+  const canViewActiveTable = activePermissions.canViewTable;
+  const canOpenAdminPermissionsDialog = can('admins.permissions');
+
+  const isFormDisabled =
+    activeTab === 'users'
+      ? editing
+        ? !usersPermissions.canEdit
+        : !usersPermissions.canCreate
+      : editing
+        ? !adminsPermissions.canEdit
+        : !adminsPermissions.canCreate;
 
   const loadUsers = async (page = userPagination.page, pageSize = userPagination.pageSize) => {
+    if (!usersPermissions.canViewTable) {
+      setUserItems([]);
+      setUserRowCount(0);
+      return;
+    }
     setLoading(true);
     try {
       const start = page * pageSize;
@@ -132,6 +153,11 @@ const UsersList: React.FC = () => {
   };
 
   const loadAdmins = async (page = adminPagination.page, pageSize = adminPagination.pageSize) => {
+    if (!adminsPermissions.canViewTable) {
+      setAdminItems([]);
+      setAdminRowCount(0);
+      return;
+    }
     setLoading(true);
     try {
       const start = page * pageSize;
@@ -191,25 +217,36 @@ const UsersList: React.FC = () => {
 
   // Initial load when component mounts
   useEffect(() => {
+    if (permissionsLoading) return;
     if (activeTab === 'users') {
       loadUsers(userPagination.page, userPagination.pageSize);
     } else {
       loadAdmins(adminPagination.page, adminPagination.pageSize);
     }
-  }, []);
+  }, [permissionsLoading]);
 
   // Effect to reload data when pagination changes for the active tab
   useEffect(() => {
+    if (permissionsLoading || !usersPermissions.canViewTable) {
+      setUserItems([]);
+      setUserRowCount(0);
+      return;
+    }
     if (activeTab === 'users') {
       loadUsers(userPagination.page, userPagination.pageSize);
     }
-  }, [activeTab, userPagination.page, userPagination.pageSize]);
+  }, [activeTab, userPagination.page, userPagination.pageSize, permissionsLoading, usersPermissions.canViewTable]);
 
   useEffect(() => {
+    if (permissionsLoading || !adminsPermissions.canViewTable) {
+      setAdminItems([]);
+      setAdminRowCount(0);
+      return;
+    }
     if (activeTab === 'admins') {
       loadAdmins(adminPagination.page, adminPagination.pageSize);
     }
-  }, [activeTab, adminPagination.page, adminPagination.pageSize]);
+  }, [activeTab, adminPagination.page, adminPagination.pageSize, permissionsLoading, adminsPermissions.canViewTable]);
 
   // Reset form when switching tabs to ensure correct default role
   useEffect(() => {
@@ -312,6 +349,12 @@ const UsersList: React.FC = () => {
 
     const isCurrentSubmittingAdmin = userRole === 'superadmin' || userRole === 'subadmin';
     const isCurrentSubAdmin = userRole === 'subadmin';
+    const canSubmit = editing ? activePermissions.canEdit : activePermissions.canCreate;
+
+    if (!canSubmit) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
 
     if (isCurrentSubmittingAdmin) {
       if (!cityId) {
@@ -410,6 +453,10 @@ const UsersList: React.FC = () => {
   };
 
   const onEdit = async (item: UserModel) => {
+    if (!activePermissions.canEdit) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
     console.log("=== Starting onEdit ===");
     console.log("Editing item:", item);
     console.log("Item keys:", Object.keys(item));
@@ -515,6 +562,10 @@ const UsersList: React.FC = () => {
   };
 
   const onDelete = async (item: UserModel) => {
+    if (!activePermissions.canDelete) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
     if (!item.user_id) return;
     if (!window.confirm(CONSTANTS.MESSAGES.DELETE_CONFIRM)) return;
 
@@ -582,20 +633,20 @@ const UsersList: React.FC = () => {
             <FiEdit
               className="icon-hover"
               size={14}
-              style={{ cursor: "pointer" }}
-              onClick={() => onEdit(params.row)}
+              style={{ cursor: usersPermissions.canEdit ? "pointer" : "not-allowed", opacity: usersPermissions.canEdit ? 1 : 0.35 }}
+              onClick={() => usersPermissions.canEdit && onEdit(params.row)}
             />
             <FiTrash2
               className="icon-hover"
               size={14}
-              style={{ cursor: "pointer" }}
-              onClick={() => onDelete(params.row)}
+              style={{ cursor: usersPermissions.canDelete ? "pointer" : "not-allowed", opacity: usersPermissions.canDelete ? 1 : 0.35 }}
+              onClick={() => usersPermissions.canDelete && onDelete(params.row)}
             />
           </div>
         ),
       },
     ],
-    [userItems]
+    [usersPermissions.canEdit, usersPermissions.canDelete]
   );
 
   const adminColumns = useMemo(
@@ -637,25 +688,32 @@ const UsersList: React.FC = () => {
             <FiEdit
               className="icon-hover"
               size={14}
-              style={{ cursor: "pointer" }}
-              onClick={() => onEdit(params.row)}
+              style={{ cursor: adminsPermissions.canEdit ? "pointer" : "not-allowed", opacity: adminsPermissions.canEdit ? 1 : 0.35 }}
+              onClick={() => adminsPermissions.canEdit && onEdit(params.row)}
             />
             <FiTrash2
               className="icon-hover"
               size={14}
-              style={{ cursor: "pointer" }}
-              onClick={() => onDelete(params.row)}
+              style={{ cursor: adminsPermissions.canDelete ? "pointer" : "not-allowed", opacity: adminsPermissions.canDelete ? 1 : 0.35 }}
+              onClick={() => adminsPermissions.canDelete && onDelete(params.row)}
             />
           </div>
         ),
       },
     ],
-    [adminItems]
+    [adminsPermissions.canEdit, adminsPermissions.canDelete]
   );
 
   // Get the current items and columns based on active tab
   const currentItems = activeTab === 'users' ? userItems : adminItems;
-  const currentColumns = activeTab === 'users' ? userColumns : adminColumns;
+  const currentColumns =
+    activeTab === 'users'
+      ? (usersPermissions.canEdit || usersPermissions.canDelete
+          ? userColumns
+          : userColumns.filter((col: any) => col.field !== UserModelLabels.ACTIONS))
+      : (adminsPermissions.canEdit || adminsPermissions.canDelete
+          ? adminColumns
+          : adminColumns.filter((col: any) => col.field !== UserModelLabels.ACTIONS));
   const currentPagination = activeTab === 'users' ? userPagination : adminPagination;
 
   // Handle pagination changes based on active tab
@@ -717,11 +775,14 @@ const UsersList: React.FC = () => {
 
             <Box sx={{ height: 800, width: "100%" }}>
               <DataGrid
+                className={!canViewActiveTable ? "permission-denied-grid" : undefined}
                 rows={currentItems}
                 columns={currentColumns}
-                loading={loading}
+                loading={loading || permissionsLoading}
                 localeText={{
-                  noRowsLabel: activeTab === 'users' ? 'No users found' : 'No admins found',
+                  noRowsLabel: canViewActiveTable
+                    ? (activeTab === 'users' ? 'No users found' : 'No admins found')
+                    : "You do not have permission to see this content",
                 }}
                 getRowId={(row) => row.user_id}
                 disableRowSelectionOnClick
@@ -741,6 +802,7 @@ const UsersList: React.FC = () => {
               </div>
               <div className="card-body">
                 <form onSubmit={onSubmit}>
+                  <fieldset disabled={isFormDisabled}>
                   <div className="row g-3 align-items-end">
 
                     <div className="col-md-12">
@@ -813,7 +875,8 @@ const UsersList: React.FC = () => {
                         <button
                           type="button"
                           className="btn btn-sm btn-outline-primary w-100"
-                          onClick={() => setIsPermissionsModalOpen(true)}
+                          onClick={() => canOpenAdminPermissionsDialog && setIsPermissionsModalOpen(true)}
+                          disabled={!canOpenAdminPermissionsDialog}
                         >
                           {permissions.length > 0 ? `Edit Permissions (${permissions.length} selected)` : 'Select Permissions'}
                         </button>
@@ -977,11 +1040,14 @@ const UsersList: React.FC = () => {
                       </select>
                     </div>
                   </div>
+                  </fieldset>
 
                   <div className="d-flex gap-2 mt-3">
-                    <button type="submit" className="btn" style={{ backgroundColor: COLORS.purple, color: COLORS.white }}>
-                      {editing ? CONSTANTS.BUTTONS.UPDATE : CONSTANTS.BUTTONS.SAVE}
-                    </button>
+                    {!isFormDisabled && (
+                      <button type="submit" className="btn" style={{ backgroundColor: COLORS.purple, color: COLORS.white }}>
+                        {editing ? CONSTANTS.BUTTONS.UPDATE : CONSTANTS.BUTTONS.SAVE}
+                      </button>
+                    )}
 
                     {editing && (
                       <button
@@ -1012,3 +1078,7 @@ const UsersList: React.FC = () => {
 };
 
 export default UsersList;
+
+
+
+

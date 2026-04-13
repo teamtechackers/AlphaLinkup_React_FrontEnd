@@ -10,8 +10,11 @@ import { FiTrash2, FiEdit } from "react-icons/fi";
 import { STYLES } from "../utils/typography/styles";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { usePermissions } from "../components/providers/PermissionsProvider";
 
 const InterestsList: React.FC = () => {
+  const { loading: permissionsLoading, getPermissionsForPage } = usePermissions();
+  const pagePermissions = getPermissionsForPage("master_data");
   const [items, setItems] = useState<InterestModel[]>([]);
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState<InterestModel | null>(null);
@@ -23,6 +26,11 @@ const InterestsList: React.FC = () => {
   const [draw, setDraw] = useState(1);
 
   const load = async () => {
+    if (!pagePermissions.canViewTable) {
+      setItems([]);
+      setRowCount(0);
+      return;
+    }
     setLoading(true);
     try {
       const start = page * pageSize;
@@ -47,11 +55,21 @@ const InterestsList: React.FC = () => {
   };
 
   useEffect(() => {
+    if (permissionsLoading || !pagePermissions.canViewTable) {
+      setItems([]);
+      setRowCount(0);
+      return;
+    }
     load();
-  }, [page, pageSize]);
+  }, [page, pageSize, permissionsLoading, pagePermissions.canViewTable]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const canSubmit = editing ? pagePermissions.canEdit : pagePermissions.canCreate;
+    if (!canSubmit) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
     try {
       const payload = { id: editing?.id ?? 0, name, status: Number(status) };
       const check_duplicate=await interestsService.duplicate_Interest(payload.id,payload.name)
@@ -75,12 +93,20 @@ const InterestsList: React.FC = () => {
   };
 
   const onEdit = (item: InterestModel) => {
+    if (!pagePermissions.canEdit) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
     setEditing(item);
     setName(item.name || "");
     setStatus(String(item.status ?? "1"));
   };
 
   const onDelete = async (item: InterestModel) => {
+    if (!pagePermissions.canDelete) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
     if (!item.id) return;
     try {
       const res = await interestsService.deleteInterest(item.id);
@@ -127,21 +153,28 @@ const InterestsList: React.FC = () => {
             <FiEdit
               className="icon-hover"
               size={14}
-              style={{ cursor: "pointer" }}
-              onClick={() => onEdit(params.row)}
+              style={{ cursor: pagePermissions.canEdit ? "pointer" : "not-allowed", opacity: pagePermissions.canEdit ? 1 : 0.35 }}
+              onClick={() => pagePermissions.canEdit && onEdit(params.row)}
             />
             <FiTrash2
               className="icon-hover"
               size={14}
-              style={{ cursor: "pointer" }}
-              onClick={() => onDelete(params.row)}
+              style={{ cursor: pagePermissions.canDelete ? "pointer" : "not-allowed", opacity: pagePermissions.canDelete ? 1 : 0.35 }}
+              onClick={() => pagePermissions.canDelete && onDelete(params.row)}
             />
           </div>
         ),
       },
     ],
-    [items]
+    [pagePermissions.canDelete, pagePermissions.canEdit]
   );
+
+  const visibleColumns =
+    pagePermissions.canEdit || pagePermissions.canDelete
+      ? columns
+      : columns.filter((col: any) => col.field !== InterestModelLabels.ACTIONS);
+
+  const isFormDisabled = editing ? !pagePermissions.canEdit : !pagePermissions.canCreate;
 
   return (
     <div className="container-fluid vh-100" style={{ backgroundColor: COLORS.lightGray }}>
@@ -159,21 +192,24 @@ const InterestsList: React.FC = () => {
         {/* Table */}
         <div className="col-lg-8">
           <Box sx={{ height: 800, width: "100%" }}>
-            <DataGrid
-              rows={items}
-              columns={columns}
-              loading={loading}
-              getRowId={(row) => row.id}
-              disableRowSelectionOnClick
-              paginationMode="server"
-              rowCount={rowCount}
-              pageSizeOptions={[5, 10, 20, 50]}
-              paginationModel={{ page, pageSize }}
-              onPaginationModelChange={(model) => {
-                setPage(model.page);
-                setPageSize(model.pageSize);
-              }}
-            />
+            
+              <DataGrid
+                className={!pagePermissions.canViewTable ? "permission-denied-grid" : undefined}
+                rows={items}
+                columns={visibleColumns}
+                loading={loading || permissionsLoading}
+                localeText={{ noRowsLabel: pagePermissions.canViewTable ? "No data found" : "You do not have permission to see this content" }}
+                getRowId={(row) => row.id}
+                disableRowSelectionOnClick
+                paginationMode="server"
+                rowCount={rowCount}
+                pageSizeOptions={[5, 10, 20, 50]}
+                paginationModel={{ page, pageSize }}
+                onPaginationModelChange={(model) => {
+                  setPage(model.page);
+                  setPageSize(model.pageSize);
+                }}
+              />
           </Box>
         </div>
 
@@ -187,6 +223,7 @@ const InterestsList: React.FC = () => {
             </div>
             <div className="card-body">
               <form onSubmit={onSubmit}>
+                <fieldset disabled={isFormDisabled}>
                 <div className="row g-3 align-items-end">
                   {/* Name */}
                   <div className="col-md-12">
@@ -213,16 +250,19 @@ const InterestsList: React.FC = () => {
                     </select>
                   </div>
                 </div>
+                </fieldset>
 
                 {/* Buttons */}
                 <div className="d-flex gap-2 mt-3">
-                  <button
-                    type="submit"
-                    className="btn"
-                    style={{ backgroundColor: COLORS.purple, color: COLORS.white }}
-                  >
-                    {editing ? CONSTANTS.BUTTONS.UPDATE : CONSTANTS.BUTTONS.SAVE}
-                  </button>
+                  {!isFormDisabled && (
+                    <button
+                      type="submit"
+                      className="btn"
+                      style={{ backgroundColor: COLORS.purple, color: COLORS.white }}
+                    >
+                      {editing ? CONSTANTS.BUTTONS.UPDATE : CONSTANTS.BUTTONS.SAVE}
+                    </button>
+                  )}
                   {editing && (
                     <button
                       style={{ backgroundColor: COLORS.red, color: COLORS.white }}
@@ -248,3 +288,8 @@ const InterestsList: React.FC = () => {
 };
 
 export default InterestsList;
+
+
+
+
+

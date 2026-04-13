@@ -14,8 +14,11 @@ import { CONSTANTS } from "../utils/strings/constants";
 import meetingsSchedulesService from "../services/meetings_schedules_service";
 import { useEffect } from "react";
 import { STYLES } from "../utils/typography/styles";
+import { usePermissions } from "../components/providers/PermissionsProvider";
 
 const MeetingsSchedulesPage: React.FC = () => {
+  const { loading: permissionsLoading, getPermissionsForPage } = usePermissions();
+  const pagePermissions = getPermissionsForPage("meetings");
   const [items, setItems] = useState<MeetingModel[]>([]);
   const [loading, setLoading] = useState(false);
   const [openInvestorDetails, setOpenInvestorDetails] = useState(false);
@@ -29,6 +32,11 @@ const MeetingsSchedulesPage: React.FC = () => {
   const [rowCount, setRowCount] = useState(0);
 
   const loadMeetings = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
+    if (!pagePermissions.canViewTable) {
+      setItems([]);
+      setRowCount(0);
+      return;
+    }
     setLoading(true);
     try {
       const response = await meetingsSchedulesService.getMeetingsList(page + 1, pageSize);
@@ -50,8 +58,13 @@ const MeetingsSchedulesPage: React.FC = () => {
   };
 
   useEffect(() => {
+    if (permissionsLoading || !pagePermissions.canViewTable) {
+      setItems([]);
+      setRowCount(0);
+      return;
+    }
     loadMeetings(paginationModel.page, paginationModel.pageSize);
-  }, [paginationModel]);
+  }, [paginationModel, permissionsLoading, pagePermissions.canViewTable]);
 
   const handleOpenInvestorDetails = async (investorId: string) => {
     try {
@@ -114,6 +127,10 @@ const MeetingsSchedulesPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedMeeting) return;
+    if (!pagePermissions.canEdit) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
 
     try {
       const payload = {
@@ -238,14 +255,14 @@ const MeetingsSchedulesPage: React.FC = () => {
             <FiEdit
               className="icon-hover"
               size={14}
-              style={{ cursor: "pointer" }}
-              onClick={() => onEdit(params.row)}
+              style={{ cursor: pagePermissions.canEdit ? "pointer" : "not-allowed", opacity: pagePermissions.canEdit ? 1 : 0.35 }}
+              onClick={() => pagePermissions.canEdit && onEdit(params.row)}
             />
           </div>
         ),
       },
     ],
-    [items]
+    [pagePermissions.canEdit]
   );
 
   return (
@@ -263,18 +280,20 @@ const MeetingsSchedulesPage: React.FC = () => {
       <div className="row">
         <div className="col-lg-8">
           <Box sx={{ height: 800, width: "100%" }}>
-            <DataGrid
-              rows={items}
-              columns={columns}
-              getRowId={(row) => row.meeting_id}
-              loading={loading}
-              localeText={{ noRowsLabel: "No meeting schedules found" }}
-              pageSizeOptions={[5, 10, 20, 50]}
-              paginationModel={paginationModel}
-              onPaginationModelChange={setPaginationModel}
-              paginationMode="server"
-              rowCount={rowCount}
-            />
+            
+              <DataGrid
+                className={!pagePermissions.canViewTable ? "permission-denied-grid" : undefined}
+                rows={items}
+                columns={columns}
+                getRowId={(row) => row.meeting_id}
+                loading={loading || permissionsLoading}
+                localeText={{ noRowsLabel: pagePermissions.canViewTable ? "No meeting schedules found"  : "You do not have permission to see this content"}}
+                pageSizeOptions={[5, 10, 20, 50]}
+                paginationModel={paginationModel}
+                onPaginationModelChange={setPaginationModel}
+                paginationMode="server"
+                rowCount={rowCount}
+              />
           </Box>
         </div>
 
@@ -286,6 +305,7 @@ const MeetingsSchedulesPage: React.FC = () => {
             </div>
             <div className="card-body"> 
               <form onSubmit={handleSubmit}>
+              <fieldset disabled={!pagePermissions.canEdit}>
               {/* Requestor Name */}
               <div className="mb-3">
                 <label className="form-label fw-semibold">
@@ -392,6 +412,7 @@ const MeetingsSchedulesPage: React.FC = () => {
                   <option value="Cancelled">Cancelled</option>
                 </select>
               </div>
+              </fieldset>
 
               {/* Buttons */}
               <div className="d-flex justify-content-end gap-2 mt-4">
@@ -402,13 +423,15 @@ const MeetingsSchedulesPage: React.FC = () => {
                 >
                   Reset
                 </button>
-                <button 
-                  type="submit" 
-                  className="btn"  style={{ backgroundColor: COLORS.purple, color: COLORS.white }}
-                  disabled={!selectedMeeting}
-                >
-                  Save
-                </button>
+                {pagePermissions.canEdit && (
+                  <button 
+                    type="submit" 
+                    className="btn"  style={{ backgroundColor: COLORS.purple, color: COLORS.white }}
+                    disabled={!selectedMeeting}
+                  >
+                    Save
+                  </button>
+                )}
               </div>
             </form>
             </div>
@@ -484,3 +507,8 @@ const MeetingsSchedulesPage: React.FC = () => {
 };
 
 export default MeetingsSchedulesPage;
+
+
+
+
+

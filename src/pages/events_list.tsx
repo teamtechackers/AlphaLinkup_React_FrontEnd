@@ -14,8 +14,11 @@ import { STYLES } from "../utils/typography/styles";
 import GlobalService from "../services/global_service";
 import DetailsDialog from "../components/DetailsDialog";
 import { VARIABLES } from "../utils/strings/variables";
+import { usePermissions } from "../components/providers/PermissionsProvider";
 
 const EventsList: React.FC = () => {
+  const { loading: permissionsLoading, getPermissionsForPage } = usePermissions();
+  const pagePermissions = getPermissionsForPage("events");
   const [items, setItems] = useState<EventModel[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -66,6 +69,11 @@ const EventsList: React.FC = () => {
   };
 
   const load = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
+    if (!pagePermissions.canViewTable) {
+      setItems([]);
+      setRowCount(0);
+      return;
+    }
     setLoading(true);
     try {
       const draw = page + 1;
@@ -118,8 +126,13 @@ const EventsList: React.FC = () => {
   };
 
   useEffect(() => {
+    if (permissionsLoading || !pagePermissions.canViewTable) {
+      setItems([]);
+      setRowCount(0);
+      return;
+    }
     load(paginationModel.page, paginationModel.pageSize);
-  }, [paginationModel]);
+  }, [paginationModel, permissionsLoading, pagePermissions.canViewTable]);
 
   // dropdown fetchers
   useEffect(() => {
@@ -161,6 +174,11 @@ const EventsList: React.FC = () => {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const canSubmit = editing ? pagePermissions.canEdit : pagePermissions.canCreate;
+    if (!canSubmit) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
 
     const formData = new FormData();
     if (editing) formData.append("row_id", String(editing.event_id));
@@ -239,6 +257,10 @@ const EventsList: React.FC = () => {
   };
 
   const onEdit = async (item: EventModel) => {
+    if (!pagePermissions.canEdit) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
     setEditing(item);
 
     console.group("Editing Event");
@@ -283,6 +305,10 @@ const EventsList: React.FC = () => {
   };
 
   const onDelete = async (item: EventModel) => {
+    if (!pagePermissions.canDelete) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
     if (!item.event_id) return;
     if (!window.confirm(CONSTANTS.MESSAGES.DELETE_CONFIRM)) return;
 
@@ -336,20 +362,22 @@ const EventsList: React.FC = () => {
         filterable: false,
         renderCell: (params: any) => (
           <div className="d-flex align-items-center gap-3 w-100 h-100">
-            <FiEdit size={14} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
+            <FiEdit size={14} style={{ cursor: pagePermissions.canEdit ? "pointer" : "not-allowed", opacity: pagePermissions.canEdit ? 1 : 0.35 }} onClick={() => pagePermissions.canEdit && onEdit(params.row)} />
             <FiEye
               size={14}
               style={{ cursor: "pointer" }}
               onClick={() => handleViewClick(params.row)}
               title="View Details"
             />
-            <FiTrash2 size={14} style={{ cursor: "pointer" }} onClick={() => onDelete(params.row)} />
+            <FiTrash2 size={14} style={{ cursor: pagePermissions.canDelete ? "pointer" : "not-allowed", opacity: pagePermissions.canDelete ? 1 : 0.35 }} onClick={() => pagePermissions.canDelete && onDelete(params.row)} />
           </div>
         ),
       },
     ],
-    [items]
+    [pagePermissions.canEdit, pagePermissions.canDelete]
   );
+
+  const isFormDisabled = editing ? !pagePermissions.canEdit : !pagePermissions.canCreate;
 
   return (
     <div className="container-fluid" style={{ backgroundColor: COLORS.lightGray }}>
@@ -367,19 +395,21 @@ const EventsList: React.FC = () => {
         {/* Table */}
         <div className="col-lg-8">
           <Box sx={{ height: 800, width: "100%" }}>
-            <DataGrid
-              rows={items}
-              columns={columns}
-              loading={loading}
-              localeText={{ noRowsLabel: "No events found" }}
-              getRowId={(row) => Number(row.event_id)}
-              disableRowSelectionOnClick
-              pageSizeOptions={[5, 10, 20, 50]}
-              paginationModel={paginationModel}
-              onPaginationModelChange={setPaginationModel}
-              paginationMode="server"
-              rowCount={rowCount}
-            />
+            
+              <DataGrid
+                className={!pagePermissions.canViewTable ? "permission-denied-grid" : undefined}
+                rows={items}
+                columns={columns}
+                loading={loading || permissionsLoading}
+                localeText={{ noRowsLabel: pagePermissions.canViewTable ? "No events found"  : "You do not have permission to see this content"}}
+                getRowId={(row) => Number(row.event_id)}
+                disableRowSelectionOnClick
+                pageSizeOptions={[5, 10, 20, 50]}
+                paginationModel={paginationModel}
+                onPaginationModelChange={setPaginationModel}
+                paginationMode="server"
+                rowCount={rowCount}
+              />
           </Box>
         </div>
 
@@ -391,6 +421,7 @@ const EventsList: React.FC = () => {
             </div>
             <div className="card-body">
               <form onSubmit={onSubmit} encType="multipart/form-data">
+                <fieldset disabled={isFormDisabled}>
                 <div className="row g-3">
                   <div className="col-md-12">
                     <label className="form-label" style={STYLES.field_label}>
@@ -641,11 +672,14 @@ const EventsList: React.FC = () => {
                     </select>
                   </div>
                 </div>
+                </fieldset>
 
                 <div className="d-flex gap-2 mt-3">
-                  <button type="submit" className="btn" style={{ backgroundColor: COLORS.purple, color: COLORS.white }}>
-                    {editing ? "Update" : "Save"}
-                  </button>
+                  {!isFormDisabled && (
+                    <button type="submit" className="btn" style={{ backgroundColor: COLORS.purple, color: COLORS.white }}>
+                      {editing ? "Update" : "Save"}
+                    </button>
+                  )}
                   <button type="button" className="btn btn-outline-secondary" onClick={resetForm}>
                     Cancel
                   </button>
@@ -691,3 +725,7 @@ const EventsList: React.FC = () => {
 };
 
 export default EventsList;
+
+
+
+

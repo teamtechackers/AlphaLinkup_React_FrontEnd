@@ -419,6 +419,11 @@
   border: 1px solid #dee2e6 !important;
 }
 
+.permission-denied-grid .MuiDataGrid-overlay {
+  color: #dc3545;
+  font-weight: 600;
+}
+
 .border-primary {
   border-color: #727cf5 !important;
 }

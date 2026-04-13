@@ -29,13 +29,14 @@ import { APP_ROUTES } from './utils/strings/app_routes';
 import authService from './services/auth_service';
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import { PermissionsProvider } from './components/providers/PermissionsProvider';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const sessionValid = authService.checkSession();
   if (!sessionValid) {
     return <Navigate to={APP_ROUTES.LOGIN} replace />;
   }
-  return <>{children}</>;
+  return <PermissionsProvider>{children}</PermissionsProvider>;
 };
 
 const AppRoutes: React.FC = () => {

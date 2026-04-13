@@ -14,7 +14,10 @@ import GlobalService from "../services/global_service";
 import DetailsDialog from "../components/DetailsDialog";
 import Dialog from "@mui/material/Dialog";
 import ServicesListPage from "./services_details_list";
+import { usePermissions } from "../components/providers/PermissionsProvider";
 const ServiceProvidersList: React.FC = () => {
+  const { loading: permissionsLoading, getPermissionsForPage } = usePermissions();
+  const pagePermissions = getPermissionsForPage("services");
   const [items, setItems] = useState<ServiceProviderModel[]>([]);
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState<ServiceProviderModel | null>(null);
@@ -62,6 +65,11 @@ const ServiceProvidersList: React.FC = () => {
   };
 
   const load = async (page = paginationModel.page, pageSize = paginationModel.pageSize) => {
+    if (!pagePermissions.canViewTable) {
+      setItems([]);
+      setRowCount(0);
+      return;
+    }
     setLoading(true);
     try {
       const start = page * pageSize;
@@ -97,8 +105,13 @@ const ServiceProvidersList: React.FC = () => {
   };
 
   useEffect(() => {
+    if (permissionsLoading || !pagePermissions.canViewTable) {
+      setItems([]);
+      setRowCount(0);
+      return;
+    }
     load(paginationModel.page, paginationModel.pageSize);
-  }, [paginationModel]);
+  }, [paginationModel, permissionsLoading, pagePermissions.canViewTable]);
 
 
     useEffect(() => {
@@ -176,6 +189,11 @@ const ServiceProvidersList: React.FC = () => {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const canSubmit = editing ? pagePermissions.canEdit : pagePermissions.canCreate;
+    if (!canSubmit) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
    
     
     try {
@@ -207,6 +225,10 @@ const ServiceProvidersList: React.FC = () => {
   };
 
   const onEdit = async (item: ServiceProviderModel) => {
+    if (!pagePermissions.canEdit) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
     setEditing(item);
     setSpUserId(item.user_id ? String(item.user_id) : "");
     setDescription(item.description ?? "");
@@ -233,6 +255,10 @@ const ServiceProvidersList: React.FC = () => {
   };
 
   const onDelete = async (item: ServiceProviderModel) => {
+    if (!pagePermissions.canDelete) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED);
+      return;
+    }
     if (!item.sp_id) return;
     if (!window.confirm(CONSTANTS.MESSAGES.DELETE_CONFIRM)) return;
     try {
@@ -320,7 +346,7 @@ const ServiceProvidersList: React.FC = () => {
           };
           return (
             <div className="d-flex align-items-center gap-3 w-100 h-100">
-              <FiEdit size={14} style={{ cursor: "pointer" }} onClick={() => onEdit(row)} />
+              <FiEdit size={14} style={{ cursor: pagePermissions.canEdit ? "pointer" : "not-allowed", opacity: pagePermissions.canEdit ? 1 : 0.35 }} onClick={() => pagePermissions.canEdit && onEdit(row)} />
               <FiEye
                 size={14}
                 style={{ cursor: "pointer" }}
@@ -333,14 +359,16 @@ const ServiceProvidersList: React.FC = () => {
                 onClick={() => handleServicesClick(row.sp_id)}
                 title="View Services"
               />
-              <FiTrash2 size={14} style={{ cursor: "pointer" }} onClick={() => onDelete(row)} />
+              <FiTrash2 size={14} style={{ cursor: pagePermissions.canDelete ? "pointer" : "not-allowed", opacity: pagePermissions.canDelete ? 1 : 0.35 }} onClick={() => pagePermissions.canDelete && onDelete(row)} />
             </div>
           );
         },
       },
     ],
-    [items]
+    [pagePermissions.canDelete, pagePermissions.canEdit]
   );
+
+  const isFormDisabled = editing ? !pagePermissions.canEdit : !pagePermissions.canCreate;
 
   return (
     <div className="container-fluid" style={{ backgroundColor: COLORS.lightGray }}>
@@ -358,19 +386,21 @@ const ServiceProvidersList: React.FC = () => {
         {/* Table */}
         <div className="col-lg-8">
           <Box sx={{ height: 800, width: "100%" }}>
-            <DataGrid
-              rows={items}
-              columns={columns}
-              loading={loading}
-              localeText={{ noRowsLabel: "No service providers found" }}
-              getRowId={(row) => row.sp_id}
-              disableRowSelectionOnClick
-              pageSizeOptions={[5, 10, 20, 50]}
-              paginationModel={paginationModel}
-              onPaginationModelChange={setPaginationModel}
-              paginationMode="server"
-              rowCount={rowCount}
-            />
+            
+              <DataGrid
+                className={!pagePermissions.canViewTable ? "permission-denied-grid" : undefined}
+                rows={items}
+                columns={columns}
+                loading={loading || permissionsLoading}
+                localeText={{ noRowsLabel: pagePermissions.canViewTable ? "No service providers found"  : "You do not have permission to see this content"}}
+                getRowId={(row) => row.sp_id}
+                disableRowSelectionOnClick
+                pageSizeOptions={[5, 10, 20, 50]}
+                paginationModel={paginationModel}
+                onPaginationModelChange={setPaginationModel}
+                paginationMode="server"
+                rowCount={rowCount}
+              />
           </Box>
         </div>
 
@@ -382,6 +412,7 @@ const ServiceProvidersList: React.FC = () => {
             </div>
             <div className="card-body">
               <form onSubmit={onSubmit}>
+                <fieldset disabled={isFormDisabled}>
                 <div className="row g-3 align-items-end">
 
                   <div className="col-md-12">
@@ -503,11 +534,14 @@ const ServiceProvidersList: React.FC = () => {
                   </div>
 
                 </div>
+                </fieldset>
 
                 <div className="d-flex gap-2 mt-3">
-                  <button type="submit" className="btn" style={{ backgroundColor: COLORS.purple, color: COLORS.white }}>
-                    {editing ? CONSTANTS.BUTTONS.UPDATE : CONSTANTS.BUTTONS.SAVE}
-                  </button>
+                  {!isFormDisabled && (
+                    <button type="submit" className="btn" style={{ backgroundColor: COLORS.purple, color: COLORS.white }}>
+                      {editing ? CONSTANTS.BUTTONS.UPDATE : CONSTANTS.BUTTONS.SAVE}
+                    </button>
+                  )}
                   {editing && (
                     <button type="button" className="btn" style={{ backgroundColor: COLORS.red, color: COLORS.white }} onClick={resetForm}>
                       {CONSTANTS.BUTTONS.CANCEL}
@@ -554,3 +588,8 @@ const ServiceProvidersList: React.FC = () => {
 };
 
 export default ServiceProvidersList;
+
+
+
+
+

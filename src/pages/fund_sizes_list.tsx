@@ -13,8 +13,11 @@ import { FiTrash2, FiEdit } from "react-icons/fi"
 import { STYLES } from "../utils/typography/styles"
 import { toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
+import { usePermissions } from "../components/providers/PermissionsProvider"
 
 const FundSizeList: React.FC = () => {
+  const { loading: permissionsLoading, getPermissionsForPage } = usePermissions()
+  const pagePermissions = getPermissionsForPage("master_data")
   const [items, setItems] = useState<FundSizeModel[]>([])
   const [loading, setLoading] = useState(false)
   const [editing, setEditing] = useState<FundSizeModel | null>(null)
@@ -26,6 +29,10 @@ const FundSizeList: React.FC = () => {
   })
 
   const load = async () => {
+    if (!pagePermissions.canViewTable) {
+      setItems([])
+      return
+    }
     setLoading(true)
     try {
       const list = await fundSizeService.getFundSizeList()
@@ -36,11 +43,20 @@ const FundSizeList: React.FC = () => {
   }
 
   useEffect(() => {
+    if (permissionsLoading || !pagePermissions.canViewTable) {
+      setItems([])
+      return
+    }
     load()
-  }, [])
+  }, [permissionsLoading, pagePermissions.canViewTable])
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    const canSubmit = editing ? pagePermissions.canEdit : pagePermissions.canCreate
+    if (!canSubmit) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED)
+      return
+    }
     try {
       const payload = { id: editing?.id, investment_range: investmentRange, status: Number(status) }
 
@@ -69,6 +85,10 @@ const FundSizeList: React.FC = () => {
   }
   
   const onDelete = async (item: FundSizeModel) => {
+    if (!pagePermissions.canDelete) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED)
+      return
+    }
     if (!item.id) return
   
     if (!window.confirm("Are you sure you want to delete this fund size?")) {
@@ -93,6 +113,10 @@ const FundSizeList: React.FC = () => {
   
 
   const onEdit = (item: FundSizeModel) => {
+    if (!pagePermissions.canEdit) {
+      toast.error(CONSTANTS.MESSAGES.PERMISSION_DENIED)
+      return
+    }
     setEditing(item)
     setInvestmentRange(item.investment_range || "")
     setStatus(String(item.status ?? "1"))
@@ -130,19 +154,26 @@ const FundSizeList: React.FC = () => {
         filterable: false,
         renderCell: (params: any) => (
           <div className="d-flex align-items-center gap-3 w-100 h-100">
-            <FiEdit className="icon-hover" size={14} style={{ cursor: "pointer" }} onClick={() => onEdit(params.row)} />
+            <FiEdit className="icon-hover" size={14} style={{ cursor: pagePermissions.canEdit ? "pointer" : "not-allowed", opacity: pagePermissions.canEdit ? 1 : 0.35 }} onClick={() => pagePermissions.canEdit && onEdit(params.row)} />
             <FiTrash2
               className="icon-hover"
               size={14}
-              style={{ cursor: "pointer" }}
-              onClick={() => onDelete(params.row)}
+              style={{ cursor: pagePermissions.canDelete ? "pointer" : "not-allowed", opacity: pagePermissions.canDelete ? 1 : 0.35 }}
+              onClick={() => pagePermissions.canDelete && onDelete(params.row)}
             />
           </div>
         ),
       },
     ],
-    [items],
+    [pagePermissions.canDelete, pagePermissions.canEdit],
   )
+
+  const visibleColumns =
+    pagePermissions.canEdit || pagePermissions.canDelete
+      ? columns
+      : columns.filter((col: any) => col.field !== FundSizeModelLabels.ACTIONS)
+
+  const isFormDisabled = editing ? !pagePermissions.canEdit : !pagePermissions.canCreate
 
   return (
     <div className="container-fluid vh-100" style={{ backgroundColor: COLORS.lightGray }}>
@@ -160,18 +191,21 @@ const FundSizeList: React.FC = () => {
         {/* Table */}
         <div className="col-lg-8">
           <Box sx={{ height: 800, width: "100%" }}>
-            <DataGrid
-              rows={items}
-              columns={columns}
-              loading={loading}
-              getRowId={(row) => row.id}
-              disableRowSelectionOnClick
-              pageSizeOptions={[5, 10, 20, 50]}
-              paginationModel={paginationModel}
-              onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
-              paginationMode="client"
-              pagination
-            />
+            
+              <DataGrid
+                className={!pagePermissions.canViewTable ? "permission-denied-grid" : undefined}
+                rows={items}
+                columns={visibleColumns}
+                loading={loading || permissionsLoading}
+                localeText={{ noRowsLabel: pagePermissions.canViewTable ? "No data found" : "You do not have permission to see this content" }}
+                getRowId={(row) => row.id}
+                disableRowSelectionOnClick
+                pageSizeOptions={[5, 10, 20, 50]}
+                paginationModel={paginationModel}
+                onPaginationModelChange={(newModel) => setPaginationModel(newModel)}
+                paginationMode="client"
+                pagination
+              />
           </Box>
         </div>
 
@@ -185,6 +219,7 @@ const FundSizeList: React.FC = () => {
             </div>
             <div className="card-body">
               <form onSubmit={onSubmit}>
+                <fieldset disabled={isFormDisabled}>
                 <div className="row g-3 align-items-end">
                   {/* Investment Range */}
                   <div className="col-md-12">
@@ -211,12 +246,15 @@ const FundSizeList: React.FC = () => {
                     </select>
                   </div>
                 </div>
+                </fieldset>
 
                 {/* Buttons row */}
                 <div className="d-flex gap-2 mt-3">
-                  <button type="submit" className="btn" style={{ backgroundColor: COLORS.purple, color: COLORS.white }}>
-                    {editing ? CONSTANTS.BUTTONS.UPDATE : CONSTANTS.BUTTONS.SAVE}
-                  </button>
+                  {!isFormDisabled && (
+                    <button type="submit" className="btn" style={{ backgroundColor: COLORS.purple, color: COLORS.white }}>
+                      {editing ? CONSTANTS.BUTTONS.UPDATE : CONSTANTS.BUTTONS.SAVE}
+                    </button>
+                  )}
                   {editing && (
                     <button
                       style={{ backgroundColor: COLORS.red, color: COLORS.white }}
@@ -242,3 +280,8 @@ const FundSizeList: React.FC = () => {
 }
 
 export default FundSizeList
+
+
+
+
+
