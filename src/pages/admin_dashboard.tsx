@@ -206,7 +206,7 @@ const AdminDashboard: React.FC = () => {
         <div className="row equal-height">
           
           <div className="col-xl-6">
-            <div className="card-box p-4" style={{ backgroundColor: COLORS.white, borderRadius: "0.5rem"  }}>
+            <div className="card-box p-3" style={{ backgroundColor: COLORS.white, borderRadius: "0.5rem"  }}>
               <h4 className="header-title mb-3" style={STYLES.table_title}>{DASHBOARD_STRINGS.TABLE_JOBS.TABLE_TITLE}</h4>
               <div className="table-container">
                 <table className="custom-table">
@@ -244,7 +244,7 @@ const AdminDashboard: React.FC = () => {
           </div>
 
           <div className="col-xl-6">
-            <div className="card-box p-4" style={{ backgroundColor: COLORS.white, borderRadius: "0.5rem"}}>
+            <div className="card-box p-3" style={{ backgroundColor: COLORS.white, borderRadius: "0.5rem"}}>
               <h4 className="mb-3" style={STYLES.table_title}>{DASHBOARD_STRINGS.TABLE_INVESTORS.TABLE_TITLE}</h4>
               <div className="table-container">
                 <table className="custom-table">
