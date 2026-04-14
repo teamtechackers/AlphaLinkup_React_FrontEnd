@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "./http_client";
 import { VARIABLES } from "../utils/strings/variables";
 import { API_ROUTES } from "../utils/strings/api_routes";
 import qs from "qs"
@@ -45,3 +45,4 @@ const industryTypeService = {
 };
 
 export default industryTypeService;
+

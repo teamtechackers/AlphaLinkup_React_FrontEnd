@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "./http_client";
 import { API_ROUTES } from "../utils/strings/api_routes";
 
 const baseUrl = process.env.REACT_APP_API_BASE_URL as string;

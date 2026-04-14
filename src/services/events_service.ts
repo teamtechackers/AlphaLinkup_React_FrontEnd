@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "./http_client";
 import { VARIABLES } from "../utils/strings/variables";
 import { API_ROUTES } from "../utils/strings/api_routes";
 
@@ -43,3 +43,4 @@ const eventsService = {
 };
 
 export default eventsService;
+

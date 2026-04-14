@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "./http_client";
 import { RuntimePermissionsResponse } from "../models/runtime_permissions_model";
 import { VARIABLES } from "../utils/strings/variables";
 import { normalizeApiUserId } from "../utils/helpers/api_id";
@@ -50,3 +50,4 @@ const runtimePermissionsService = {
 };
 
 export default runtimePermissionsService;
+

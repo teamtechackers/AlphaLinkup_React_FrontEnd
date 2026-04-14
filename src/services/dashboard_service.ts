@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "./http_client";
 import { API_ROUTES } from "../utils/strings/api_routes";
 import { toBase64 } from "../utils/helpers/hasher";
 import authService from "./auth_service";
@@ -27,3 +27,4 @@ const dashboardService = {
 };
 
 export default dashboardService;
+
