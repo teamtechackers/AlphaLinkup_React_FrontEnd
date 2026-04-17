@@ -21,6 +21,38 @@ const USER_ROLES = [
   { label: "Sub Admin", value: "subadmin" },
 ];
 
+const normalizeRoleValue = (rawRole?: string | null): "user" | "superadmin" | "subadmin" => {
+  const normalized = (rawRole || "").trim().toLowerCase().replace(/[\s_-]/g, "");
+
+  if (!normalized) return "user";
+  if (normalized.includes("subadmin")) return "subadmin";
+  if (normalized.includes("superadmin")) return "superadmin";
+  if (normalized === "user") return "user";
+
+  return "user";
+};
+
+const resolveRoleFromRow = (row: {
+  user_role?: string | null;
+  user_type?: string | null;
+  role?: string | null;
+  is_super_admin?: boolean;
+}): "user" | "superadmin" | "subadmin" => {
+  if (row.is_super_admin === true) {
+    return "superadmin";
+  }
+
+  const roleCandidates = [row.user_role, row.user_type, row.role];
+  for (const candidate of roleCandidates) {
+    const normalized = normalizeRoleValue(candidate);
+    if (normalized !== "user") {
+      return normalized;
+    }
+  }
+
+  return normalizeRoleValue(row.user_role || row.user_type || row.role || "user");
+};
+
 const FORM_CONTAINER_BORDER_COLOR = "#dee2e6";
 
 const UsersList: React.FC = () => {
@@ -110,6 +142,13 @@ const UsersList: React.FC = () => {
           // Log all properties to see what's available
           console.log("User row properties:", Object.keys(row));
 
+          const normalizedRole = resolveRoleFromRow({
+            user_role: row.user_role,
+            user_type: row.user_type,
+            role: row.role,
+            is_super_admin: row.is_super_admin,
+          });
+
           return {
             user_id: Number(row.user_id),
             user_name: row.user_name ?? "",
@@ -125,12 +164,12 @@ const UsersList: React.FC = () => {
             city_id: row.city_id ? Number(row.city_id) : null,
             city_name: row.city_name ?? "",
             status: row.status === "Active" ? "Active" : "Inactive",
-            user_role: row.user_role ?? row.role ?? "user",
+            user_role: normalizedRole,
             username: row.username ?? "",
             permissions: typeof row.permissions === 'string' ? row.permissions.split(',') : [],
             // New fields
             row_id: row.row_id,
-            user_type: row.user_type,
+            user_type: normalizeRoleValue(row.user_type),
             password: row.password,
             is_super_admin: row.is_super_admin,
             permissions_details: Array.isArray(row.permissions) ? row.permissions : null,
@@ -171,6 +210,13 @@ const UsersList: React.FC = () => {
           // Log all properties to see what's available
           console.log("Admin row properties:", Object.keys(row));
 
+          const normalizedRole = resolveRoleFromRow({
+            user_role: row.user_role,
+            user_type: row.user_type,
+            role: row.role,
+            is_super_admin: row.is_super_admin,
+          });
+
           return {
             user_id: Number(row.user_id),
             user_name: row.user_name ?? "",
@@ -186,14 +232,14 @@ const UsersList: React.FC = () => {
             city_id: row.city_id ? Number(row.city_id) : null,
             city_name: row.city_name ?? "",
             status: row.status === "Active" ? "Active" : "Inactive",
-            user_role: row.user_role ?? row.role ?? "user",
+            user_role: normalizedRole,
             username: row.username ?? "",
             permissions: Array.isArray(row.permissions)
               ? row.permissions.map((p: any) => p.permission_id?.toString())
               : typeof row.permissions === 'string' ? row.permissions.split(',') : [],
             // New fields
             row_id: row.row_id,
-            user_type: row.user_type,
+            user_type: normalizeRoleValue(row.user_type),
             password: row.password,
             is_super_admin: row.is_super_admin,
             permissions_details: Array.isArray(row.permissions) ? row.permissions : null,
@@ -480,19 +526,22 @@ const UsersList: React.FC = () => {
     setPreviewImage(item.profile_photo ?? "");
     setUploadedImage(null);
 
-    // Determine appropriate role based on user type and active tab
-    let itemRole = item.user_role || item.role || USER_ROLES[0].value;
+    // Determine appropriate role from all possible API fields
+    let itemRole = resolveRoleFromRow({
+      user_role: item.user_role,
+      user_type: item.user_type,
+      role: item.role,
+      is_super_admin: item.is_super_admin,
+    });
 
-    // If we're on the users tab, force role to 'user'
+    // Users tab is always user role
     if (activeTab === 'users') {
       itemRole = 'user';
-    } else {
-      // If we're on the admins tab, ensure it's an admin role
-      if (item.user_type === 'superadmin') {
-        itemRole = 'superadmin';
-      } else if (item.user_type === 'subadmin') {
-        itemRole = 'subadmin';
-      }
+    }
+
+    // Admins tab must stay within admin roles
+    if (activeTab === 'admins' && itemRole === 'user') {
+      itemRole = item.is_super_admin ? 'superadmin' : 'subadmin';
     }
 
     console.log("Raw itemRole:", itemRole);
@@ -646,7 +695,7 @@ const UsersList: React.FC = () => {
         ),
       },
     ],
-    [usersPermissions.canEdit, usersPermissions.canDelete]
+    [usersPermissions.canEdit, usersPermissions.canDelete, onEdit, onDelete]
   );
 
   const adminColumns = useMemo(
@@ -701,7 +750,7 @@ const UsersList: React.FC = () => {
         ),
       },
     ],
-    [adminsPermissions.canEdit, adminsPermissions.canDelete]
+    [adminsPermissions.canEdit, adminsPermissions.canDelete, onEdit, onDelete, activeTab]
   );
 
   // Get the current items and columns based on active tab
