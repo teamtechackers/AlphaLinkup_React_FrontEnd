@@ -5,6 +5,52 @@ import { PermissionsByCategory, PermissionsListResponse, Permission } from '../m
 import { CONSTANTS } from '../utils/strings/constants';
 import { COLORS } from '../utils/theme/colors';
 
+const REMOVED_PERMISSION_KEYS = new Set([
+    'reports.view',
+    'reports.export',
+    'jobs.approve',
+    'meetings.cancel',
+    'services.approve',
+    'events.approve',
+    'investors.approve',
+]);
+
+const REMOVED_PERMISSION_NAMES = new Set([
+    'view reports',
+    'export reports',
+    'approve job',
+    'cancel meeting',
+    'approve service',
+    'approve event',
+    'approve investor',
+]);
+
+const normalizeValue = (value?: string): string => (value || '').trim().toLowerCase();
+
+const shouldRemovePermission = (permission: Permission): boolean => {
+    const key = normalizeValue(permission.permission_key);
+    const name = normalizeValue(permission.permission_name);
+    return REMOVED_PERMISSION_KEYS.has(key) || REMOVED_PERMISSION_NAMES.has(name);
+};
+
+const filterPermissions = (permissionsByCategory: PermissionsByCategory): PermissionsByCategory => {
+    return Object.entries(permissionsByCategory).reduce<PermissionsByCategory>((acc, [category, permissions]) => {
+        const filtered = permissions.filter((perm) => !shouldRemovePermission(perm));
+        if (filtered.length > 0) {
+            acc[category] = filtered;
+        }
+        return acc;
+    }, {});
+};
+
+const collectAllowedIds = (permissionsByCategory: PermissionsByCategory): Set<string> => {
+    return new Set(
+        Object.values(permissionsByCategory)
+            .flat()
+            .map((perm) => perm.permission_id)
+    );
+};
+
 const ToggleSwitch: React.FC<{ checked: boolean; onChange: () => void }> = ({ checked, onChange }) => (
     <label className="form-check form-switch">
         <input 
@@ -31,6 +77,10 @@ const PermissionsModal: React.FC<PermissionsModalProps> = ({ show, onClose, curr
     const [allPermissions, setAllPermissions] = useState<PermissionsByCategory>({});
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set(currentPermissions));
     const [isLoading, setIsLoading] = useState(false);
+
+    const visiblePermissions = filterPermissions(allPermissions);
+    const allowedIds = collectAllowedIds(visiblePermissions);
+    const selectedVisibleIds = Array.from(selectedIds).filter((id) => allowedIds.has(id));
 
     useEffect(() => {
         setSelectedIds(new Set(currentPermissions));
@@ -74,12 +124,12 @@ const PermissionsModal: React.FC<PermissionsModalProps> = ({ show, onClose, curr
     };
 
     const handleSave = () => {
-        if (selectedIds.size === 0) {
+        if (selectedVisibleIds.length === 0) {
             toast.warning("SubAdmin must have at least one permission.");
             return;
         }
 
-        onSave(Array.from(selectedIds));
+        onSave(selectedVisibleIds);
         onClose();
     };
 
@@ -97,7 +147,7 @@ const PermissionsModal: React.FC<PermissionsModalProps> = ({ show, onClose, curr
                         {isLoading ? (
                             <p className="text-center">{CONSTANTS.MESSAGES.LOADING_DATA}</p>
                         ) : (
-                            Object.entries(allPermissions)
+                            Object.entries(visiblePermissions)
                                 .map(([category, permissions]) => (
                                 <div key={category} className="mb-4 card p-3">
                                     <h6 className="text-capitalize fw-bold border-bottom pb-2">
@@ -123,8 +173,8 @@ const PermissionsModal: React.FC<PermissionsModalProps> = ({ show, onClose, curr
                         <button type="button" className="btn btn-secondary" onClick={onClose}>
                             {CONSTANTS.BUTTONS.CANCEL}
                         </button>
-                        <button type="button" className="btn" style={{ backgroundColor: COLORS.purple, color: COLORS.white }} onClick={handleSave} disabled={isLoading || isModalEmpty(allPermissions)}>
-                            Save Permissions ({selectedIds.size})
+                        <button type="button" className="btn" style={{ backgroundColor: COLORS.purple, color: COLORS.white }} onClick={handleSave} disabled={isLoading || isModalEmpty(visiblePermissions)}>
+                            Save Permissions ({selectedVisibleIds.length})
                         </button>
                     </div>
                 </div>
