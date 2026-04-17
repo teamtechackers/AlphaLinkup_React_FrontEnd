@@ -23,6 +23,11 @@ const AdminLogin: React.FC = () => {
 
   useEffect(() => {
     const sessionExists = authService.checkSession();
+    console.log("[LOGIN_PAGE] initial-checkSession", {
+      sessionExists,
+      route: window.location.pathname,
+      user: authService.getUser(),
+    });
     setIsAuthenticated(sessionExists);
   }, []);
 
@@ -38,6 +43,11 @@ const AdminLogin: React.FC = () => {
 
     try {
       const res = await authService.login(username, password);
+      console.log("[LOGIN_PAGE] login-result", {
+        username,
+        success: res,
+        user: authService.getUser(),
+      });
       if (res) {
         setIsAuthenticated(true);
       } else {

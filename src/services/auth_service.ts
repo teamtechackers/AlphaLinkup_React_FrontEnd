@@ -5,6 +5,17 @@ import { normalizeApiUserId } from "../utils/helpers/api_id";
 import { VARIABLES } from "../utils/strings/variables";
 
 const sessionDuration = 60 * 60 * 1000; // 1 hour
+const AUTH_DEBUG_PREFIX = "[AUTH_FLOW]";
+
+const maskToken = (token?: string | null): string => {
+  if (!token) return "(empty)";
+  if (token.length <= 10) return `${token.slice(0, 2)}***${token.slice(-2)}`;
+  return `${token.slice(0, 6)}...${token.slice(-4)}`;
+};
+
+const logAuth = (...args: unknown[]) => {
+  console.log(AUTH_DEBUG_PREFIX, ...args);
+};
 
 const authService = {
   currentUser: {} as UserModel & { api_user_id?: string },
@@ -12,6 +23,15 @@ const authService = {
   createSession: async (userId: string, userName: string, token: string) => {
     const sessionId = `${userId}_${Date.now()}`;
     const sessionStart = Date.now();
+    const normalizedUserId = normalizeApiUserId(userId);
+
+    logAuth("createSession:start", {
+      userName,
+      userIdRaw: userId,
+      userIdNormalized: normalizedUserId,
+      token: maskToken(token),
+      sessionStart,
+    });
 
     // keep raw returned value in localStorage (so nothing breaks)
     localStorage.setItem("sessionId", sessionId);
@@ -32,29 +52,52 @@ const authService = {
 
     // UPDATE the global VARIABLES object used by legacy services:
     // store the API format your services expect (base64 without '=' padding)
-    VARIABLES.USER_ID = normalizeApiUserId(userId);
+    VARIABLES.USER_ID = normalizedUserId;
     VARIABLES.TOKEN = token;
 
-    console.log("👤 Current User Set:", authService.currentUser);
-    console.log("🔑 Token Set:", token);
-    console.log("🔧 VARIABLES updated:", VARIABLES);
+    logAuth("createSession:done", {
+      currentUser: authService.currentUser,
+      variablesUserId: VARIABLES.USER_ID,
+      variablesToken: maskToken(VARIABLES.TOKEN),
+    });
   },
 
   checkSession: (): boolean => {
     const sessionId = localStorage.getItem("sessionId");
     const sessionStartStr = localStorage.getItem("sessionStart");
     const tokenValue = localStorage.getItem("token");
+    const userIdStr = localStorage.getItem("user_id");
 
-    if (!sessionId || !sessionStartStr || !tokenValue) return false;
+    logAuth("checkSession:start", {
+      hasSessionId: Boolean(sessionId),
+      hasSessionStart: Boolean(sessionStartStr),
+      hasToken: Boolean(tokenValue),
+      hasUserId: Boolean(userIdStr),
+      route: typeof window !== "undefined" ? window.location.pathname : "server",
+    });
+
+    if (!sessionId || !sessionStartStr || !tokenValue) {
+      logAuth("checkSession:invalid-missing-core");
+      return false;
+    }
 
     const sessionStart = Number(sessionStartStr);
     const now = Date.now();
-    if (now - sessionStart > sessionDuration) {
+    const sessionAge = now - sessionStart;
+    logAuth("checkSession:timing", {
+      sessionStart,
+      now,
+      sessionAge,
+      sessionDuration,
+      isFiniteSessionStart: Number.isFinite(sessionStart),
+    });
+
+    if (sessionAge > sessionDuration) {
+      logAuth("checkSession:expired", { sessionAge, sessionDuration });
       authService.destroySession();
       return false;
     }
 
-    const userIdStr = localStorage.getItem("user_id"); // raw from backend, e.g. "MQ=="
     const userName = localStorage.getItem("userName") ?? "";
 
     authService.currentUser = {
@@ -70,11 +113,22 @@ const authService = {
     VARIABLES.USER_ID = normalizeApiUserId(userIdStr ?? "");
     VARIABLES.TOKEN = tokenValue;
 
-    console.log("🔁 Session restored. VARIABLES:", VARIABLES);
+    logAuth("checkSession:valid", {
+      currentUser: authService.currentUser,
+      variablesUserId: VARIABLES.USER_ID,
+      variablesToken: maskToken(VARIABLES.TOKEN),
+    });
     return true;
   },
 
   destroySession: () => {
+    logAuth("destroySession:start", {
+      hasSessionId: Boolean(localStorage.getItem("sessionId")),
+      hasToken: Boolean(localStorage.getItem("token")),
+      hasUserId: Boolean(localStorage.getItem("user_id")),
+      route: typeof window !== "undefined" ? window.location.pathname : "server",
+    });
+
     localStorage.removeItem("sessionId");
     localStorage.removeItem("sessionStart");
     localStorage.removeItem("token");
@@ -85,26 +139,46 @@ const authService = {
     // clear global VARIABLES
     VARIABLES.USER_ID = "";
     VARIABLES.TOKEN = "";
-    console.log("🔒 Session destroyed. VARIABLES cleared.");
+
+    logAuth("destroySession:done", {
+      variablesUserId: VARIABLES.USER_ID,
+      variablesToken: maskToken(VARIABLES.TOKEN),
+    });
   },
 
 
   login: async (username: string, password: string) => {
     try {
+      logAuth("login:start", { username });
       const response = await loginService.adminLogin(username, password);
-      console.log("📥 Login Response:", response);
+
+      logAuth("login:response", {
+        status: response?.status,
+        rcode: response?.rcode,
+        hasToken: Boolean(response?.token),
+        userId: response?.user_id,
+        username: response?.username,
+      });
 
       if (response && response.status === true) {
         const { user_id, username: userName, token } = response;
-        console.log("👤 Logging in User:", { user_id, userName, token });
+        logAuth("login:success", {
+          userId: user_id,
+          userName,
+          token: maskToken(token),
+        });
         await authService.createSession(user_id, userName, token);
         return true;
       }
 
-      console.warn("⚠️ Login failed:", response);
+      logAuth("login:failed", {
+        status: response?.status,
+        info: response?.info,
+        message: response?.message,
+      });
       return false;
     } catch (error) {
-      console.error("❌ Login Error:", error);
+      console.error("[AUTH_FLOW] login:error", error);
       return false;
     }
   },

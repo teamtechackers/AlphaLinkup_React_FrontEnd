@@ -14,6 +14,11 @@ const AdminLayout: React.FC = () => {
 
   useEffect(() => {
     const valid = authService.checkSession();
+    console.log("[ADMIN_LAYOUT] checkSession", {
+      valid,
+      route: window.location.pathname,
+      user: authService.getUser(),
+    });
 
     if (!valid) {
       navigate(APP_ROUTES.LOGIN);

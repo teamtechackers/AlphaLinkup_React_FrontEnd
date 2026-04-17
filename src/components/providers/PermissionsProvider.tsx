@@ -43,8 +43,15 @@ export const PermissionsProvider: React.FC<{ children: React.ReactNode }> = ({ c
   });
 
   const refreshPermissions = useCallback(async () => {
+    console.log("[PERMISSIONS_PROVIDER] refresh:start");
     setLoading(true);
     const data = await runtimePermissionsService.getMyPermissions();
+    console.log("[PERMISSIONS_PROVIDER] refresh:response", {
+      status: data?.status,
+      rcode: data?.rcode,
+      isSuperAdmin: data?.is_super_admin,
+      permissionsKeys: data?.permissions ? Object.keys(data.permissions) : [],
+    });
     setPermissionsResponse(data);
     setLoading(false);
   }, []);

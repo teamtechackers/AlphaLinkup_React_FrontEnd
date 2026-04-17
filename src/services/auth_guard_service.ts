@@ -9,6 +9,11 @@ const INVALID_TOKEN_PATTERNS = [
 ];
 
 const AUTH_TOAST_ID = "auth-token-invalid";
+const AUTH_GUARD_DEBUG_PREFIX = "[AUTH_GUARD]";
+
+const logAuthGuard = (...args: unknown[]) => {
+  console.log(AUTH_GUARD_DEBUG_PREFIX, ...args);
+};
 
 const collectAuthTexts = (payload: unknown): string[] => {
   if (!payload) return [];
@@ -60,23 +65,45 @@ const authGuardService = {
     const texts = collectAuthTexts(payload);
     if (!texts.length) return false;
 
-    return texts.some((text) =>
+    const isInvalid = texts.some((text) =>
       INVALID_TOKEN_PATTERNS.some((pattern) => pattern.test(text))
     );
+
+    if (isInvalid) {
+      logAuthGuard("isAuthTokenInvalid:matched", {
+        route: typeof window !== "undefined" ? window.location.pathname : "server",
+        texts,
+      });
+    }
+
+    return isInvalid;
   },
 
   handleInvalidToken: (reason?: string) => {
-    if (isHandlingForcedLogout) return;
+    if (isHandlingForcedLogout) {
+      logAuthGuard("handleInvalidToken:skip-already-handling", { reason });
+      return;
+    }
 
     const hasSession =
       typeof window !== "undefined" &&
       Boolean(localStorage.getItem("token") && localStorage.getItem("sessionId"));
 
-    if (!hasSession) return;
+    if (!hasSession) {
+      logAuthGuard("handleInvalidToken:skip-no-session", { reason });
+      return;
+    }
 
     isHandlingForcedLogout = true;
 
-    console.warn("Forced logout due to invalid token", reason || "unknown");
+    logAuthGuard("handleInvalidToken:trigger", {
+      reason: reason || "unknown",
+      route: typeof window !== "undefined" ? window.location.pathname : "server",
+      hasSessionId: Boolean(localStorage.getItem("sessionId")),
+      hasToken: Boolean(localStorage.getItem("token")),
+      hasUserId: Boolean(localStorage.getItem("user_id")),
+    });
+
     authService.logout();
 
     toast.error("Session expired. Please login again.", { toastId: AUTH_TOAST_ID });
@@ -87,6 +114,7 @@ const authGuardService = {
 
     setTimeout(() => {
       isHandlingForcedLogout = false;
+      logAuthGuard("handleInvalidToken:unlock");
     }, 1500);
   },
 };

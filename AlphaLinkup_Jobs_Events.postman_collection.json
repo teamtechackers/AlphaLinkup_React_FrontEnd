@@ -1,0 +1,689 @@
+{
+  "info": {
+    "name": "AlphaLinkup Jobs and Events APIs",
+    "_postman_id": "a7f9b7e1-3ef8-4b3a-b836-6a0da85b1d43",
+    "description": "Postman collection for Jobs and Events modules only, based on APIs used in the React frontend service layer. This excludes master-data endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://your-api-host.example.com",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "draw",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "start",
+      "value": "0",
+      "type": "string"
+    },
+    {
+      "key": "length",
+      "value": "10",
+      "type": "string"
+    },
+    {
+      "key": "job_row_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "job_title",
+      "value": "Frontend Developer",
+      "type": "string"
+    },
+    {
+      "key": "job_user_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "company_name",
+      "value": "AlphaLinkup",
+      "type": "string"
+    },
+    {
+      "key": "country_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "state_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "city_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "address",
+      "value": "Business Bay, Dubai",
+      "type": "string"
+    },
+    {
+      "key": "job_lat",
+      "value": "25.2048",
+      "type": "string"
+    },
+    {
+      "key": "job_lng",
+      "value": "55.2708",
+      "type": "string"
+    },
+    {
+      "key": "job_type_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "pay_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "job_description",
+      "value": "Sample job description",
+      "type": "string"
+    },
+    {
+      "key": "job_status",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "job_delete_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "job_name",
+      "value": "Frontend Developer",
+      "type": "string"
+    },
+    {
+      "key": "event_row_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "event_user_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "event_name",
+      "value": "Alpha Startup Meetup",
+      "type": "string"
+    },
+    {
+      "key": "industry_type",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "event_venue",
+      "value": "Downtown Hall",
+      "type": "string"
+    },
+    {
+      "key": "event_link",
+      "value": "https://example.com/events/alpha-startup-meetup",
+      "type": "string"
+    },
+    {
+      "key": "event_lat",
+      "value": "25.1972",
+      "type": "string"
+    },
+    {
+      "key": "event_lng",
+      "value": "55.2744",
+      "type": "string"
+    },
+    {
+      "key": "event_geo_address",
+      "value": "Downtown Dubai",
+      "type": "string"
+    },
+    {
+      "key": "event_date",
+      "value": "2026-04-20",
+      "type": "string"
+    },
+    {
+      "key": "event_start_time",
+      "value": "10:00",
+      "type": "string"
+    },
+    {
+      "key": "event_end_time",
+      "value": "12:00",
+      "type": "string"
+    },
+    {
+      "key": "event_mode_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "event_type_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "event_details",
+      "value": "Sample event details",
+      "type": "string"
+    },
+    {
+      "key": "event_status",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "event_delete_id",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "event_banner_file",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "event_name_for_duplicate_check",
+      "value": "Alpha Startup Meetup",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Jobs Module",
+      "description": "APIs used by jobs_service.ts for listing, saving/updating, and deleting jobs.",
+      "item": [
+        {
+          "name": "List Jobs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/list-jobs-ajax?user_id={{user_id}}&token={{token}}&draw={{draw}}&start={{start}}&length={{length}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "list-jobs-ajax"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                },
+                {
+                  "key": "draw",
+                  "value": "{{draw}}"
+                },
+                {
+                  "key": "start",
+                  "value": "{{start}}"
+                },
+                {
+                  "key": "length",
+                  "value": "{{length}}"
+                }
+              ]
+            },
+            "description": "Matches jobsService.getList(draw, start, length)."
+          }
+        },
+        {
+          "name": "Save Job (Create or Update)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "row_id",
+                  "value": "{{job_row_id}}",
+                  "type": "text",
+                  "description": "Optional. Include for update only."
+                },
+                {
+                  "key": "user_id",
+                  "value": "{{job_user_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "job_title",
+                  "value": "{{job_title}}",
+                  "type": "text"
+                },
+                {
+                  "key": "company_name",
+                  "value": "{{company_name}}",
+                  "type": "text"
+                },
+                {
+                  "key": "country_id",
+                  "value": "{{country_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "state_id",
+                  "value": "{{state_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "city_id",
+                  "value": "{{city_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "address",
+                  "value": "{{address}}",
+                  "type": "text"
+                },
+                {
+                  "key": "job_lat",
+                  "value": "{{job_lat}}",
+                  "type": "text"
+                },
+                {
+                  "key": "job_lng",
+                  "value": "{{job_lng}}",
+                  "type": "text"
+                },
+                {
+                  "key": "job_type_id",
+                  "value": "{{job_type_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "pay_id",
+                  "value": "{{pay_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "job_description",
+                  "value": "{{job_description}}",
+                  "type": "text"
+                },
+                {
+                  "key": "status",
+                  "value": "{{job_status}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/submit-jobs?user_id={{user_id}}&token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "submit-jobs"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "description": "Matches jobsService.save(payload)."
+          }
+        },
+        {
+          "name": "Delete Job",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/delete-jobs?row_id={{job_delete_id}}&user_id={{user_id}}&token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "delete-jobs"
+              ],
+              "query": [
+                {
+                  "key": "row_id",
+                  "value": "{{job_delete_id}}"
+                },
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "description": "Matches jobsService.delete(id)."
+          }
+        },
+        {
+          "name": "Check Duplicate Job",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/check-duplicate-job?name={{job_name}}&id={{job_row_id}}&user_id={{user_id}}&token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "check-duplicate-job"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "{{job_name}}"
+                },
+                {
+                  "key": "id",
+                  "value": "{{job_row_id}}",
+                  "description": "Optional for update scenarios."
+                },
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "description": "Route exists in API_ROUTES.JOBS.CHECK_DUPLICATE; method/params follow other module duplicate checks."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Events Module",
+      "description": "APIs used by events_service.ts for listing, saving/updating, and deleting events.",
+      "item": [
+        {
+          "name": "List Events",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/list_events_ajax?user_id={{user_id}}&token={{token}}&draw={{draw}}&start={{start}}&length={{length}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "list_events_ajax"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                },
+                {
+                  "key": "draw",
+                  "value": "{{draw}}"
+                },
+                {
+                  "key": "start",
+                  "value": "{{start}}"
+                },
+                {
+                  "key": "length",
+                  "value": "{{length}}"
+                }
+              ]
+            },
+            "description": "Matches eventsService.getList(draw, start, length)."
+          }
+        },
+        {
+          "name": "Save Event (Create or Update)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "row_id",
+                  "value": "{{event_row_id}}",
+                  "type": "text",
+                  "description": "Optional. Include for update only."
+                },
+                {
+                  "key": "user_id",
+                  "value": "{{event_user_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "event_name",
+                  "value": "{{event_name}}",
+                  "type": "text"
+                },
+                {
+                  "key": "industry_type",
+                  "value": "{{industry_type}}",
+                  "type": "text"
+                },
+                {
+                  "key": "country_id",
+                  "value": "{{country_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "state_id",
+                  "value": "{{state_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "city_id",
+                  "value": "{{city_id}}",
+                  "type": "text",
+                  "description": "Frontend currently sends a hardcoded value in submit flow."
+                },
+                {
+                  "key": "event_venue",
+                  "value": "{{event_venue}}",
+                  "type": "text"
+                },
+                {
+                  "key": "event_link",
+                  "value": "{{event_link}}",
+                  "type": "text"
+                },
+                {
+                  "key": "event_lat",
+                  "value": "{{event_lat}}",
+                  "type": "text"
+                },
+                {
+                  "key": "event_lng",
+                  "value": "{{event_lng}}",
+                  "type": "text"
+                },
+                {
+                  "key": "event_geo_address",
+                  "value": "{{event_geo_address}}",
+                  "type": "text"
+                },
+                {
+                  "key": "event_date",
+                  "value": "{{event_date}}",
+                  "type": "text"
+                },
+                {
+                  "key": "event_start_time",
+                  "value": "{{event_start_time}}",
+                  "type": "text"
+                },
+                {
+                  "key": "event_end_time",
+                  "value": "{{event_end_time}}",
+                  "type": "text"
+                },
+                {
+                  "key": "event_mode_id",
+                  "value": "{{event_mode_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "event_type_id",
+                  "value": "{{event_type_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "event_details",
+                  "value": "{{event_details}}",
+                  "type": "text"
+                },
+                {
+                  "key": "status",
+                  "value": "{{event_status}}",
+                  "type": "text"
+                },
+                {
+                  "key": "event_banner_file",
+                  "type": "file",
+                  "src": "{{event_banner_file}}",
+                  "description": "Optional image upload. Set an absolute local file path before sending."
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/submit-events?user_id={{user_id}}&token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "submit-events"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "description": "Matches eventsService.save(formData, userId, token)."
+          }
+        },
+        {
+          "name": "Delete Event",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/delete-events?keys={{event_delete_id}}&user_id={{user_id}}&token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "delete-events"
+              ],
+              "query": [
+                {
+                  "key": "keys",
+                  "value": "{{event_delete_id}}"
+                },
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "description": "Matches eventsService.delete(id)."
+          }
+        },
+        {
+          "name": "Check Duplicate Event",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/check-duplicate-event?name={{event_name_for_duplicate_check}}&id={{event_row_id}}&user_id={{user_id}}&token={{token}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "check-duplicate-event"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "{{event_name_for_duplicate_check}}"
+                },
+                {
+                  "key": "id",
+                  "value": "{{event_row_id}}",
+                  "description": "Optional for update scenarios."
+                },
+                {
+                  "key": "user_id",
+                  "value": "{{user_id}}"
+                },
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "description": "Route exists in API_ROUTES.EVENTS.CHECK_DUPLICATE; method/params follow other module duplicate checks."
+          }
+        }
+      ]
+    }
+  ]
+}
